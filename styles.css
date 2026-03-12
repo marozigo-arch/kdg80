@@ -734,6 +734,18 @@ img {
     padding-top: 2.4rem;
   }
 
+  .eyebrow {
+    display: inline-block;
+    padding: 0.32rem 0.46rem 0.24rem;
+    border: 1px solid rgba(255, 255, 255, 0.44);
+    border-radius: 0.85rem;
+    background: linear-gradient(180deg, rgba(243, 245, 250, 0.72), rgba(243, 245, 250, 0.44));
+    text-shadow:
+      0 0 6px rgba(255, 255, 255, 0.88),
+      0 0 14px rgba(255, 255, 255, 0.56);
+    backdrop-filter: blur(4px);
+  }
+
   .page-bg__shade {
     background:
       linear-gradient(180deg, rgba(12, 18, 38, 0.12) 0%, rgba(12, 18, 38, 0.08) 34%, rgba(12, 18, 38, 0.03) 62%, transparent 84%),
@@ -742,12 +754,12 @@ img {
 
   .page-bg__photo--a {
     background-image: url("./assets/kaliningrad-bg-a-mobile.webp");
-    background-position: 84% 8%;
+    background-position: 70% 20%;
   }
 
   .page-bg__photo--b {
     background-image: url("./assets/kaliningrad-bg-b-mobile.webp");
-    background-position: 80% 10%;
+    background-position: 68% 18%;
   }
 
   .page-bg__wash {
@@ -772,6 +784,10 @@ img {
   .facts-shell,
   .footer-inner {
     background: rgba(255, 255, 255, 0.9);
+  }
+
+  .festival-facts {
+    padding-top: 2rem;
   }
 
   .sidebar-dates {
@@ -801,11 +817,11 @@ img {
   }
 
   .page-bg__photo--a {
-    background-position: 88% 6%;
+    background-position: 72% 16%;
   }
 
   .page-bg__photo--b {
-    background-position: 82% 8%;
+    background-position: 70% 14%;
   }
 
   .page-bg__wash {
@@ -877,6 +893,16 @@ img {
 
   .footer-inner {
     padding: 1rem;
+  }
+
+  .footer-brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+  }
+
+  .footer-logo {
+    width: 4.75rem;
   }
 }
 
