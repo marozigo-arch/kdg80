@@ -1,0 +1,56 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = '80 историй о главном | Прототип главной страницы фестиваля',
+  description = 'Прототип фестивального лендинга: открытая лента событий, видимые CTA регистрации и календаря, mobile-first архитектура.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#0f4ce7" />
+    <meta name="geo.region" content="RU-KGD" />
+    <meta name="geo.placename" content="Калининград" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <title>{title}</title>
+    <script is:inline type="text/javascript">
+      (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a);
+      })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=107389941', 'ym');
+
+      ym(107389941, 'init', {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true
+      });
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <div>
+        <img src="https://mc.yandex.ru/watch/107389941" style="position:absolute; left:-9999px;" alt="" />
+      </div>
+    </noscript>
+    <slot />
+  </body>
+</html>
