@@ -1,0 +1,52 @@
+{
+  "events": {
+    "Великие учителя - Илюшкина": "/generated/events/velikie-uchitelya-ilyushkina.webp",
+    "Калининград - город поэтов - Ярцев": "/generated/events/kaliningrad-gorod-poetov-yartsev.webp",
+    "Кирхи, форты - Долотова": "/generated/events/kirhi-forty-dolotova.webp",
+    "Мосты времени - Мосиенко": "/generated/events/mosty-vremeni-mosienko.webp",
+    "Образование куршской косы - Скребкова": "/generated/events/obrazovanie-kurshskoy-kosy-skrebkova.webp",
+    "Самая западная точка России Балтийская коса - Надымова": "/generated/events/samaya-zapadnaya-tochka-rossii-baltiyskaya-kosa-nadymova.webp",
+    "Советская архитектура - Попадин": "/generated/events/sovetskaya-arhitektura-popadin.webp",
+    "Советское монументальное искусство - Мосиенко": "/generated/events/sovetskoe-monumentalnoe-iskusstvo-mosienko.webp",
+    "Торговый порт - Нижегородцева": "/generated/events/torgovyy-port-nizhegorodtseva.webp",
+    "Яхты1 - Жадобко": "/generated/events/yahty1-zhadobko.webp",
+    "Яхты2 - Жадобко": "/generated/events/yahty2-zhadobko.webp",
+    "Этюды той весны - 1": "/generated/events/etyudy-toy-vesny-1.webp",
+    "Этюды той весны - 2": "/generated/events/etyudy-toy-vesny-2.webp",
+    "Этюды той весны - 3": "/generated/events/etyudy-toy-vesny-3.webp"
+  },
+  "speakers": {
+    "Жадобко Сергей": [
+      "/generated/speakers/zhadobko-sergey.webp"
+    ],
+    "Илюшкина Екатерина": [
+      "/generated/speakers/ilyushkina-ekaterina.webp"
+    ],
+    "Машинская Екатерина": [
+      "/generated/speakers/mashinskaya-ekaterina.webp"
+    ],
+    "Мосиенко Евгений": [
+      "/generated/speakers/mosienko-evgeniy.webp"
+    ],
+    "Надымова Валерия": [
+      "/generated/speakers/nadymova-valeriya.webp"
+    ],
+    "Нижегородцева Евгения": [
+      "/generated/speakers/nizhegorodtseva-evgeniya.webp"
+    ],
+    "Попадин Александр": [
+      "/generated/speakers/popadin-aleksandr.webp"
+    ],
+    "Скребцова Анастасия": [
+      "/generated/speakers/skrebtsova-anastasiya.webp"
+    ],
+    "Удовенко Татьяна": [
+      "/generated/speakers/udovenko-tatyana.webp"
+    ],
+    "Ярцев Андрей": [
+      "/generated/speakers/yartsev-andrey-2.webp",
+      "/generated/speakers/yartsev-andrey-3.webp",
+      "/generated/speakers/yartsev-andrey.webp"
+    ]
+  }
+}
