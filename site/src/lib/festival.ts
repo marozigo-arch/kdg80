@@ -31,7 +31,7 @@ export type FestivalEvent = {
   googleCalendarUrl?: string;
   icsUrl?: string;
   calendarNote?: string;
-  image?: string;
+  image: string;
   speakerImages: string[];
   kind: 'dated' | 'range' | 'special';
   isoStart?: string;
@@ -53,12 +53,16 @@ const DEFAULT_CITY = 'Калининград';
 
 const EVENT_IMAGE_RULES: Array<{ matches: string[]; manifestKey: string }> = [
   {
-    matches: ['советское монументальное искусство'],
+    matches: ['советское', 'монументальное', 'искусство'],
     manifestKey: 'Советское монументальное искусство - Мосиенко',
   },
   {
-    matches: ['поэт', 'поэтов'],
+    matches: ['поэт'],
     manifestKey: 'Калининград - город поэтов - Ярцев',
+  },
+  {
+    matches: ['кирха', 'музей'],
+    manifestKey: 'Кирхи, форты - Долотова',
   },
   {
     matches: ['кирхи', 'форты'],
@@ -81,35 +85,52 @@ const EVENT_IMAGE_RULES: Array<{ matches: string[]; manifestKey: string }> = [
     manifestKey: 'Советская архитектура - Попадин',
   },
   {
-    matches: ['торговый порт'],
+    matches: ['торговый', 'порт'],
     manifestKey: 'Торговый порт - Нижегородцева',
   },
   {
-    matches: ['яхт', 'парус'],
+    matches: ['яхт'],
     manifestKey: 'Яхты1 - Жадобко',
   },
   {
-    matches: ['великие учителя'],
+    matches: ['парус'],
+    manifestKey: 'Яхты2 - Жадобко',
+  },
+  {
+    matches: ['великие', 'учителя'],
     manifestKey: 'Великие учителя - Илюшкина',
   },
   {
-    matches: ['этюды той весны'],
+    matches: ['этюды', 'весны'],
     manifestKey: 'Этюды той весны - 1',
   },
 ];
 
-const SPEAKER_IMAGE_RULES: Array<{ matches: string[]; manifestKey: string }> = [
-  { matches: ['жадобко'], manifestKey: 'Жадобко Сергей' },
-  { matches: ['илюшкина'], manifestKey: 'Илюшкина Екатерина' },
-  { matches: ['машинская'], manifestKey: 'Машинская Екатерина' },
-  { matches: ['мосиенко'], manifestKey: 'Мосиенко Евгений' },
-  { matches: ['надымова'], manifestKey: 'Надымова Валерия' },
-  { matches: ['нижегородцева'], manifestKey: 'Нижегородцева Евгения' },
-  { matches: ['попадин'], manifestKey: 'Попадин Александр' },
-  { matches: ['скребцова', 'скребкова'], manifestKey: 'Скребцова Анастасия' },
-  { matches: ['удовенко'], manifestKey: 'Удовенко Татьяна' },
-  { matches: ['ярцев'], manifestKey: 'Ярцев Андрей' },
+const SHARED_EVENT_BACKDROPS = [
+  '/shared-assets/hero-added-01.webp',
+  '/shared-assets/hero-added-02.webp',
+  '/shared-assets/hero-added-03.webp',
+  '/shared-assets/hero-added-04.webp',
+  '/shared-assets/hero-added-05.webp',
+  '/shared-assets/hero-added-06.webp',
+  '/shared-assets/hero-added-07.webp',
+  '/shared-assets/hero-added-08.webp',
+  '/shared-assets/hero-added-09.webp',
+  '/shared-assets/hero-added-10.webp',
+  '/shared-assets/kaliningrad-bg-a.webp',
+  '/shared-assets/kaliningrad-bg-b.webp',
+  '/shared-assets/kaliningrad-bg-c.webp',
 ];
+
+const EVENT_POSTER_BLOCKLIST = [
+  {
+    speakerMatch: 'инга-долотова',
+    manifestKey: 'Кирхи, форты - Долотова',
+  },
+];
+
+const EVENT_MANIFEST_KEYS = Object.keys(media.events);
+const SPEAKER_MANIFEST_KEYS = Object.keys(media.speakers);
 
 let cache: FestivalEvent[] | null = null;
 
@@ -158,6 +179,25 @@ function transliterate(input: string) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .replace(/-{2,}/g, '-');
+}
+
+function normalizeLookup(value: string) {
+  return transliterate(value).toLowerCase();
+}
+
+function tokenizeLookup(value: string) {
+  return normalizeLookup(value)
+    .split('-')
+    .filter((token) => token.length > 2);
+}
+
+function hashString(value: string) {
+  return Array.from(value).reduce((acc, char) => ((acc << 5) - acc + char.charCodeAt(0)) | 0, 0);
+}
+
+function pickBackdrop(seed: string) {
+  const index = Math.abs(hashString(seed)) % SHARED_EVENT_BACKDROPS.length;
+  return SHARED_EVENT_BACKDROPS[index];
 }
 
 function toSlug(title: string) {
@@ -236,19 +276,50 @@ function normalizeFormatName(raw: string) {
 }
 
 function matchByRules(value: string, rules: Array<{ matches: string[]; manifestKey: string }>) {
-  const lowered = value.toLowerCase();
-  const rule = rules.find((entry) => entry.matches.every((match) => lowered.includes(match)));
+  const normalized = normalizeLookup(value);
+  const rule = rules.find((entry) => entry.matches.every((match) => normalized.includes(normalizeLookup(match))));
   return rule?.manifestKey;
 }
 
-function assignImage(title: string) {
-  const key = matchByRules(title, EVENT_IMAGE_RULES);
-  return key ? media.events[key] : undefined;
+function pickBestManifestKey(value: string, keys: string[], minimumScore: number) {
+  const queryTokens = new Set(tokenizeLookup(value));
+  if (!queryTokens.size) {
+    return undefined;
+  }
+
+  let bestKey: string | undefined;
+  let bestScore = 0;
+
+  for (const key of keys) {
+    const keyTokens = tokenizeLookup(key);
+    const overlap = keyTokens.filter((token) => queryTokens.has(token)).length;
+    if (overlap > bestScore) {
+      bestScore = overlap;
+      bestKey = key;
+    }
+  }
+
+  return bestScore >= minimumScore ? bestKey : undefined;
+}
+
+function shouldBlockPoster(speakerValue: string, manifestKey: string) {
+  const speakerLookup = normalizeLookup(speakerValue);
+  return EVENT_POSTER_BLOCKLIST.some((entry) => (
+    manifestKey === entry.manifestKey && speakerLookup.includes(entry.speakerMatch)
+  ));
+}
+
+function assignImage(title: string, speakerValue: string, slug: string) {
+  const manifestKey = matchByRules(title, EVENT_IMAGE_RULES) || pickBestManifestKey(title, EVENT_MANIFEST_KEYS, 2);
+  if (manifestKey && !shouldBlockPoster(speakerValue, manifestKey)) {
+    return media.events[manifestKey];
+  }
+  return pickBackdrop(`${slug}-${title}-${speakerValue}`);
 }
 
 function assignSpeakerImages(speakerValue: string) {
-  const key = matchByRules(speakerValue, SPEAKER_IMAGE_RULES);
-  return key ? media.speakers[key] ?? [] : [];
+  const manifestKey = pickBestManifestKey(speakerValue, SPEAKER_MANIFEST_KEYS, 2);
+  return manifestKey ? media.speakers[manifestKey] ?? [] : [];
 }
 
 function splitSpeakerData(raw: string) {
@@ -431,7 +502,7 @@ function parseSections() {
       googleCalendarUrl: kind === 'special' ? undefined : calendar.googleUrl,
       icsUrl: kind === 'special' ? undefined : calendar.icsUrl,
       calendarNote: kind === 'special' ? 'Дата спектакля будет объявлена позже.' : calendar.note,
-      image: assignImage(title),
+      image: assignImage(title, speakerData.speakerLabel, slug),
       speakerImages: assignSpeakerImages(`${speakerData.speakerLabel} ${speakerData.affiliation}`),
       kind,
       isoStart: exactDate?.isoStart ?? rangeDate?.isoStart,
@@ -469,7 +540,7 @@ export function getMonthGroups(events: FestivalEvent[]) {
 }
 
 export function getSpeakerShowcase(events: FestivalEvent[]) {
-  const bySpeaker = new Map<string, { name: string; affiliation: string; image: string; anchor: string }>();
+  const bySpeaker = new Map<string, { name: string; affiliation: string; images: string[]; anchor: string }>();
 
   for (const event of events) {
     if (!event.speakerLabel || !event.speakerImages.length || bySpeaker.has(event.speakerLabel)) {
@@ -479,7 +550,7 @@ export function getSpeakerShowcase(events: FestivalEvent[]) {
     bySpeaker.set(event.speakerLabel, {
       name: event.speakerLabel,
       affiliation: event.affiliation,
-      image: event.speakerImages[0],
+      images: event.speakerImages,
       anchor: `event-${event.slug}`,
     });
   }
