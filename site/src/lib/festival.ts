@@ -200,6 +200,13 @@ function lowercaseFirst(value: string) {
   return `${value.slice(0, 1).toLowerCase()}${value.slice(1)}`;
 }
 
+function capitalizeFirst(value: string) {
+  if (!value) {
+    return '';
+  }
+  return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+}
+
 function joinNatural(items: string[]) {
   if (!items.length) {
     return '';
@@ -222,7 +229,9 @@ function extractListItems(body: string, label: string) {
 
 function startsWithTemplateLead(value: string) {
   const normalized = normalizeText(value).toLowerCase();
-  return normalized.startsWith('лекция, которая помогает увидеть тему');
+  return normalized.startsWith('лекция, которая помогает увидеть тему')
+    || normalized.startsWith('лекция о теме')
+    || normalized.startsWith('открытый разговор о теме');
 }
 
 function isGenericQuestionSet(items: string[]) {
@@ -255,8 +264,12 @@ function toSentence(value: string) {
 
 function normalizeQuestionFragment(value: string) {
   return sanitizeListEntry(value)
-    .replace(/^Клады\s*[-–—]\s*как\b/i, 'Как клады')
+    .replace(/^Клады\s*[-–—]\s*как\s+пополнение\s+музейных\s+экспозиций/i, 'как находки пополняют музейные экспозиции')
+    .replace(/^Клады\s*[-–—]\s*как\b/i, 'как клады')
     .replace(/^Изучение\s+истории\s+края,\s*посредством\s+поиска\s+кладов/i, 'что поиск кладов рассказывает об истории края')
+    .replace(/^Почему\s+город\s+Балтийск\s+часть\s+Балтийской\s+косы/i, 'почему Балтийск и Балтийская коса неразделимы')
+    .replace(/^Почему\s+все\s+последние\s+80\s+лет\s+Балтийская\s+коса\s+является\s+территорией\s+мужества\s+и\s+силы\s+духа/i, 'почему Балтийская коса все последние 80 лет остаётся территорией мужества и силы духа')
+    .replace(/^Как\s+связана\s+мирная\s+жизнь\s+запада\s+России\s+с\s+Морской\s+Авиацией\s+и\s+ВМФ/i, 'как мирная жизнь западной точки России связана с морской авиацией и ВМФ')
     .replace(/[;:.?]+$/g, '')
     .trim();
 }
@@ -264,10 +277,16 @@ function normalizeQuestionFragment(value: string) {
 function normalizeMythFragment(value: string) {
   return sanitizeListEntry(value)
     .split(/Опровержение:/i)[0]
+    .replace(/^\d+\s*/g, '')
+    .replace(/^Миф\s*№?\d+[:\s-]*/i, '')
     .replace(/^Заблуждение(?:\s+в\s+том)?[:\s]*/i, '')
-    .replace(/^Многие думают,\s*что\s*/i, '')
+    .replace(/^Многие\s+думают,\s*что\s*/i, '')
+    .replace(/^Утверждение\s*/i, '')
+    .replace(/^,\s*/i, '')
+    .replace(/^что\s+/i, '')
     .replace(/[;:.]+$/g, '')
-    .replace(/^«|»$/g, '')
+    .replace(/[«»"]/g, '')
+    .replace(/\s+-\s+/g, ' ')
     .trim();
 }
 
@@ -277,32 +296,28 @@ function composeAngleSummary(questionItems: string[], misconceptionItems: string
     : joinNatural(
         questionItems
           .slice(0, 3)
-          .map((item, index) => {
-            const fragment = normalizeQuestionFragment(item);
-            return index === 0 ? lowercaseFirst(fragment) : lowercaseFirst(fragment);
-          })
+          .map((item) => lowercaseFirst(normalizeQuestionFragment(item)))
           .filter(Boolean),
       );
 
-  const mythsText = isGenericMythSet(misconceptionItems)
-    ? 'это узкая тема только для специалистов, о ней уже всё давно известно и она касается только прошлого'
-    : joinNatural(
-        misconceptionItems
-          .slice(0, 3)
-          .map((item) => lowercaseFirst(normalizeMythFragment(item)))
-          .filter(Boolean),
-      );
+  const hasMyths = misconceptionItems.some((item) => normalizeMythFragment(item));
+  const questionSentence = questionText ? `${capitalizeFirst(questionText)}?` : '';
+  const mythSentence = hasMyths
+    ? isGenericMythSet(misconceptionItems)
+      ? 'Лекция возвращает этот сюжет из области штампов к живой истории региона и показывает, почему он касается не только специалистов.'
+      : 'Лекция разбирает самые живучие мифы вокруг этой темы и переводит разговор из области штампов к фактам, людям и месту.'
+    : '';
 
-  if (questionText && mythsText) {
-    return `В центре лекции — ${questionText}, а заодно она спорит с мифами о том, что ${mythsText}.`;
+  if (questionSentence && mythSentence) {
+    return `${questionSentence} ${mythSentence}`;
   }
 
-  if (questionText) {
-    return `В центре лекции — ${questionText}.`;
+  if (questionSentence) {
+    return questionSentence;
   }
 
-  if (mythsText) {
-    return `Она спорит с мифами о том, что ${mythsText}.`;
+  if (mythSentence) {
+    return mythSentence;
   }
 
   return '';
