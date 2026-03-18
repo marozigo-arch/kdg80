@@ -37,3 +37,11 @@
 - Generated assets may be pushed only when they are required for the requested feature and are actually referenced by the shipped code.
 - Before any push, review `git status` and stage files explicitly; do not use broad staging that can sweep in unrelated changes.
 - If there is any ambiguity about whether a file belongs in the push, do not push it by default.
+
+## GitHub 403 Recovery
+
+- In this workspace, if `git push` to GitHub returns `403`, do not keep retrying with the default Codespaces `GITHUB_TOKEN`.
+- First check `gh auth status`. If `gh` has a real user token with `repo` scope, prefer that over the Codespaces token.
+- Read the persistent `gho_...` token from `/home/codespace/.config/gh/hosts.yml` and use it for `fetch`/`push` via `git -c credential.helper= -c core.askPass= -c http.https://github.com/.extraheader="AUTHORIZATION: basic ..."` so git stops using the wrong token.
+- If push then fails with `non-fast-forward`, fetch `origin`, create a clean `worktree` from `origin/main`, replay only the intended durable commits there, drop accidentally staged files, and push from that clean worktree instead of forcing from the dirty main worktree.
+- Never stop at “403” as the final state if a valid `gh` user token is available locally; recover the correct auth path and finish the sync.
