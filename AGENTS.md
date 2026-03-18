@@ -10,8 +10,26 @@
 - Do not ask the user to clarify what `Opus` means unless they explicitly contrast it with another model.
 - If a tool, script, or agent needs a model name, map `Opus` directly to `opus`.
 
+## Skill Usage Policy
+
+- For any interface, frontend, layout, visual, UX, landing page, or design-related work, always use the `ui-ux-pro-max` skill.
+- For any interface or website work that can affect discoverability, page structure, content presentation, metadata, internal linking, or search performance, also use the `seo` skill.
+- For any interface or website work, also use the `seo-geo` skill to account for AI search visibility, AI Overviews, ChatGPT web search, and Perplexity-style citation patterns.
+- If the task is explicitly about GEO, AI visibility, AI citations, LLM discoverability, `llms.txt`, crawler access, or structured discoverability for AI systems, additionally use the `geo` skill.
+- Default workflow for site UI tasks: use `ui-ux-pro-max` + `seo` + `seo-geo`; add `geo` whenever the task touches AI-search readiness or GEO outcomes.
+
+## Visual Verification Policy
+
+- For any website, frontend, layout, or visual task, do not mark the work complete until you have done a visual verification pass through Playwright CLI or an equivalent Playwright command-line workflow.
+- Always verify both desktop and mobile views for visual tasks before saying the issue is fixed.
+- The verification pass must check the actual rendered result, not only the code or static CSS diff.
+- When the user reports a visual defect, re-open the affected screens in Playwright, capture fresh screenshots, and compare the result against the reported problem before closing the task.
+
 ## Git / Push Policy
 
+- Keep the cloud/remote repository reasonably up to date during normal work.
+- After every second user request, stage, commit, and push all durable project changes so the remote repository stays current.
+- Exclude temporary artifacts, cache files, build output that is not part of the shipped product, local debug files, machine-specific files, and other non-durable working artifacts from those pushes.
 - By default, stage, commit, and push only files directly related to the current user request.
 - Never include unrelated modified files in a push, even if they are already dirty in the worktree.
 - Never push secrets or local-only files such as `.env`, local credentials, machine-specific config, or ad hoc debug files.
@@ -19,3 +37,11 @@
 - Generated assets may be pushed only when they are required for the requested feature and are actually referenced by the shipped code.
 - Before any push, review `git status` and stage files explicitly; do not use broad staging that can sweep in unrelated changes.
 - If there is any ambiguity about whether a file belongs in the push, do not push it by default.
+
+## GitHub 403 Recovery
+
+- In this workspace, if `git push` to GitHub returns `403`, do not keep retrying with the default Codespaces `GITHUB_TOKEN`.
+- First check `gh auth status`. If `gh` has a real user token with `repo` scope, prefer that over the Codespaces token.
+- Read the persistent `gho_...` token from `/home/codespace/.config/gh/hosts.yml` and use it for `fetch`/`push` via `git -c credential.helper= -c core.askPass= -c http.https://github.com/.extraheader="AUTHORIZATION: basic ..."` so git stops using the wrong token.
+- If push then fails with `non-fast-forward`, fetch `origin`, create a clean `worktree` from `origin/main`, replay only the intended durable commits there, drop accidentally staged files, and push from that clean worktree instead of forcing from the dirty main worktree.
+- Never stop at “403” as the final state if a valid `gh` user token is available locally; recover the correct auth path and finish the sync.
