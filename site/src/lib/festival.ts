@@ -425,6 +425,13 @@ function normalizeText(value: string) {
     .trim();
 }
 
+function sanitizeTimeLabel(value: string) {
+  return normalizeText(
+    value
+      .replace(/\s*\((?:по\s+)?утвержд[её]нной?\s+фестивальной\s+сетке\)\s*/giu, '')
+  );
+}
+
 function sanitizeListEntry(value: string) {
   return normalizeText(
     value
@@ -1241,7 +1248,9 @@ function parseSections() {
       ? extractDialogueParticipants(speakerRaw)
       : [];
     const dateLabel = extractField(body, 'Дата') || extractField(body, 'Период работы') || extractField(body, 'Период проведения') || 'Дата будет объявлена';
-    const timeLabel = extractField(body, 'Время') || extractField(body, 'Режим посещения') || extractField(body, 'Время посещения') || 'Время будет объявлено';
+    const timeLabel = sanitizeTimeLabel(
+      extractField(body, 'Время') || extractField(body, 'Режим посещения') || extractField(body, 'Время посещения') || 'Время будет объявлено',
+    );
     const normalizedLocation = normalizeEventLocation(
       applyExhibitionLocationOverride(title, kind, rawVenue),
       address,
