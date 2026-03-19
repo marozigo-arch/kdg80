@@ -183,6 +183,11 @@ const EVENT_IMAGE_MAP: Array<{ title: string; speaker: string; manifestKeys: str
     manifestKeys: ['Железнодорожный развитие малых городоа - Казакова'],
   },
   {
+    title: 'Космическая орбита Калининграда',
+    speaker: 'Селин',
+    manifestKeys: ['Космическая орбита Калининграда - Селин'],
+  },
+  {
     title: 'Калининград и область как кинодекорация — история съёмок художественных фильмов в регионе',
     speaker: 'Бойко',
     manifestKeys: ['Калининград в кино - Бойко'],
@@ -191,6 +196,11 @@ const EVENT_IMAGE_MAP: Array<{ title: string; speaker: string; manifestKeys: str
     title: 'О чём мечтали в советском Калининграде, куда стремились и куда попали',
     speaker: 'Литвинович',
     manifestKeys: ['О чём мечтали в советском Калининграде - Литвинович'],
+  },
+  {
+    title: 'Первые на косе',
+    speaker: 'Цедрик',
+    manifestKeys: ['Первые на косе - Цедрик'],
   },
   {
     title: 'Советский Гусев-время созиданий',
