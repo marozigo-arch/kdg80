@@ -12,3 +12,5 @@ CLAUDE_PROMPT.md
 .tmp-*.png
 site/.vscode/
 site/scripts/__pycache__/
+.codex-artifacts/
+test-results/
