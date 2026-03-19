@@ -1049,6 +1049,46 @@ function applyExhibitionLocationOverride(title: string, kind: FestivalEventKind,
   return override?.venue ?? venue;
 }
 
+function normalizeEventLocation(venue: string, address: string) {
+  const locationLookup = normalizeLookup(`${venue} ${address}`);
+
+  if (locationLookup.includes(normalizeLookup('ИЦАЭ'))) {
+    return {
+      venue: 'ИЦАЭ',
+      address: 'Советский проспект 1, вход в КГТУ, 2-й этаж',
+    };
+  }
+
+  if (locationLookup.includes(normalizeLookup('Музей Мирового океана'))) {
+    return {
+      venue: 'Лекторий ОКЕАНиЯ',
+      address: 'Музей Мирового океана, наб. Петра Великого, 1',
+    };
+  }
+
+  if (
+    locationLookup.includes(normalizeLookup('Калининградская областная научная библиотека'))
+    || locationLookup.includes(normalizeLookup('Лекционный зал'))
+  ) {
+    return {
+      venue: 'Лекционный зал 4 этаж',
+      address: 'Калининградская областная научная библиотека, проспект Мира, 9/11',
+    };
+  }
+
+  if (
+    locationLookup.includes(normalizeLookup('Фридландские ворота'))
+    || locationLookup.includes(normalizeLookup('Блокгауз'))
+  ) {
+    return {
+      venue: 'Корпус Блокгауз',
+      address: 'Музей «Фридландские ворота», ул. Дзержинского, 30, вход через музейный дворик со стороны ул. Дзержинского',
+    };
+  }
+
+  return { venue, address };
+}
+
 function attachRelatedEvents(events: FestivalEvent[]) {
   for (const binding of RELATED_EVENT_BINDINGS) {
     const lecture = events.find((event) =>
@@ -1151,7 +1191,10 @@ function parseSections() {
       : [];
     const dateLabel = extractField(body, 'Дата') || extractField(body, 'Период работы') || extractField(body, 'Период проведения') || 'Дата будет объявлена';
     const timeLabel = extractField(body, 'Время') || extractField(body, 'Режим посещения') || extractField(body, 'Время посещения') || 'Время будет объявлено';
-    const venue = applyExhibitionLocationOverride(title, kind, rawVenue);
+    const normalizedLocation = normalizeEventLocation(
+      applyExhibitionLocationOverride(title, kind, rawVenue),
+      address,
+    );
 
     const exactDate = parseExactDate(dateLabel, timeLabel);
     const rangeDate = kind === 'range' ? parseRangeStart(heading) : null;
@@ -1161,8 +1204,8 @@ function parseSections() {
       title,
       slug,
       summary: summary || whyGo,
-      venue,
-      address,
+      venue: normalizedLocation.venue,
+      address: normalizedLocation.address,
       isoStart: exactDate?.isoStart,
       durationMinutes,
     });
@@ -1177,8 +1220,8 @@ function parseSections() {
       monthAnchor: monthInfo.monthAnchor,
       timeLabel,
       durationLabel,
-      venue,
-      address,
+      venue: normalizedLocation.venue,
+      address: normalizedLocation.address,
       city: DEFAULT_CITY,
       speakerLabel: kind === 'special' ? '' : speakerData.speakerLabel,
       affiliation: kind === 'special' ? '' : speakerData.affiliation,
