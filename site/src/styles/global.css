@@ -778,6 +778,7 @@ summary {
   display: grid;
   gap: 1rem;
   padding-top: 0.3rem;
+  scroll-margin-top: 8.2rem;
   content-visibility: auto;
   contain-intrinsic-size: 1px 2400px;
 }
@@ -819,6 +820,7 @@ summary {
 
 @media (max-width: 759px) {
   .month-block {
+    scroll-margin-top: 8.9rem;
     content-visibility: visible;
     contain-intrinsic-size: auto;
   }
