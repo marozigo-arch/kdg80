@@ -655,15 +655,6 @@ function getDialogueMonogram(name: string) {
                             {!isDialogueEvent && !isSpecialEvent && event.speakerLabel && <p class="event-card__speaker">{event.speakerLabel}</p>}
                             {!isDialogueEvent && !isSpecialEvent && event.affiliation && <p class="event-card__affiliation">{event.affiliation}</p>}
 
-                            {isLecture && event.speakerLectureLinks.length > 0 && (
-                              <div class="event-card__speaker-links" aria-label={`Другие лекции спикера ${event.speakerLabel}`}>
-                                <span>Ещё у лектора:</span>
-                                {event.speakerLectureLinks.map((lecture) => (
-                                  <a href={`#event-${lecture.slug}`} title={lecture.dateLabel}>{lecture.title}</a>
-                                ))}
-                              </div>
-                            )}
-
                             {isRangeEvent && (
                               <details class="event-card__summary-details">
                                 <summary class="event-card__summary-toggle">
@@ -722,6 +713,15 @@ function getDialogueMonogram(name: string) {
                               <span>{event.address}</span>
                               {!isRangeEvent && event.durationLabel && <span>{event.durationLabel}</span>}
                             </div>
+
+                            {isLecture && event.speakerLectureLinks.length > 0 && (
+                              <div class="event-card__speaker-links" aria-label={`Другие лекции спикера ${event.speakerLabel}`}>
+                                <span>Ещё у лектора:</span>
+                                {event.speakerLectureLinks.map((lecture) => (
+                                  <a href={`#event-${lecture.slug}`} title={lecture.dateLabel}>{lecture.title}</a>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
                           {!isRangeEvent && (
