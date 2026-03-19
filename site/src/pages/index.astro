@@ -90,9 +90,13 @@ const SPEAKER_STRIP_IMAGE_OVERRIDES: Array<{ match: string; path: string }> = [
 ];
 
 const SPEAKER_STRIP_STYLE_OVERRIDES: Array<{ match: string; style: string }> = [
-  { match: 'Конюхова', style: '--speaker-strip-scale-mobile: 0.352; --speaker-strip-scale-desktop: 0.458; --speaker-strip-x-mobile: -6px; --speaker-strip-x-desktop: -12px; --speaker-strip-y-mobile: -34px; --speaker-strip-y-desktop: -70px;' },
+  { match: 'Конюхова', style: '--speaker-strip-scale-mobile: 0.386; --speaker-strip-scale-desktop: 0.486; --speaker-strip-x-mobile: -4px; --speaker-strip-x-desktop: -10px; --speaker-strip-y-mobile: -6px; --speaker-strip-y-desktop: -12px;' },
   { match: 'Жадобко', style: '--speaker-strip-scale-mobile: 0.314; --speaker-strip-scale-desktop: 0.383; --speaker-strip-y-mobile: 8px; --speaker-strip-y-desktop: 16px;' },
-  { match: 'Марковец', style: '--speaker-strip-scale-mobile: 0.35; --speaker-strip-scale-desktop: 0.434; --speaker-strip-y-mobile: -18px; --speaker-strip-y-desktop: -32px;' },
+  { match: 'Марковец', style: '--speaker-strip-scale-mobile: 0.368; --speaker-strip-scale-desktop: 0.454; --speaker-strip-y-mobile: 2px; --speaker-strip-y-desktop: 8px;' },
+  { match: 'Надымова', style: '--speaker-strip-scale-mobile: 0.298; --speaker-strip-scale-desktop: 0.346; --speaker-strip-x-mobile: -18px; --speaker-strip-x-desktop: -26px; --speaker-strip-y-mobile: 14px; --speaker-strip-y-desktop: 18px;' },
+  { match: 'Сарниц', style: '--speaker-strip-scale-mobile: 0.256; --speaker-strip-scale-desktop: 0.314; --speaker-strip-x-mobile: 56px; --speaker-strip-x-desktop: 82px; --speaker-strip-y-mobile: 16px; --speaker-strip-y-desktop: 24px;' },
+  { match: 'Селин', style: '--speaker-strip-scale-mobile: 0.274; --speaker-strip-scale-desktop: 0.334; --speaker-strip-x-mobile: -8px; --speaker-strip-x-desktop: -12px; --speaker-strip-y-mobile: 10px; --speaker-strip-y-desktop: 14px;' },
+  { match: 'Сивкова', style: '--speaker-strip-scale-mobile: 0.286; --speaker-strip-scale-desktop: 0.344; --speaker-strip-x-mobile: -10px; --speaker-strip-x-desktop: -16px; --speaker-strip-y-mobile: 10px; --speaker-strip-y-desktop: 14px;' },
   { match: 'Удовенко', style: '--speaker-strip-scale-mobile: 0.324; --speaker-strip-scale-desktop: 0.398; --speaker-strip-x-mobile: -12px; --speaker-strip-x-desktop: -18px; --speaker-strip-y-mobile: 14px; --speaker-strip-y-desktop: 20px;' },
   { match: 'Ситникова', style: '--speaker-strip-scale-mobile: 0.332; --speaker-strip-scale-desktop: 0.41; --speaker-strip-y-mobile: 14px; --speaker-strip-y-desktop: 20px;' },
 ];
@@ -253,17 +257,6 @@ function getEventPortraitImage(name: string, fallback: string, isLecture = false
 function getSpeakerStripStyle(name: string) {
   return SPEAKER_STRIP_STYLE_OVERRIDES.find((entry) => name.includes(entry.match))?.style;
 }
-
-const speakerShowcasePayload = JSON.stringify(
-  allSpeakerShowcase.map((speaker) => ({
-    name: speaker.name,
-    affiliation: speaker.affiliation,
-    anchor: speaker.anchor,
-    weight: speaker.weight,
-    image: getSpeakerStripImage(speaker.name, speaker.images[0]),
-    style: getSpeakerStripStyle(speaker.name) ?? '',
-  })),
-);
 
 function getDialoguePortraitImage(name: string, fallback: string) {
   return getSpeakerStripImage(name, fallback);
@@ -430,11 +423,7 @@ function getDialogueMonogram(name: string) {
               </p>
             </div>
 
-            <div
-              class="speaker-strip"
-              data-visible-count={SPEAKER_SHOWCASE_LIMIT}
-              data-speakers={speakerShowcasePayload}
-            >
+            <div class="speaker-strip">
               {speakerShowcase.map((speaker, index) => (
                 <a class={`speaker-entry speaker-entry--${index + 1}`} href={`#${speaker.anchor}`}>
                   <div class="speaker-entry__meta">
@@ -769,11 +758,13 @@ function getDialogueMonogram(name: string) {
                               </div>
                             )}
 
-                            <div class="event-card__meta">
-                              <span>{event.venue}</span>
-                              <span>{event.address}</span>
-                              {!isRangeEvent && event.durationLabel && <span>{event.durationLabel}</span>}
-                            </div>
+                            {!isRangeEvent && (
+                              <div class="event-card__meta">
+                                <span>{event.venue}</span>
+                                <span>{event.address}</span>
+                                {event.durationLabel && <span>{event.durationLabel}</span>}
+                              </div>
+                            )}
 
                             {isLecture && event.speakerLectureLinks.length > 0 && (
                               <div class="event-card__speaker-links" aria-label={`Другие лекции спикера ${event.speakerLabel}`}>
@@ -894,7 +885,6 @@ function getDialogueMonogram(name: string) {
   <script is:inline>
     const siteHeader = document.querySelector('.site-header');
     const telegramAppLinks = Array.from(document.querySelectorAll('[data-telegram-deep-link]'));
-    const speakerStrip = document.querySelector('.speaker-strip');
     let headerStateFrame = 0;
 
     const syncHeaderLogoState = () => {
@@ -989,122 +979,6 @@ function getDialogueMonogram(name: string) {
     telegramAppLinks.forEach((link) => {
       link.addEventListener('click', handleTelegramAppLink);
     });
-
-    const shuffleInPlace = (items) => {
-      for (let index = items.length - 1; index > 0; index -= 1) {
-        const randomIndex = Math.floor(Math.random() * (index + 1));
-        [items[index], items[randomIndex]] = [items[randomIndex], items[index]];
-      }
-      return items;
-    };
-
-    const pickWeightedSpeakers = (pool, count) => {
-      const available = [...pool];
-      const selection = [];
-
-      while (selection.length < count && available.length) {
-        const totalWeight = available.reduce((sum, speaker) => sum + Math.max(Number(speaker.weight) || 1, 0.1), 0);
-        let threshold = Math.random() * totalWeight;
-        let selectedIndex = available.length - 1;
-
-        for (let index = 0; index < available.length; index += 1) {
-          threshold -= Math.max(Number(available[index].weight) || 1, 0.1);
-          if (threshold <= 0) {
-            selectedIndex = index;
-            break;
-          }
-        }
-
-        selection.push(available.splice(selectedIndex, 1)[0]);
-      }
-
-      return selection;
-    };
-
-    const buildSpeakerEntry = (speaker, index) => {
-      const entry = document.createElement('a');
-      entry.className = `speaker-entry speaker-entry--${index + 1}`;
-      entry.href = `#${speaker.anchor}`;
-
-      const meta = document.createElement('div');
-      meta.className = 'speaker-entry__meta';
-
-      const title = document.createElement('strong');
-      title.textContent = speaker.name;
-      meta.appendChild(title);
-
-      if (speaker.affiliation) {
-        const caption = document.createElement('span');
-        caption.textContent = speaker.affiliation.replace(/\s+/g, ' ').trim();
-        meta.appendChild(caption);
-      }
-
-      const media = document.createElement('div');
-      media.className = 'speaker-entry__media';
-
-      const image = document.createElement('img');
-      image.className = 'speaker-entry__portrait';
-      image.src = speaker.image;
-      image.alt = speaker.name;
-      image.loading = 'lazy';
-      image.decoding = 'async';
-
-      if (speaker.style) {
-        image.style.cssText = speaker.style;
-      }
-
-      media.appendChild(image);
-      entry.append(meta, media);
-
-      return entry;
-    };
-
-    const hydrateSpeakerStrip = async () => {
-      if (!speakerStrip?.dataset.speakers || speakerStrip.dataset.ready === 'true') {
-        return;
-      }
-
-      speakerStrip.dataset.ready = 'true';
-
-      try {
-        const speakerPool = JSON.parse(speakerStrip.dataset.speakers);
-        const visibleCount = Number.parseInt(speakerStrip.dataset.visibleCount || '', 10)
-          || speakerStrip.children.length
-          || 8;
-        const selectedSpeakers = shuffleInPlace(
-          pickWeightedSpeakers(speakerPool, Math.min(visibleCount, speakerPool.length)),
-        );
-
-        const fragment = document.createDocumentFragment();
-        selectedSpeakers.forEach((speaker, index) => {
-          fragment.appendChild(buildSpeakerEntry(speaker, index));
-        });
-
-        speakerStrip.replaceChildren(fragment);
-      } catch (error) {
-        console.error('Speaker showcase randomizer failed', error);
-        speakerStrip.dataset.ready = 'false';
-      }
-    };
-
-    if (speakerStrip?.dataset.speakers) {
-      if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) {
-            return;
-          }
-
-          observer.disconnect();
-          void hydrateSpeakerStrip();
-        }, { rootMargin: '320px 0px' });
-
-        observer.observe(speakerStrip);
-      } else {
-        window.setTimeout(() => {
-          void hydrateSpeakerStrip();
-        }, 0);
-      }
-    }
 
     const cycleNodes = Array.from(document.querySelectorAll('[data-portrait-frames]'));
     const timers = new Map();
