@@ -28,7 +28,16 @@ type HeroVariantBase = {
   kind: 'quote' | 'image';
   prompt: string;
   image: string;
+  priority: number;
   imageStyle?: string;
+};
+type HeroQuoteVariantSpec = {
+  id: string;
+  quoteType: HeroQuoteType;
+  eventMatch: string;
+  prompt: string;
+  quote: string;
+  priority: number;
 };
 type HeroQuoteVariant = HeroVariantBase & {
   kind: 'quote';
@@ -144,17 +153,20 @@ const HERO_PORTRAIT_STYLE_OVERRIDES: Array<{ match: string; style: string }> = [
   { match: 'Долотова', style: '--hero-portrait-scale: 1.04; --hero-portrait-shift-x: 8%; --hero-portrait-shift-y: 1%;' },
   { match: 'Анисимов', style: '--hero-portrait-scale: 1.03; --hero-portrait-shift-x: 6%; --hero-portrait-shift-y: 1%;' },
   { match: 'Казакова', style: '--hero-portrait-scale: 1.02; --hero-portrait-shift-x: 3%; --hero-portrait-shift-y: 0%;' },
+  { match: 'Соколова', style: '--hero-portrait-scale: 1.04; --hero-portrait-shift-x: 3%; --hero-portrait-shift-y: 0%;' },
+  { match: 'Конюхова', style: '--hero-portrait-scale: 1.02; --hero-portrait-shift-x: 2%; --hero-portrait-shift-y: 0%;' },
 ];
 
 // Curated from "festival_quotes_ranked.md" and event-level "why go" texts to keep
 // the hero deck split between festival-level hooks and lecture-level reasons.
-const HERO_QUOTE_VARIANT_SPECS = [
+const HERO_QUOTE_VARIANT_SPECS: HeroQuoteVariantSpec[] = [
   {
     id: 'roots',
     quoteType: 'festival',
     eventMatch: 'Природа чемодана',
     prompt: 'Зачем идти на фестиваль',
     quote: 'Посетить фестиваль — значит прикоснуться к корням: увидеть, как в послевоенных буднях рождалась уникальная идентичность нашей земли.',
+    priority: 96,
   },
   {
     id: 'small-homeland',
@@ -162,6 +174,7 @@ const HERO_QUOTE_VARIANT_SPECS = [
     eventMatch: 'Кирха — склад — спортзал — музей',
     prompt: 'Зачем идти на фестиваль',
     quote: 'Фестиваль откроет перед слушателем удивительные истории этих лет, раскроет тайны, удивит, заставит задуматься. И обязательно заставит ещё крепче полюбить нашу малую Родину.',
+    priority: 88,
   },
   {
     id: 'community',
@@ -169,6 +182,23 @@ const HERO_QUOTE_VARIANT_SPECS = [
     eventMatch: 'Мост, который соединяет времена',
     prompt: 'Зачем идти на фестиваль',
     quote: 'Фестиваль собирает «своих» — тех, кому не все равно. Это шанс подойти к лектору, задать вопрос, вписаться в движ, найти новые знакомства или просто пообщаться с единомышленниками.',
+    priority: 86,
+  },
+  {
+    id: 'zoo-open-questions',
+    quoteType: 'lecture',
+    eventMatch: 'Право на существование: зоопарки',
+    prompt: 'Зачем идти на эту лекцию',
+    quote: 'Для меня фестиваль — возможность рассказать широкому кругу людей о том, для чего нужны зоопарки в современном обществе, а слушателям — возможность задать мне любые, даже самые сложные вопросы, на которые я отвечу максимально открыто.',
+    priority: 85,
+  },
+  {
+    id: 'ocean-call',
+    quoteType: 'lecture',
+    eventMatch: 'География исследований Мирового океана',
+    prompt: 'Зачем идти на эту лекцию',
+    quote: 'Океан — это хранитель истории, дыхание текущего момента, вечный зов и надежда будущего человечества.',
+    priority: 91,
   },
   {
     id: 'city-detective',
@@ -176,6 +206,7 @@ const HERO_QUOTE_VARIANT_SPECS = [
     eventMatch: 'Мост, который соединяет времена',
     prompt: 'Зачем идти на эту лекцию',
     quote: 'Перестать смотреть на город как на картинку в телефоне и научиться читать его как книгу.',
+    priority: 89,
   },
   {
     id: 'living-on-the-spit',
@@ -183,6 +214,31 @@ const HERO_QUOTE_VARIANT_SPECS = [
     eventMatch: 'Мирная жизнь самой западной точки России',
     prompt: 'Зачем идти на эту лекцию',
     quote: 'Это увлекательное путешествие в жизнь людей, живущих в отрыве от цивилизации, и живая история о мужестве и силе духа.',
+    priority: 84,
+  },
+  {
+    id: 'small-town-love',
+    quoteType: 'lecture',
+    eventMatch: 'История становления и развития малых городов',
+    prompt: 'Зачем идти на эту лекцию',
+    quote: 'Влюбиться в маленький город и остаться здесь жить и работать. Я впервые приехала в этот поселок 5 лет назад и поняла, что здесь я хочу жить и встречать своих внуков.',
+    priority: 87,
+  },
+  {
+    id: 'fish-upside-down',
+    quoteType: 'lecture',
+    eventMatch: 'Рыба на каждом столе',
+    prompt: 'Зачем идти на эту лекцию',
+    quote: 'Ты не узнаешь, что такое «рыба вверх ногами и рыба вниз ногами на калининградском празднике», если не придёшь 24 апреля к 18:30 на мою лекцию в Ворота.',
+    priority: 74,
+  },
+  {
+    id: 'tastiest-lecture',
+    quoteType: 'lecture',
+    eventMatch: 'Рыба на каждом столе',
+    prompt: 'Зачем идти на эту лекцию',
+    quote: 'Самая «вкусная лекция» о том, чем удивляли калининградцы своих гостей, состоится 24 апреля в 18:30 в Воротах.',
+    priority: 79,
   },
   {
     id: 'people-in-history',
@@ -190,8 +246,9 @@ const HERO_QUOTE_VARIANT_SPECS = [
     eventMatch: 'Выдающиеся люди советского Калининграда',
     prompt: 'Зачем идти на эту лекцию',
     quote: 'Потому что человеку нужен человек, и «истории в людях» лучше расскажут о восьми десятилетиях региона, чем цифры сухой статистики.',
+    priority: 81,
   },
-] as const;
+];
 
 const HERO_IMAGE_VARIANT_SPECS = [
   {
@@ -200,6 +257,7 @@ const HERO_IMAGE_VARIANT_SPECS = [
     title: 'Соберите свой маршрут по фестивалю',
     body: 'Если в ротации появятся нецитатные кадры, этот формат оставляет ту же композицию: сильный визуал сверху и спокойную вводную часть рядом.',
     image: '/shared-assets/hero-added-03.webp',
+    priority: 10,
     imageStyle: 'object-position: center 42%;',
   },
 ] as const;
@@ -361,18 +419,29 @@ function findHeroEvent(match: string) {
 }
 
 function buildHeroVariants(): HeroVariant[] {
-  const quoteVariants = HERO_QUOTE_VARIANT_SPECS.flatMap((spec) => {
+  const usedQuoteSlots = new Set<string>();
+  const quoteVariants = [...HERO_QUOTE_VARIANT_SPECS]
+    .sort((left, right) => right.priority - left.priority)
+    .flatMap((spec) => {
     const event = findHeroEvent(spec.eventMatch);
 
     if (!event || !event.image || !event.speakerLabel || !event.speakerImages.length) {
       return [];
     }
 
+    const slotKey = `${spec.quoteType}:${event.slug}`;
+    if (usedQuoteSlots.has(slotKey)) {
+      return [];
+    }
+
+    usedQuoteSlots.add(slotKey);
+
     return [{
       id: spec.id,
       kind: 'quote',
       quoteType: spec.quoteType,
       prompt: spec.prompt,
+      priority: spec.priority,
       title: event.title,
       quote: spec.quote,
       speakerName: event.speakerLabel,
@@ -403,6 +472,7 @@ const fallbackHeroVariant: HeroImageVariant = {
   title: 'Соберите свой маршрут по фестивалю',
   body: 'Лекции, диалоги и выставки уже собраны на одной странице, чтобы быстро понять масштаб программы и выбрать, с какого события начать.',
   image: '/shared-assets/hero-added-03.webp',
+  priority: 1,
   imageStyle: 'object-position: center 42%;',
 };
 const heroStoryVariants = heroVariants.length ? heroVariants : [fallbackHeroVariant];
@@ -1221,12 +1291,32 @@ function getDialogueMonogram(name: string) {
       link.addEventListener('click', handleTelegramAppLink);
     });
 
-	    const shuffleInPlace = (items) => {
-	      for (let index = items.length - 1; index > 0; index -= 1) {
-	        const randomIndex = Math.floor(Math.random() * (index + 1));
-	        [items[index], items[randomIndex]] = [items[randomIndex], items[index]];
+	    const buildWeightedDeck = (variants) => {
+	      const remaining = variants
+	        .map((variant, index) => ({
+	          index,
+	          weight: Math.max(Number(variant.priority) || 1, 1),
+	        }));
+	      const deck = [];
+
+	      while (remaining.length) {
+	        const totalWeight = remaining.reduce((sum, item) => sum + item.weight, 0);
+	        let target = Math.random() * totalWeight;
+	        let selectedIndex = 0;
+
+	        for (let index = 0; index < remaining.length; index += 1) {
+	          target -= remaining[index].weight;
+	          if (target <= 0) {
+	            selectedIndex = index;
+	            break;
+	          }
+	        }
+
+	        deck.push(remaining[selectedIndex].index);
+	        remaining.splice(selectedIndex, 1);
 	      }
-	      return items;
+
+	      return deck;
 	    };
 
 	    let heroSwitchTimer = 0;
@@ -1358,7 +1448,7 @@ function getDialogueMonogram(name: string) {
           return;
         }
 
-        const deck = shuffleInPlace(variants.map((_, index) => index));
+	        const deck = buildWeightedDeck(variants);
         let deckIndex = 0;
 
         setHeroVariant(heroShowcase, variants[deck[deckIndex]], deckIndex, variants.length);
