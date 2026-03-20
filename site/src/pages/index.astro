@@ -46,6 +46,7 @@ type HeroQuoteVariant = HeroVariantBase & {
   quote: string;
   quoteSize: 'poster' | 'medium' | 'compact';
   title: string;
+  eventHref?: string;
   speakerName: string;
   speakerRole: string;
   speakerImage: string;
@@ -387,6 +388,12 @@ function getFestivalPeriodLabel(items: typeof events) {
 }
 
 const festivalPeriodLabel = getFestivalPeriodLabel(events);
+type PortraitSliceBounds = {
+  y: number;
+  visibleLeft: number;
+  visibleRight: number;
+  coverage: number;
+};
 const portraitBoundsMap = portraitBounds as Record<string, {
   width: number;
   height: number;
@@ -394,6 +401,7 @@ const portraitBoundsMap = portraitBounds as Record<string, {
   visibleTop: number;
   visibleRight: number;
   visibleBottom: number;
+  slices?: Partial<Record<'head' | 'shoulder' | 'chest' | 'waist', PortraitSliceBounds>>;
 }>;
 
 function joinStyleFragments(...parts: Array<string | undefined>) {
@@ -443,17 +451,35 @@ function getHeroSceneStyle(imagePath: string) {
 
   const ratio = bounds.width / bounds.height;
   const visibleWidth = bounds.visibleRight - bounds.visibleLeft;
-  const narrowBias = Math.max(0, 0.92 - Math.min(ratio, 0.92));
-  const quoteStart = clampMetric(5.9 + visibleWidth * 1 + (1 - Math.min(ratio, 1)) * 0.5 + narrowBias * 1.8, 6.6, 8.6);
-  const quoteWidth = clampMetric(17.6 - visibleWidth * 1.1 + ratio * 0.4 - narrowBias * 1.6, 14.8, 17.6);
-  const quoteTop = clampMetric(3.38 + (0.92 - Math.min(ratio, 1.2)) * 0.14, 3.24, 3.72);
-  const quoteMarkLeft = clampMetric(quoteStart - 1.55, 4.9, 6.4);
+  const headSlice = bounds.slices?.head;
+  const shoulderSlice = bounds.slices?.shoulder;
+  const chestSlice = bounds.slices?.chest;
+  const upperRight = Math.max(
+    headSlice?.visibleRight ?? bounds.visibleRight,
+    shoulderSlice?.visibleRight ?? bounds.visibleRight,
+  );
+  const upperCoverage = Math.max(
+    headSlice?.coverage ?? visibleWidth * 0.56,
+    shoulderSlice?.coverage ?? visibleWidth * 0.62,
+  );
+  const tallBias = Math.max(0, 0.92 - Math.min(ratio, 0.92));
+  const upperIntrusion = Math.max(0, upperRight - 0.62);
+  const quoteStart = clampMetric(5.55 + upperIntrusion * 19 + tallBias * 0.9, 6.2, 9.2);
+  const quoteWidth = clampMetric(
+    31 - upperIntrusion * 22 - tallBias * 3.2 + (0.82 - Math.min(visibleWidth, 0.98)) * 2.2,
+    23.4,
+    32,
+  );
+  const quoteTop = clampMetric(4.36 + tallBias * 0.5 + Math.max(0, upperCoverage - 0.32) * 1.1, 4.34, 4.98);
+  const portraitHeadroom = clampMetric(1.7 + tallBias * 8.8, 1.6, 4.8);
+  const portraitDrop = clampMetric(2.2 + tallBias * 10.5 + upperIntrusion * 10, 2.1, 7.2);
 
   return [
     `--hero-copy-start: ${quoteStart.toFixed(2)}rem;`,
     `--hero-copy-width: ${quoteWidth.toFixed(2)}rem;`,
     `--hero-copy-top: ${quoteTop.toFixed(2)}rem;`,
-    `--hero-quote-mark-left: ${quoteMarkLeft.toFixed(2)}rem;`,
+    `--hero-portrait-headroom: ${portraitHeadroom.toFixed(2)}rem;`,
+    `--hero-portrait-drop: ${portraitDrop.toFixed(2)}%;`,
   ].join(' ');
 }
 
@@ -505,10 +531,11 @@ function buildHeroVariants(): HeroVariant[] {
       prompt: spec.prompt,
       priority: spec.priority,
       title: event.title,
+      eventHref: spec.quoteType === 'lecture' ? `#event-${event.slug}` : undefined,
       quote: spec.quote,
       quoteSize: getHeroQuoteSize(spec.quote),
       speakerName: event.speakerLabel,
-      speakerRole: getSpeakerCaption(event.affiliation) || event.formatLabel,
+      speakerRole: getSpeakerCaption(event.affiliation) || (spec.quoteType === 'lecture' ? event.formatLabel : ''),
       speakerImage: getSpeakerStripImage(event.speakerLabel, event.speakerImages[0]),
       speakerStyle: getHeroPortraitStyle(event.speakerLabel) ?? '',
       speakerSceneStyle: getHeroSceneStyle(getSpeakerStripImage(event.speakerLabel, event.speakerImages[0])),
@@ -733,6 +760,13 @@ function getDialogueMonogram(name: string) {
 	                  </div>
 
 	                  <div class="hero-showcase__actions">
+	                    <a
+	                      class="hero-showcase__event-link"
+	                      data-hero-event-link
+	                      href={defaultHeroIsQuote && defaultHeroVariant.quoteType === 'lecture' ? defaultHeroVariant.eventHref : undefined}
+	                    >
+	                      К лекции
+	                    </a>
 	                    {heroStoryVariants.length > 1 && (
 	                      <button class="hero-showcase__next" type="button" data-hero-next aria-label="Показать другую историю первого экрана">
 	                        Другая история
@@ -1414,6 +1448,7 @@ function getDialogueMonogram(name: string) {
 	      const speakerShell = root.querySelector('[data-hero-speaker-shell]');
 	      const speakerName = root.querySelector('[data-hero-speaker-name]');
 	      const speakerRole = root.querySelector('[data-hero-speaker-role]');
+	      const eventLink = root.querySelector('[data-hero-event-link]');
 	      const isQuoteVariant = variant.kind === 'quote';
 	      const showsTitle = !isQuoteVariant || variant.quoteType === 'lecture';
 	      const showsBody = !isQuoteVariant && Boolean(variant.body);
@@ -1462,6 +1497,11 @@ function getDialogueMonogram(name: string) {
 
 	      if (portraitShell instanceof HTMLElement) {
 	        portraitShell.hidden = !isQuoteVariant;
+	      }
+
+	      if (eventLink instanceof HTMLAnchorElement) {
+	        const showEventLink = isQuoteVariant && variant.quoteType === 'lecture' && Boolean(variant.eventHref);
+	        eventLink.href = showEventLink ? variant.eventHref : '#program';
 	      }
 
 	      if (isQuoteVariant) {
