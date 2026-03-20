@@ -556,7 +556,7 @@ summary {
   z-index: 4;
   width: clamp(3.55rem, 11vw, 4.55rem);
   height: clamp(3.55rem, 11vw, 4.55rem);
-  color: var(--ink);
+  color: #2f2a25;
   pointer-events: none;
 }
 
@@ -565,6 +565,11 @@ summary {
   width: 100%;
   height: 100%;
   fill: currentColor;
+}
+
+.hero-showcase__speaker[hidden],
+.hero__portrait-seam[hidden] {
+  display: none !important;
 }
 
 .hero__portrait-seam {
@@ -598,7 +603,7 @@ summary {
 .hero-showcase__portrait {
   display: block;
   width: auto;
-  height: 100%;
+  height: calc(100% - var(--hero-portrait-headroom, 0rem));
   max-width: 100%;
   object-fit: contain;
   object-position: bottom center;
@@ -606,7 +611,7 @@ summary {
   transform:
     translate(
       var(--hero-portrait-shift-x, 0%),
-      calc(var(--hero-portrait-shift-y, 0%) + var(--hero-portrait-floor-y, 0%))
+      calc(var(--hero-portrait-shift-y, 0%) + var(--hero-portrait-floor-y, 0%) + var(--hero-portrait-drop, 0%))
     )
     scale(var(--hero-portrait-scale, 1));
   transform-origin: bottom center;
@@ -720,6 +725,35 @@ summary {
   flex-wrap: wrap;
   gap: 0.55rem;
   margin-top: 0.24rem;
+}
+
+.hero-showcase__event-link {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.12rem;
+  padding: 0.48rem 0.82rem;
+  border-radius: 999px;
+  color: #fff5ee;
+  font-weight: 500;
+  background: rgba(255, 246, 240, 0.16);
+  border: 1px solid rgba(255, 246, 240, 0.22);
+  backdrop-filter: blur(12px);
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.hero-showcase[data-hero-quote-type="lecture"] .hero-showcase__event-link {
+  display: inline-flex;
+}
+
+.hero-showcase__event-link:hover,
+.hero-showcase__event-link:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(255, 246, 240, 0.22);
+  border-color: rgba(255, 246, 240, 0.3);
 }
 
 .hero-showcase__next {
@@ -2202,11 +2236,11 @@ summary {
   }
 
   .hero-showcase__quote-mark {
-    top: 0.74rem;
-    left: var(--hero-quote-mark-left, 6rem);
-    width: clamp(4.8rem, 5.6vw, 6.25rem);
-    height: clamp(4.8rem, 5.6vw, 6.25rem);
-    opacity: 0.94;
+    top: max(0.9rem, calc(var(--hero-copy-top, 4.5rem) - 3.2rem));
+    left: max(1.2rem, calc(var(--hero-copy-start, 8rem) - 3.95rem));
+    width: clamp(4.15rem, 4.7vw, 5.05rem);
+    height: clamp(4.15rem, 4.7vw, 5.05rem);
+    opacity: 0.9;
   }
 
   .hero__portrait-seam {
@@ -2249,34 +2283,36 @@ summary {
   }
 
   .hero-showcase__quote {
-    max-width: var(--hero-copy-width, 13.4rem);
+    width: min(var(--hero-copy-width, 24rem), calc(100% - var(--hero-copy-start, 8rem) - 1.1rem));
+    max-width: none;
     margin-top: var(--hero-copy-top, 3.3rem);
     margin-left: var(--hero-copy-start, 8rem);
-    padding-right: 0;
+    padding-right: 0.3rem;
   }
 
   .hero-showcase__quote p {
     max-width: none;
-    font-size: clamp(2.14rem, 2.26vw, 2.84rem);
-    line-height: 0.885;
+    font-size: clamp(1.84rem, 1.82vw, 2.34rem);
+    line-height: 0.94;
     letter-spacing: -0.045em;
     text-wrap: pretty;
   }
 
   .hero-showcase[data-hero-quote-size="medium"] .hero-showcase__quote p {
-    font-size: clamp(1.78rem, 1.86vw, 2.22rem);
-    line-height: 0.9;
+    font-size: clamp(1.6rem, 1.46vw, 1.88rem);
+    line-height: 0.96;
   }
 
   .hero-showcase[data-hero-quote-size="compact"] .hero-showcase__quote p {
-    font-size: clamp(1.54rem, 1.64vw, 1.9rem);
-    line-height: 0.96;
+    font-size: clamp(1.28rem, 1.16vw, 1.48rem);
+    line-height: 1.01;
     letter-spacing: -0.035em;
   }
 
   .hero-showcase__title {
-    max-width: min(16ch, var(--hero-copy-width, 13.4rem));
-    margin-top: 0.7rem;
+    width: min(var(--hero-copy-width, 24rem), calc(100% - var(--hero-copy-start, 8rem) - 1.1rem));
+    max-width: none;
+    margin-top: 0.74rem;
     margin-left: var(--hero-copy-start, 8rem);
     font-size: 0.98rem;
     line-height: 1.14;
@@ -2288,10 +2324,11 @@ summary {
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0.12rem 0.48rem;
-    max-width: var(--hero-copy-width, 13.4rem);
-    margin-top: 0.78rem;
+    width: min(var(--hero-copy-width, 24rem), calc(100% - var(--hero-copy-start, 8rem) - 1.1rem));
+    max-width: none;
+    margin-top: 0.66rem;
     margin-left: var(--hero-copy-start, 8rem);
-    padding-top: 0.8rem;
+    padding-top: 0.72rem;
     border-top: 1px solid rgba(255, 248, 242, 0.28);
   }
 
@@ -2308,10 +2345,15 @@ summary {
     text-transform: uppercase;
   }
 
+  .hero-showcase__speaker span:empty {
+    display: none;
+  }
+
   .hero-showcase__actions {
-    margin-top: 0.76rem;
+    margin-top: 0.62rem;
     margin-left: var(--hero-copy-start, 8rem);
-    max-width: var(--hero-copy-width, 13.4rem);
+    width: min(var(--hero-copy-width, 24rem), calc(100% - var(--hero-copy-start, 8rem) - 1.1rem));
+    max-width: none;
   }
 
   .hero-showcase__next {
@@ -2407,17 +2449,18 @@ summary {
 
   .hero-showcase__portrait {
     filter: drop-shadow(0 26px 40px rgba(0, 0, 0, 0.24));
+    max-height: min(100%, 26rem);
     transform:
       translate(
         var(--hero-portrait-shift-x, 0%),
-        calc(var(--hero-portrait-shift-y, 0%) + var(--hero-portrait-floor-y, 0%))
+        calc(var(--hero-portrait-shift-y, 0%) + var(--hero-portrait-floor-y, 0%) + var(--hero-portrait-drop, 0%))
       )
-      scale(calc(var(--hero-portrait-scale, 1) * 1.1));
+      scale(calc(var(--hero-portrait-scale, 1) * 0.98));
   }
 
   .hero-showcase__quote-mark {
-    left: var(--hero-quote-mark-left, 6rem);
-    top: 0.72rem;
+    left: max(1.2rem, calc(var(--hero-copy-start, 8rem) - 4.05rem));
+    top: max(0.92rem, calc(var(--hero-copy-top, 4.5rem) - 3.26rem));
   }
 
   .hero-showcase__shape-proxy {
@@ -2426,18 +2469,18 @@ summary {
 
   .hero-showcase[data-hero-kind="quote"] .hero-showcase__quote p {
     max-width: none;
-    font-size: clamp(2.26rem, 2.32vw, 2.96rem);
-    line-height: 0.88;
+    font-size: clamp(1.8rem, 1.72vw, 2.28rem);
+    line-height: 0.94;
   }
 
   .hero-showcase[data-hero-quote-size="medium"] .hero-showcase__quote p {
-    font-size: clamp(1.84rem, 1.9vw, 2.2rem);
-    line-height: 0.9;
+    font-size: clamp(1.64rem, 1.5vw, 1.92rem);
+    line-height: 0.94;
   }
 
   .hero-showcase[data-hero-quote-size="compact"] .hero-showcase__quote p {
-    font-size: clamp(1.62rem, 1.58vw, 1.88rem);
-    line-height: 0.96;
+    font-size: clamp(1.38rem, 1.16vw, 1.56rem);
+    line-height: 1;
   }
 
   .hero-showcase[data-hero-kind="quote"] .hero-showcase__prompt {

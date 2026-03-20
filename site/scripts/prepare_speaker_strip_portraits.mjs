@@ -20,6 +20,12 @@ const targetHeight = 1500;
 const topPadding = 24;
 const sidePadding = 24;
 const webpQuality = 92;
+const portraitSlices = {
+  head: 0.22,
+  shoulder: 0.34,
+  chest: 0.48,
+  waist: 0.62,
+};
 
 const translit = {
   а: 'a',
@@ -242,6 +248,7 @@ async function collectOutputBounds(targetPath) {
   const height = Number.parseInt(heightText, 10);
 
   return {
+    ...await collectSliceBounds(targetPath, width, height),
     width,
     height,
     visibleLeft: roundMetric(bounds.left / width),
@@ -249,6 +256,63 @@ async function collectOutputBounds(targetPath) {
     visibleRight: roundMetric((bounds.left + bounds.width) / width),
     visibleBottom: roundMetric((bounds.top + bounds.height) / height),
   };
+}
+
+async function collectSliceBounds(targetPath, width, height) {
+  const slices = {};
+
+  for (const [key, ratio] of Object.entries(portraitSlices)) {
+    const y = Math.max(0, Math.min(height - 1, Math.round(height * ratio)));
+    const { stdout } = await execFileAsync(
+      'convert',
+      [
+        targetPath,
+        '-alpha',
+        'extract',
+        '-crop',
+        `${width}x1+0+${y}`,
+        'txt:-',
+      ],
+      {
+        cwd: workspaceRoot,
+        maxBuffer: 16 * 1024 * 1024,
+      },
+    );
+
+    let first = -1;
+    let last = -1;
+
+    for (const line of stdout.split('\n')) {
+      const match = line.match(/^(\d+),0: .* gray\((\d+)\)$/u);
+      if (!match) {
+        continue;
+      }
+
+      const alpha = Number.parseInt(match[2], 10);
+      if (alpha <= 0) {
+        continue;
+      }
+
+      const x = Number.parseInt(match[1], 10);
+      if (first < 0) {
+        first = x;
+      }
+      last = x;
+    }
+
+    if (first < 0 || last < 0) {
+      continue;
+    }
+
+    slices[key] = {
+      y: roundMetric(y / height),
+      visibleLeft: roundMetric(first / width),
+      visibleRight: roundMetric(last / width),
+      coverage: roundMetric((last - first) / width),
+    };
+  }
+
+  return { slices };
 }
 
 async function listSpeakerCutouts() {

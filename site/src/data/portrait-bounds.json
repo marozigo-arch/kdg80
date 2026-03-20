@@ -1,5 +1,31 @@
 {
   "/generated/speaker-strip/aleksey-sokolov.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3579,
+        "visibleRight": 0.6495,
+        "coverage": 0.2916
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.3721,
+        "visibleRight": 0.6495,
+        "coverage": 0.2774
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.4323,
+        "visibleRight": 0.634,
+        "coverage": 0.2016
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1861,
+        "visibleRight": 0.8579,
+        "coverage": 0.6719
+      }
+    },
     "width": 1478,
     "height": 1524,
     "visibleLeft": 0.0589,
@@ -8,6 +34,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/anisimov-andrey.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.4236,
+        "visibleRight": 0.6779,
+        "coverage": 0.2544
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2206,
+        "visibleRight": 0.9649,
+        "coverage": 0.7444
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1003,
+        "visibleRight": 0.9236,
+        "coverage": 0.8233
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0301,
+        "visibleRight": 0.8509,
+        "coverage": 0.8208
+      }
+    },
     "width": 798,
     "height": 1524,
     "visibleLeft": 0.0301,
@@ -16,6 +68,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/boyko-andrey.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3687,
+        "visibleRight": 0.5893,
+        "coverage": 0.2206
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1103,
+        "visibleRight": 0.8624,
+        "coverage": 0.7521
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0515,
+        "visibleRight": 0.9034,
+        "coverage": 0.8519
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0305,
+        "visibleRight": 0.9359,
+        "coverage": 0.9055
+      }
+    },
     "width": 952,
     "height": 1524,
     "visibleLeft": 0.0252,
@@ -24,6 +102,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/bystrova-larisa.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2594,
+        "visibleRight": 0.6867,
+        "coverage": 0.4273
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1475,
+        "visibleRight": 0.7762,
+        "coverage": 0.6287
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0641,
+        "visibleRight": 0.883,
+        "coverage": 0.8189
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0275,
+        "visibleRight": 0.9532,
+        "coverage": 0.9257
+      }
+    },
     "width": 983,
     "height": 1524,
     "visibleLeft": 0.0244,
@@ -32,6 +136,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/dolotova-inga.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2926,
+        "visibleRight": 0.6518,
+        "coverage": 0.3592
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.3693,
+        "visibleRight": 0.8052,
+        "coverage": 0.4359
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.2639,
+        "visibleRight": 0.9317,
+        "coverage": 0.6678
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.3246,
+        "visibleRight": 0.9764,
+        "coverage": 0.6518
+      }
+    },
     "width": 1186,
     "height": 1524,
     "visibleLeft": 0.2563,
@@ -40,6 +170,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/efremov-leonid.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2179,
+        "visibleRight": 0.7189,
+        "coverage": 0.5009
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.0566,
+        "visibleRight": 0.8623,
+        "coverage": 0.8057
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0377,
+        "visibleRight": 0.9406,
+        "coverage": 0.9028
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1774,
+        "visibleRight": 0.9726,
+        "coverage": 0.7953
+      }
+    },
     "width": 1060,
     "height": 1524,
     "visibleLeft": 0.0226,
@@ -48,6 +204,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/zhadobko-sergey.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3543,
+        "visibleRight": 0.6439,
+        "coverage": 0.2896
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.4129,
+        "visibleRight": 0.7498,
+        "coverage": 0.3368
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1934,
+        "visibleRight": 0.9388,
+        "coverage": 0.7454
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.189,
+        "visibleRight": 0.9685,
+        "coverage": 0.7795
+      }
+    },
     "width": 1143,
     "height": 1524,
     "visibleLeft": 0.1557,
@@ -56,6 +238,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/ilyushkina-ekaterina.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2202,
+        "visibleRight": 0.5077,
+        "coverage": 0.2875
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2342,
+        "visibleRight": 0.5332,
+        "coverage": 0.2991
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0788,
+        "visibleRight": 0.5997,
+        "coverage": 0.5209
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0193,
+        "visibleRight": 0.5804,
+        "coverage": 0.5611
+      }
+    },
     "width": 1294,
     "height": 1524,
     "visibleLeft": 0.0185,
@@ -64,6 +272,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/kazakova-natalya.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2608,
+        "visibleRight": 0.6905,
+        "coverage": 0.4297
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1894,
+        "visibleRight": 0.816,
+        "coverage": 0.6266
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0931,
+        "visibleRight": 0.9145,
+        "coverage": 0.8214
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0281,
+        "visibleRight": 0.9729,
+        "coverage": 0.9448
+      }
+    },
     "width": 924,
     "height": 1524,
     "visibleLeft": 0.026,
@@ -72,6 +306,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/kolbaneva-svetlana-ispravleno.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.1836,
+        "visibleRight": 0.6881,
+        "coverage": 0.5044
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.0752,
+        "visibleRight": 0.8473,
+        "coverage": 0.7721
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0365,
+        "visibleRight": 0.9336,
+        "coverage": 0.8971
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0752,
+        "visibleRight": 0.9723,
+        "coverage": 0.8971
+      }
+    },
     "width": 904,
     "height": 1524,
     "visibleLeft": 0.0265,
@@ -80,6 +340,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/kretinin-gennadiy.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.379,
+        "visibleRight": 0.705,
+        "coverage": 0.326
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.4202,
+        "visibleRight": 0.7531,
+        "coverage": 0.3329
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1823,
+        "visibleRight": 0.912,
+        "coverage": 0.7297
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1142,
+        "visibleRight": 0.9532,
+        "coverage": 0.8391
+      }
+    },
     "width": 1454,
     "height": 1524,
     "visibleLeft": 0.0165,
@@ -88,6 +374,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/krimmel-natalya.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.0657,
+        "visibleRight": 0.5878,
+        "coverage": 0.5221
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.172,
+        "visibleRight": 0.6571,
+        "coverage": 0.4851
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0406,
+        "visibleRight": 0.8519,
+        "coverage": 0.8112
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1302,
+        "visibleRight": 0.9594,
+        "coverage": 0.8292
+      }
+    },
     "width": 837,
     "height": 1524,
     "visibleLeft": 0.0287,
@@ -96,6 +408,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/levkova-olga.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.1044,
+        "visibleRight": 0.7146,
+        "coverage": 0.6102
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.0835,
+        "visibleRight": 0.7854,
+        "coverage": 0.7019
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0302,
+        "visibleRight": 0.9026,
+        "coverage": 0.8724
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.065,
+        "visibleRight": 0.9664,
+        "coverage": 0.9014
+      }
+    },
     "width": 862,
     "height": 1524,
     "visibleLeft": 0.0278,
@@ -104,6 +442,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/levchenkov-andrey.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3489,
+        "visibleRight": 0.6625,
+        "coverage": 0.3136
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2945,
+        "visibleRight": 0.6606,
+        "coverage": 0.3662
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0411,
+        "visibleRight": 0.9398,
+        "coverage": 0.8987
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0258,
+        "visibleRight": 0.9551,
+        "coverage": 0.9293
+      }
+    },
     "width": 1046,
     "height": 1524,
     "visibleLeft": 0.0229,
@@ -112,6 +476,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/litvinovich-irina.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3487,
+        "visibleRight": 0.7649,
+        "coverage": 0.4162
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1946,
+        "visibleRight": 0.8054,
+        "coverage": 0.6108
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1125,
+        "visibleRight": 0.9258,
+        "coverage": 0.8133
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.036,
+        "visibleRight": 0.9618,
+        "coverage": 0.9258
+      }
+    },
     "width": 889,
     "height": 1524,
     "visibleLeft": 0.027,
@@ -120,6 +510,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/mankevich-dmitriy.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3424,
+        "visibleRight": 0.6265,
+        "coverage": 0.2841
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.3974,
+        "visibleRight": 0.6129,
+        "coverage": 0.2155
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.158,
+        "visibleRight": 0.8739,
+        "coverage": 0.7159
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0766,
+        "visibleRight": 0.9354,
+        "coverage": 0.8587
+      }
+    },
     "width": 1253,
     "height": 1524,
     "visibleLeft": 0.0192,
@@ -128,6 +544,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/markovets-mihail.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3857,
+        "visibleRight": 0.674,
+        "coverage": 0.2883
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2084,
+        "visibleRight": 0.8356,
+        "coverage": 0.6272
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0542,
+        "visibleRight": 0.9633,
+        "coverage": 0.9091
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0487,
+        "visibleRight": 0.9054,
+        "coverage": 0.8567
+      }
+    },
     "width": 1089,
     "height": 1524,
     "visibleLeft": 0.022,
@@ -136,6 +578,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/mashinskaya-ekaterina.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.4076,
+        "visibleRight": 0.6558,
+        "coverage": 0.2482
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.3943,
+        "visibleRight": 0.6811,
+        "coverage": 0.2869
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.2568,
+        "visibleRight": 0.8252,
+        "coverage": 0.5684
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1955,
+        "visibleRight": 0.9139,
+        "coverage": 0.7185
+      }
+    },
     "width": 1499,
     "height": 1524,
     "visibleLeft": 0.1714,
@@ -144,6 +612,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/mosienko-evgeniy.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2782,
+        "visibleRight": 0.6316,
+        "coverage": 0.3534
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2763,
+        "visibleRight": 0.6078,
+        "coverage": 0.3315
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.3383,
+        "visibleRight": 0.5796,
+        "coverage": 0.2412
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1497,
+        "visibleRight": 0.6604,
+        "coverage": 0.5107
+      }
+    },
     "width": 1596,
     "height": 1524,
     "visibleLeft": 0.015,
@@ -152,6 +646,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/nadymova-valeriya.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.4977,
+        "visibleRight": 0.7914,
+        "coverage": 0.2937
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.4429,
+        "visibleRight": 0.7879,
+        "coverage": 0.345
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.162,
+        "visibleRight": 0.9697,
+        "coverage": 0.8077
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0501,
+        "visibleRight": 0.951,
+        "coverage": 0.9009
+      }
+    },
     "width": 858,
     "height": 1524,
     "visibleLeft": 0.0501,
@@ -160,6 +680,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/nizhegorodtseva-evgeniya.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3012,
+        "visibleRight": 0.6357,
+        "coverage": 0.3345
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2925,
+        "visibleRight": 0.6935,
+        "coverage": 0.4011
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1699,
+        "visibleRight": 0.7907,
+        "coverage": 0.6208
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1156,
+        "visibleRight": 0.7102,
+        "coverage": 0.5946
+      }
+    },
     "width": 1142,
     "height": 1524,
     "visibleLeft": 0.021,
@@ -168,6 +714,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/nikitin-nikita.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3569,
+        "visibleRight": 0.6903,
+        "coverage": 0.3333
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.3097,
+        "visibleRight": 0.7275,
+        "coverage": 0.4177
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1237,
+        "visibleRight": 0.8927,
+        "coverage": 0.769
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0815,
+        "visibleRight": 0.9292,
+        "coverage": 0.8476
+      }
+    },
     "width": 1398,
     "height": 1524,
     "visibleLeft": 0.0172,
@@ -176,6 +748,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/perkusov-nikolay.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2089,
+        "visibleRight": 0.5604,
+        "coverage": 0.3515
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1523,
+        "visibleRight": 0.6268,
+        "coverage": 0.4744
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0283,
+        "visibleRight": 0.8118,
+        "coverage": 0.7835
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0751,
+        "visibleRight": 0.9728,
+        "coverage": 0.8977
+      }
+    },
     "width": 919,
     "height": 1524,
     "visibleLeft": 0.0261,
@@ -184,6 +782,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/popadin-aleksandr.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.4327,
+        "visibleRight": 0.6762,
+        "coverage": 0.2436
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.4622,
+        "visibleRight": 0.8638,
+        "coverage": 0.4017
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.3389,
+        "visibleRight": 0.9493,
+        "coverage": 0.6104
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.323,
+        "visibleRight": 0.9728,
+        "coverage": 0.6498
+      }
+    },
     "width": 1322,
     "height": 1524,
     "visibleLeft": 0.2943,
@@ -192,6 +816,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/sarnits-artur.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2734,
+        "visibleRight": 0.4694,
+        "coverage": 0.196
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1286,
+        "visibleRight": 0.5615,
+        "coverage": 0.4329
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0713,
+        "visibleRight": 0.648,
+        "coverage": 0.5766
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0163,
+        "visibleRight": 0.8984,
+        "coverage": 0.8821
+      }
+    },
     "width": 1781,
     "height": 1524,
     "visibleLeft": 0.0135,
@@ -200,6 +850,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/selin-igor-1.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2883,
+        "visibleRight": 0.5437,
+        "coverage": 0.2555
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1869,
+        "visibleRight": 0.8469,
+        "coverage": 0.66
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0984,
+        "visibleRight": 0.9165,
+        "coverage": 0.8181
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0239,
+        "visibleRight": 0.9751,
+        "coverage": 0.9513
+      }
+    },
     "width": 1006,
     "height": 1524,
     "visibleLeft": 0.0239,
@@ -208,6 +884,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/selin-igor-2.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3088,
+        "visibleRight": 0.5641,
+        "coverage": 0.2553
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.0793,
+        "visibleRight": 0.8652,
+        "coverage": 0.7859
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0545,
+        "visibleRight": 0.9436,
+        "coverage": 0.8891
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0402,
+        "visibleRight": 0.9685,
+        "coverage": 0.9283
+      }
+    },
     "width": 1046,
     "height": 1524,
     "visibleLeft": 0.0229,
@@ -216,6 +918,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/sivkova-svetlana.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.4196,
+        "visibleRight": 0.7632,
+        "coverage": 0.3436
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2625,
+        "visibleRight": 0.8546,
+        "coverage": 0.592
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0927,
+        "visibleRight": 0.9331,
+        "coverage": 0.8404
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0386,
+        "visibleRight": 0.9627,
+        "coverage": 0.9241
+      }
+    },
     "width": 777,
     "height": 1524,
     "visibleLeft": 0.0309,
@@ -224,6 +952,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/sitnikova-natalya.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3662,
+        "visibleRight": 0.8816,
+        "coverage": 0.5154
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.3682,
+        "visibleRight": 0.9413,
+        "coverage": 0.5731
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.195,
+        "visibleRight": 0.9015,
+        "coverage": 0.7065
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0279,
+        "visibleRight": 0.8886,
+        "coverage": 0.8607
+      }
+    },
     "width": 1005,
     "height": 1524,
     "visibleLeft": 0.0239,
@@ -232,6 +986,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/skrebtsova-anastasiya.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.1716,
+        "visibleRight": 0.7966,
+        "coverage": 0.625
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.4191,
+        "visibleRight": 0.6998,
+        "coverage": 0.2806
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1801,
+        "visibleRight": 0.9167,
+        "coverage": 0.7365
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0931,
+        "visibleRight": 0.924,
+        "coverage": 0.8309
+      }
+    },
     "width": 816,
     "height": 1524,
     "visibleLeft": 0.0564,
@@ -240,6 +1020,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/sokolova-svetlana.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3657,
+        "visibleRight": 0.7618,
+        "coverage": 0.3961
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2971,
+        "visibleRight": 0.7029,
+        "coverage": 0.4059
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0955,
+        "visibleRight": 0.8992,
+        "coverage": 0.8037
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0294,
+        "visibleRight": 0.9607,
+        "coverage": 0.9313
+      }
+    },
     "width": 1121,
     "height": 1524,
     "visibleLeft": 0.0214,
@@ -248,6 +1054,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/tatyana-konyuhova.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3073,
+        "visibleRight": 0.6777,
+        "coverage": 0.3703
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.3066,
+        "visibleRight": 0.6162,
+        "coverage": 0.3096
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1784,
+        "visibleRight": 0.8801,
+        "coverage": 0.7016
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1379,
+        "visibleRight": 0.913,
+        "coverage": 0.7751
+      }
+    },
     "width": 1334,
     "height": 1524,
     "visibleLeft": 0.0855,
@@ -256,6 +1088,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/udovenko-tatyana.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.4067,
+        "visibleRight": 0.7185,
+        "coverage": 0.3118
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.3865,
+        "visibleRight": 0.7543,
+        "coverage": 0.3678
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.3686,
+        "visibleRight": 0.7745,
+        "coverage": 0.4059
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0187,
+        "visibleRight": 0.7737,
+        "coverage": 0.7551
+      }
+    },
     "width": 1286,
     "height": 1524,
     "visibleLeft": 0.0187,
@@ -264,6 +1122,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/tsedrik-mihail.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3566,
+        "visibleRight": 0.6685,
+        "coverage": 0.3119
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.2849,
+        "visibleRight": 0.6927,
+        "coverage": 0.4078
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0885,
+        "visibleRight": 0.8939,
+        "coverage": 0.8054
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.0559,
+        "visibleRight": 0.9404,
+        "coverage": 0.8845
+      }
+    },
     "width": 1074,
     "height": 1524,
     "visibleLeft": 0.0223,
@@ -272,6 +1156,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/yartsev-andrey-2.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.1515,
+        "visibleRight": 0.665,
+        "coverage": 0.5135
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.0976,
+        "visibleRight": 0.9076,
+        "coverage": 0.81
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0488,
+        "visibleRight": 0.8999,
+        "coverage": 0.8511
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.104,
+        "visibleRight": 0.8434,
+        "coverage": 0.7394
+      }
+    },
     "width": 779,
     "height": 1524,
     "visibleLeft": 0.0308,
@@ -280,6 +1190,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/yartsev-andrey-3.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.3226,
+        "visibleRight": 0.5792,
+        "coverage": 0.2565
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1012,
+        "visibleRight": 0.6834,
+        "coverage": 0.5822
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.1182,
+        "visibleRight": 0.8146,
+        "coverage": 0.6964
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1323,
+        "visibleRight": 0.7024,
+        "coverage": 0.5701
+      }
+    },
     "width": 998,
     "height": 1524,
     "visibleLeft": 0.024,
@@ -288,6 +1224,32 @@
     "visibleBottom": 1
   },
   "/generated/speaker-strip/yartsev-andrey.webp": {
+    "slices": {
+      "head": {
+        "y": 0.2198,
+        "visibleLeft": 0.2577,
+        "visibleRight": 0.6985,
+        "coverage": 0.4407
+      },
+      "shoulder": {
+        "y": 0.3399,
+        "visibleLeft": 0.1237,
+        "visibleRight": 0.9369,
+        "coverage": 0.8131
+      },
+      "chest": {
+        "y": 0.4803,
+        "visibleLeft": 0.0335,
+        "visibleRight": 0.8827,
+        "coverage": 0.8492
+      },
+      "waist": {
+        "y": 0.6201,
+        "visibleLeft": 0.1327,
+        "visibleRight": 0.857,
+        "coverage": 0.7242
+      }
+    },
     "width": 776,
     "height": 1524,
     "visibleLeft": 0.0309,
