@@ -22,6 +22,10 @@ const EXTRA_SHARED_ASSETS = [
     sourcePath: path.join(sourceDataRoot, 'Festival logo.svg'),
     destinationPath: path.join(sharedAssetsRoot, 'logo-znanie-festival.svg'),
   },
+  {
+    sourcePath: path.join(sourceDataRoot, 'logo-80-istorii-hero.svg'),
+    destinationPath: path.join(sharedAssetsRoot, 'logo-80-istorii-hero.svg'),
+  },
 ];
 
 async function removeIfExists(targetPath) {
