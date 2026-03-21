@@ -4,10 +4,15 @@
 
 ## 1. Что было проанализировано
 
+- Канонический hero-spec: [hero-requirements.md](/workspaces/kdg80/docs/hero-requirements.md)
 - Текущий статический сайт-заглушка: [index.html](/workspaces/codespaces-blank/index.html), [styles.css](/workspaces/codespaces-blank/styles.css)
 - Текущая выкладка и S3-деплой: [deploy-to-yc.sh](/workspaces/codespaces-blank/deploy-to-yc.sh), [deploy-preview-to-yc.sh](/workspaces/codespaces-blank/deploy-preview-to-yc.sh)
 - Актуальный мастер-файл фестиваля: [festival_site_master_actual_v3.md](/workspaces/codespaces-blank/Исходные%20данные/festival_site_master_actual_v3.md)
 - Локальные референсы: [Референсы](/workspaces/codespaces-blank/Исходные%20данные/Референсы), [added](/workspaces/codespaces-blank/added)
+- Hero reference pack для текущей композиции:
+- [Desctop.png](/workspaces/kdg80/Исходные данные/Идеи/Desctop.png)
+- [Mobile 1.png](/workspaces/kdg80/Исходные данные/Идеи/Mobile 1.png)
+- [Mobile 2.png](/workspaces/kdg80/Исходные данные/Идеи/Mobile 2.png)
 - Доступные изображения лекций, спектакля и спикеров в [Фотографии](/workspaces/codespaces-blank/Исходные%20данные/Фотографии)
 - Текущие SEO/GEO-файлы: [robots.txt](/workspaces/codespaces-blank/robots.txt), [llms.txt](/workspaces/codespaces-blank/llms.txt), [llms-full.txt](/workspaces/codespaces-blank/llms-full.txt), [sitemap.xml](/workspaces/codespaces-blank/sitemap.xml)
 - Официальный сайт Российского общества «Знание»: `znanierussia.ru`, дополнительно просмотренный через `playwright-cli`
