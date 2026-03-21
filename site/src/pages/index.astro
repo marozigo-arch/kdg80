@@ -152,13 +152,23 @@ const DIALOGUE_PORTRAIT_STYLE_OVERRIDES: Array<{ match: string; style: string }>
 ];
 
 const HERO_PORTRAIT_STYLE_OVERRIDES: Array<{ match: string; style: string }> = [
-  { match: 'Никитин', style: '--hero-portrait-scale: 0.95; --hero-portrait-shift-x: 0.5%; --hero-portrait-shift-y: 1.5%;' },
-  { match: 'Мосиенко', style: '--hero-portrait-scale: 0.97; --hero-portrait-shift-x: 1%; --hero-portrait-shift-y: 1.6%;' },
-  { match: 'Долотова', style: '--hero-portrait-scale: 0.93; --hero-portrait-shift-x: 0.8%; --hero-portrait-shift-y: 1.8%;' },
-  { match: 'Анисимов', style: '--hero-portrait-scale: 0.94; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.5%;' },
-  { match: 'Казакова', style: '--hero-portrait-scale: 0.93; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.5%;' },
-  { match: 'Соколова', style: '--hero-portrait-scale: 0.95; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.2%;' },
-  { match: 'Конюхова', style: '--hero-portrait-scale: 0.93; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.8%;' },
+  { match: 'Никитин', style: '--hero-portrait-scale: 0.95; --hero-portrait-shift-x: 0.5%; --hero-portrait-shift-y: 1.5%; --hero-portrait-scale-mobile: 1.18; --hero-portrait-shift-x-mobile: 1.5%; --hero-portrait-shift-x-desktop: -4.6%;' },
+  { match: 'Мосиенко', style: '--hero-portrait-scale: 0.97; --hero-portrait-shift-x: 1%; --hero-portrait-shift-y: 1.6%; --hero-portrait-scale-mobile: 1.1; --hero-portrait-shift-x-mobile: 4.1%; --hero-portrait-shift-x-desktop: -4.2%;' },
+  { match: 'Долотова', style: '--hero-portrait-scale: 0.93; --hero-portrait-shift-x: 0.8%; --hero-portrait-shift-y: 1.8%; --hero-portrait-scale-mobile: 1.22; --hero-portrait-shift-x-mobile: 1.8%; --hero-portrait-shift-x-desktop: -4.8%;' },
+  { match: 'Анисимов', style: '--hero-portrait-scale: 0.94; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.5%; --hero-portrait-scale-mobile: 1.12;' },
+  { match: 'Казакова', style: '--hero-portrait-scale: 0.93; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.5%; --hero-portrait-scale-mobile: 1.24; --hero-portrait-shift-x-mobile: 2.1%; --hero-portrait-shift-x-desktop: -4.2%;' },
+  { match: 'Соколова', style: '--hero-portrait-scale: 0.95; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.2%; --hero-portrait-scale-mobile: 1.1; --hero-portrait-shift-x-mobile: 1.2%;' },
+  { match: 'Конюхова', style: '--hero-portrait-scale: 0.93; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.8%; --hero-portrait-scale-mobile: 1.28; --hero-portrait-shift-x-mobile: 1.8%; --hero-portrait-shift-x-desktop: -4.4%;' },
+  { match: 'Надымова', style: '--hero-portrait-scale: 0.94; --hero-portrait-shift-x: 0%; --hero-portrait-shift-y: 1.6%; --hero-portrait-scale-mobile: 1.24; --hero-portrait-shift-x-mobile: 2.2%;' },
+];
+
+const HERO_SCENE_STYLE_OVERRIDES: Array<{ match: string; style: string }> = [
+  { match: 'Никитин', style: '--hero-mobile-portrait-right: -20%;' },
+  { match: 'Мосиенко', style: '--hero-mobile-portrait-right: -20%; --hero-mobile-copy-width: 44%;' },
+  { match: 'Казакова', style: '--hero-mobile-copy-width: 46%;' },
+  { match: 'Соколова', style: '--hero-mobile-portrait-height: 62%; --hero-copy-width: 27rem; --hero-copy-start: 8.5rem;' },
+  { match: 'Долотова', style: '--hero-mobile-portrait-right: -20%; --hero-mobile-copy-width: 50%;' },
+  { match: 'Конюхова', style: '--hero-mobile-portrait-right: -20%; --hero-mobile-copy-width: 50%;' },
 ];
 
 // Curated from "festival_quotes_ranked.md" and event-level "why go" texts to keep
@@ -211,6 +221,14 @@ const HERO_QUOTE_VARIANT_SPECS: HeroQuoteVariantSpec[] = [
     prompt: 'Зачем идти на эту лекцию',
     quote: 'Перестать смотреть на город как на картинку в телефоне и научиться читать его как книгу.',
     priority: 89,
+  },
+  {
+    id: 'litvinovich-dream-city',
+    quoteType: 'lecture',
+    eventMatch: 'О чём мечтали в советском Калининграде',
+    prompt: 'Зачем идти на эту лекцию',
+    quote: 'Моя лекция — это личный опыт того, как ставить мечту и двигаться к её реализации. Я расскажу, почему уверенно говорю: «Калининград — город сказка, город мечта!»',
+    priority: 98,
   },
   {
     id: 'living-on-the-spit',
@@ -443,6 +461,10 @@ function getHeroPortraitStyle(name: string) {
   return HERO_PORTRAIT_STYLE_OVERRIDES.find((entry) => name.includes(entry.match))?.style;
 }
 
+function getHeroSceneOverride(name: string) {
+  return HERO_SCENE_STYLE_OVERRIDES.find((entry) => name.includes(entry.match))?.style;
+}
+
 function getHeroSceneStyle(imagePath: string) {
   const bounds = getPortraitBounds(imagePath);
   if (!bounds) {
@@ -454,6 +476,8 @@ function getHeroSceneStyle(imagePath: string) {
   const headSlice = bounds.slices?.head;
   const shoulderSlice = bounds.slices?.shoulder;
   const chestSlice = bounds.slices?.chest;
+  const waistSlice = bounds.slices?.waist;
+  const headLeft = headSlice?.visibleLeft ?? Math.min(bounds.visibleLeft + visibleWidth * 0.32, 0.6);
   const upperRight = Math.max(
     headSlice?.visibleRight ?? bounds.visibleRight,
     shoulderSlice?.visibleRight ?? bounds.visibleRight,
@@ -463,23 +487,76 @@ function getHeroSceneStyle(imagePath: string) {
     shoulderSlice?.coverage ?? visibleWidth * 0.62,
   );
   const tallBias = Math.max(0, 0.92 - Math.min(ratio, 0.92));
+  const waistCoverage = waistSlice?.coverage ?? visibleWidth * 0.72;
+  const chestCoverage = chestSlice?.coverage ?? visibleWidth * 0.62;
+  const shoulderCoverage = shoulderSlice?.coverage ?? visibleWidth * 0.58;
   const upperIntrusion = Math.max(0, upperRight - 0.62);
-  const quoteStart = clampMetric(5.55 + upperIntrusion * 19 + tallBias * 0.9, 6.2, 9.2);
-  const quoteWidth = clampMetric(
-    31 - upperIntrusion * 22 - tallBias * 3.2 + (0.82 - Math.min(visibleWidth, 0.98)) * 2.2,
-    23.4,
-    32,
+  const visualCenter = (bounds.visibleLeft + bounds.visibleRight) / 2;
+  const quoteStart = clampMetric(
+    8.15 + upperIntrusion * 19 + tallBias * 1.05 + Math.max(0, waistCoverage - 0.68) * 4.1
+    + Math.max(0, visualCenter - 0.5) * 10,
+    8.1,
+    11.5,
   );
-  const quoteTop = clampMetric(4.36 + tallBias * 0.5 + Math.max(0, upperCoverage - 0.32) * 1.1, 4.34, 4.98);
+  const quoteWidth = clampMetric(
+    28.8 - upperIntrusion * 22 - tallBias * 3.2 - Math.max(0, waistCoverage - 0.68) * 5.4
+    - Math.max(0, visualCenter - 0.5) * 7
+    + (0.82 - Math.min(visibleWidth, 0.98)) * 2.2,
+    20.8,
+    29.4,
+  );
   const portraitHeadroom = clampMetric(1.7 + tallBias * 8.8, 1.6, 4.8);
   const portraitDrop = clampMetric(2.2 + tallBias * 10.5 + upperIntrusion * 10, 2.1, 7.2);
+  const mobilePortraitHeadroom = clampMetric(0.55 + tallBias * 4.8, 0.55, 2.2);
+  const mobileCopyWidth = clampMetric(62 - Math.max(0, ratio - 0.72) * 30, 49, 61);
+  const mobilePortraitWidth = clampMetric(
+    56 + Math.max(0, ratio - 0.72) * 20 + Math.max(0, 0.72 - ratio) * 4,
+    56,
+    68.5,
+  );
+  const mobilePortraitScale = clampMetric(
+    1.08 + Math.max(0, 0.72 - ratio) * 0.55 + Math.max(0, ratio - 0.92) * 0.24,
+    1.08,
+    1.28,
+  );
+  const mobilePortraitHeight = clampMetric(
+    69 + Math.max(0, 0.82 - ratio) * 18 + Math.max(0, chestCoverage - 0.58) * 12,
+    68,
+    76,
+  );
+  const mobilePortraitDrop = clampMetric(5 + Math.max(0, 0.82 - ratio) * 18, 5, 13);
+  const mobilePortraitRight = -clampMetric(
+    11 + Math.max(0, ratio - 0.82) * 24 + Math.max(0, 0.92 - bounds.visibleRight) * 12,
+    11,
+    18,
+  );
+  const mobilePortraitShiftX = clampMetric(Math.max(0, ratio - 0.9) * 8 + Math.max(0, 0.95 - bounds.visibleRight) * 14, 0, 4.2);
+  const desktopPortraitScale = clampMetric(
+    1.01 + Math.max(0, 0.84 - ratio) * 0.12 + Math.max(0, waistCoverage - 0.68) * 0.08,
+    1.01,
+    1.08,
+  );
+  const desktopPortraitShiftX = -clampMetric(
+    5.3 + Math.max(0, visualCenter - 0.5) * 34 + Math.max(0, headLeft - 0.34) * 10 + upperIntrusion * 9,
+    5.3,
+    13.8,
+  );
 
   return [
     `--hero-copy-start: ${quoteStart.toFixed(2)}rem;`,
     `--hero-copy-width: ${quoteWidth.toFixed(2)}rem;`,
-    `--hero-copy-top: ${quoteTop.toFixed(2)}rem;`,
     `--hero-portrait-headroom: ${portraitHeadroom.toFixed(2)}rem;`,
     `--hero-portrait-drop: ${portraitDrop.toFixed(2)}%;`,
+    `--hero-portrait-headroom-mobile: ${mobilePortraitHeadroom.toFixed(2)}rem;`,
+    `--hero-mobile-copy-width: ${mobileCopyWidth.toFixed(2)}%;`,
+    `--hero-mobile-portrait-width: ${mobilePortraitWidth.toFixed(2)}%;`,
+    `--hero-mobile-portrait-height: ${mobilePortraitHeight.toFixed(2)}%;`,
+    `--hero-portrait-scale-mobile: ${mobilePortraitScale.toFixed(3)};`,
+    `--hero-portrait-drop-mobile: ${mobilePortraitDrop.toFixed(2)}%;`,
+    `--hero-mobile-portrait-right: ${mobilePortraitRight.toFixed(2)}%;`,
+    `--hero-portrait-shift-x-mobile: ${mobilePortraitShiftX.toFixed(2)}%;`,
+    `--hero-portrait-scale-desktop: ${desktopPortraitScale.toFixed(3)};`,
+    `--hero-portrait-shift-x-desktop: ${desktopPortraitShiftX.toFixed(2)}%;`,
   ].join(' ');
 }
 
@@ -538,7 +615,7 @@ function buildHeroVariants(): HeroVariant[] {
       speakerRole: getSpeakerCaption(event.affiliation) || (spec.quoteType === 'lecture' ? event.formatLabel : ''),
       speakerImage: getSpeakerStripImage(event.speakerLabel, event.speakerImages[0]),
       speakerStyle: getHeroPortraitStyle(event.speakerLabel) ?? '',
-      speakerSceneStyle: getHeroSceneStyle(getSpeakerStripImage(event.speakerLabel, event.speakerImages[0])),
+      speakerSceneStyle: [getHeroSceneStyle(getSpeakerStripImage(event.speakerLabel, event.speakerImages[0])), getHeroSceneOverride(event.speakerLabel)].filter(Boolean).join(' '),
       image: '/shared-assets/hero-added-03.webp',
     }] satisfies HeroQuoteVariant[];
   });
@@ -569,7 +646,7 @@ const fallbackHeroVariant: HeroImageVariant = {
 const heroStoryVariants = heroVariants.length ? heroVariants : [fallbackHeroVariant];
 const defaultHeroVariant = heroStoryVariants[0];
 const defaultHeroIsQuote = isHeroQuoteVariant(defaultHeroVariant);
-const defaultHeroShowsTitle = !defaultHeroIsQuote || defaultHeroVariant.quoteType === 'lecture';
+const defaultHeroShowsTitle = !defaultHeroIsQuote;
 const defaultHeroShowsBody = !defaultHeroIsQuote;
 const defaultHeroSceneStyle = defaultHeroIsQuote ? defaultHeroVariant.speakerSceneStyle ?? '' : '';
 const defaultHeroQuoteSize = defaultHeroIsQuote ? defaultHeroVariant.quoteSize : 'image';
@@ -734,60 +811,63 @@ function getDialogueMonogram(name: string) {
 	                  </div>
 	                </div>
 
-	                <div class="hero-showcase__card">
-	                  <div class="hero-showcase__shape-proxy" data-hero-shape-proxy hidden={!defaultHeroIsQuote} aria-hidden="true"></div>
-	                  <div class="hero-showcase__quote-mark" data-hero-quote-mark hidden={!defaultHeroIsQuote} aria-hidden="true">
-	                    <svg viewBox="0 0 16 16" role="presentation" focusable="false">
-	                      <path d="M5.29289 1.29291L6.70711 2.70712L3 6.41423V7.00001H7V14H1V5.5858L5.29289 1.29291Z"></path>
-	                      <path d="M15 7.00001H11V6.41423L14.7071 2.70712L13.2929 1.29291L9 5.5858V14H15V7.00001Z"></path>
-	                    </svg>
-	                  </div>
-	                  <p class="hero-showcase__prompt" data-hero-prompt>{defaultHeroVariant.prompt}</p>
-
-	                  <blockquote class="hero-showcase__quote" data-hero-quote-shell hidden={!defaultHeroIsQuote}>
-	                    <p data-hero-quote>{defaultHeroIsQuote ? defaultHeroVariant.quote : ''}</p>
-	                  </blockquote>
-
-	                  <h2 class="hero-showcase__title" data-hero-title hidden={!defaultHeroShowsTitle}>{defaultHeroVariant.title}</h2>
-
-	                  <p class="hero-showcase__body" data-hero-body hidden={!defaultHeroShowsBody}>
-	                    {!defaultHeroIsQuote ? defaultHeroVariant.body : ''}
-	                  </p>
-
-	                  <div class="hero-showcase__speaker" data-hero-speaker-shell hidden={!defaultHeroIsQuote}>
-	                    <strong data-hero-speaker-name>{defaultHeroIsQuote ? defaultHeroVariant.speakerName : ''}</strong>
-	                    <span data-hero-speaker-role>{defaultHeroIsQuote ? defaultHeroVariant.speakerRole : ''}</span>
-	                  </div>
-
-	                  <div class="hero-showcase__actions">
-	                    <a
-	                      class="hero-showcase__event-link"
-	                      data-hero-event-link
-	                      href={defaultHeroIsQuote && defaultHeroVariant.quoteType === 'lecture' ? defaultHeroVariant.eventHref : undefined}
-	                    >
-	                      К лекции
-	                    </a>
-	                    {heroStoryVariants.length > 1 && (
-	                      <button class="hero-showcase__next" type="button" data-hero-next aria-label="Показать другую историю первого экрана">
-	                        Другая история
-	                      </button>
-	                    )}
-	                  </div>
+	                <div class="hero__portrait-seam" data-hero-portrait-shell hidden={!defaultHeroIsQuote} aria-hidden="true">
+	                  <img
+	                    class="hero-showcase__portrait"
+	                    data-hero-portrait
+	                    src={defaultHeroIsQuote ? defaultHeroVariant.speakerImage : ''}
+	                    alt=""
+	                    loading="eager"
+	                    decoding="async"
+	                    style={defaultHeroIsQuote ? defaultHeroVariant.speakerStyle ?? '' : ''}
+	                  />
 	                </div>
-	              </section>
-		            </aside>
 
-	            <div class="hero__portrait-seam" data-hero-portrait-shell hidden={!defaultHeroIsQuote} aria-hidden="true">
-	              <img
-	                class="hero-showcase__portrait"
-	                data-hero-portrait
-	                src={defaultHeroIsQuote ? defaultHeroVariant.speakerImage : ''}
-	                alt=""
-	                loading="eager"
-	                decoding="async"
-	                style={defaultHeroIsQuote ? defaultHeroVariant.speakerStyle ?? '' : ''}
-	              />
-	            </div>
+	                <div class="hero-showcase__card">
+		                  <div class="hero-showcase__shape-proxy" data-hero-shape-proxy hidden={!defaultHeroIsQuote} aria-hidden="true"></div>
+		                  <p class="hero-showcase__prompt" data-hero-prompt>{defaultHeroVariant.prompt}</p>
+
+		                  <div class="hero-showcase__content">
+		                    <div class="hero-showcase__quote-mark" data-hero-quote-mark hidden={!defaultHeroIsQuote} aria-hidden="true">
+		                      <svg viewBox="0 0 16 16" role="presentation" focusable="false">
+		                        <path d="M5.29289 1.29291L6.70711 2.70712L3 6.41423V7.00001H7V14H1V5.5858L5.29289 1.29291Z"></path>
+		                        <path d="M15 7.00001H11V6.41423L14.7071 2.70712L13.2929 1.29291L9 5.5858V14H15V7.00001Z"></path>
+		                      </svg>
+		                    </div>
+
+		                    <blockquote class="hero-showcase__quote" data-hero-quote-shell hidden={!defaultHeroIsQuote}>
+		                      <p data-hero-quote>{defaultHeroIsQuote ? defaultHeroVariant.quote : ''}</p>
+		                    </blockquote>
+
+		                    <h2 class="hero-showcase__title" data-hero-title hidden={!defaultHeroShowsTitle}>{defaultHeroVariant.title}</h2>
+
+		                    <p class="hero-showcase__body" data-hero-body hidden={!defaultHeroShowsBody}>
+		                      {!defaultHeroIsQuote ? defaultHeroVariant.body : ''}
+		                    </p>
+
+		                    <div class="hero-showcase__speaker" data-hero-speaker-shell hidden={!defaultHeroIsQuote}>
+		                      <strong data-hero-speaker-name>{defaultHeroIsQuote ? defaultHeroVariant.speakerName : ''}</strong>
+		                      <span data-hero-speaker-role>{defaultHeroIsQuote ? defaultHeroVariant.speakerRole : ''}</span>
+		                    </div>
+
+		                    <div class="hero-showcase__actions">
+		                      <a
+		                        class="hero-showcase__event-link"
+		                        data-hero-event-link
+		                        href={defaultHeroIsQuote && defaultHeroVariant.quoteType === 'lecture' ? defaultHeroVariant.eventHref : undefined}
+		                      >
+		                        К лекции
+		                      </a>
+		                      {heroStoryVariants.length > 1 && (
+		                        <button class="hero-showcase__next" type="button" data-hero-next aria-label="Показать другую историю первого экрана">
+		                          Другая история
+		                        </button>
+		                      )}
+		                    </div>
+		                  </div>
+		                </div>
+		              </section>
+		            </aside>
 		          </div>
 		        </div>
 		      </section>
@@ -1450,7 +1530,7 @@ function getDialogueMonogram(name: string) {
 	      const speakerRole = root.querySelector('[data-hero-speaker-role]');
 	      const eventLink = root.querySelector('[data-hero-event-link]');
 	      const isQuoteVariant = variant.kind === 'quote';
-	      const showsTitle = !isQuoteVariant || variant.quoteType === 'lecture';
+	      const showsTitle = !isQuoteVariant;
 	      const showsBody = !isQuoteVariant && Boolean(variant.body);
 	      root.style.cssText = isQuoteVariant ? variant.speakerSceneStyle || '' : '';
 
