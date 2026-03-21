@@ -1,0 +1,64 @@
+---
+import type { RouteNavItem } from '../lib/routes';
+
+interface Props {
+  isHome?: boolean;
+  programHref: string;
+  speakersHref?: string;
+  dialoguesHref?: string;
+  pressHref?: string;
+  routeItems: RouteNavItem[];
+  currentRouteSlug?: string;
+}
+
+const {
+  isHome = false,
+  programHref,
+  speakersHref = isHome ? '#speakers' : '/#speakers',
+  dialoguesHref = isHome ? '#dialogues' : '/#dialogues',
+  pressHref = isHome ? '#press' : '/#press',
+  routeItems,
+  currentRouteSlug,
+} = Astro.props;
+
+const logoHref = isHome ? '#top' : '/';
+---
+
+<header class="site-header" data-scrolled="false" data-logo-ready="false">
+  <div class="container site-header__row">
+    <a class="site-header__logo" href={logoHref} aria-label="Российское общество Знание, фестиваль 80 историй о главном">
+      <span class="site-header__logo-shell" aria-hidden="true">
+        <span class="site-header__logo-state site-header__logo-state--hero">
+          <img src="/shared-assets/logo-znanie-main.svg" alt="" width="541" height="126" decoding="async" fetchpriority="high" />
+        </span>
+        <span class="site-header__logo-state site-header__logo-state--festival">
+          <img src="/shared-assets/logo-znanie-festival.svg" alt="" width="877" height="150" decoding="async" />
+        </span>
+      </span>
+    </a>
+
+    <nav class="site-header__nav" aria-label="Быстрые разделы">
+      <details class="site-header__route-menu">
+        <summary>По интересам</summary>
+        <div class="site-header__route-panel">
+          {routeItems.map((item) => (
+            <a
+              class={`site-header__route-link ${currentRouteSlug && item.slug === currentRouteSlug ? 'is-current' : ''}`}
+              href={item.href}
+            >
+              <span>{item.title}</span>
+              {item.isShortcut && <small>На главной странице</small>}
+            </a>
+          ))}
+        </div>
+      </details>
+      <a href={speakersHref}>Спикеры</a>
+      <a href={programHref}>Программа</a>
+      <a href={dialoguesHref}>Диалоги</a>
+      <a href={pressHref}>СМИ</a>
+    </nav>
+
+    <a class="button button--primary site-header__cta" href={programHref}>Программа</a>
+  </div>
+</header>
+

@@ -11,7 +11,7 @@ type MediaManifest = {
 const media = mediaManifest as MediaManifest;
 const curatedSummaries = summaryOverrides as Record<string, string>;
 
-type FestivalEventKind = 'dated' | 'range' | 'special';
+export type FestivalEventKind = 'dated' | 'range' | 'special';
 
 export type RelatedFestivalEvent = {
   slug: string;
@@ -689,6 +689,10 @@ function normalizeLookup(value: string) {
   return transliterate(value).toLowerCase();
 }
 
+export function normalizeFestivalLookup(value: string) {
+  return normalizeLookup(value);
+}
+
 function tokenizeLookup(value: string) {
   return normalizeLookup(value)
     .split('-')
@@ -708,6 +712,22 @@ function parseDurationMinutes(value: string) {
   const hours = normalized.match(/(\d+)\s*час/);
   const minutes = normalized.match(/(\d+)\s*мин/);
   return (hours ? Number(hours[1]) * 60 : 0) + (minutes ? Number(minutes[1]) : 0) || null;
+}
+
+function parseRangeEnd(dateLabel: string) {
+  const match = dateLabel.match(/(?:с\s*)?(\d{1,2})\s+([а-я]+)(?:\s+\d{4})?\s*(?:-|—|–|по)\s*(\d{1,2})\s+([а-я]+)\s+(\d{4})/i);
+  if (!match) {
+    return null;
+  }
+
+  const year = match[5];
+  const monthInfo = MONTHS[match[4].toLowerCase()];
+  if (!monthInfo) {
+    return null;
+  }
+
+  const day = match[3].padStart(2, '0');
+  return `${year}-${monthInfo.number}-${day}T23:59:59`;
 }
 
 function parseExactDate(dateLabel: string, timeLabel: string) {
@@ -1416,6 +1436,55 @@ export function getHookQuotes(events: FestivalEvent[]) {
 
 export function getOpenDialogues(events: FestivalEvent[]) {
   return events.filter((event) => event.formatLabel.includes('Открытый диалог'));
+}
+
+export function getEventStartIso(event: FestivalEvent) {
+  if (event.kind === 'special') {
+    return undefined;
+  }
+
+  return event.isoStart;
+}
+
+export function getEventEndIso(event: FestivalEvent) {
+  if (event.kind === 'special') {
+    return undefined;
+  }
+
+  if (event.kind === 'range') {
+    return parseRangeEnd(event.dateLabel) ?? event.isoStart;
+  }
+
+  if (!event.isoStart) {
+    return undefined;
+  }
+
+  const durationMinutes = parseDurationMinutes(event.durationLabel) ?? 60;
+  const end = new Date(new Date(event.isoStart).getTime() + durationMinutes * 60_000);
+  return end.toISOString().slice(0, 19);
+}
+
+export function getEventTemporalState(event: FestivalEvent, now = new Date()) {
+  const startIso = getEventStartIso(event);
+  const endIso = getEventEndIso(event);
+
+  if (!startIso && !endIso) {
+    return 'timeless' as const;
+  }
+
+  const nowMs = now.getTime();
+  const startMs = startIso ? new Date(startIso).getTime() : Number.NaN;
+  const endMs = endIso ? new Date(endIso).getTime() : Number.NaN;
+
+  if (!Number.isNaN(startMs) && nowMs < startMs) {
+    return 'upcoming' as const;
+  }
+
+  if (!Number.isNaN(endMs) && nowMs > endMs) {
+    return 'past' as const;
+  }
+
+  return 'ongoing' as const;
 }
 
 export function buildIcs(event: FestivalEvent) {
