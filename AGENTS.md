@@ -59,6 +59,15 @@
 ## Requirements Governance Policy
 
 - Before implementing a task, first check the relevant requirements documents and verify that the requested work does not contradict the currently fixed requirements.
+- Before proposing any requirement change, re-read the current canonical requirement document itself, not only the latest user message or bug report.
+- A requirement-change proposal must be based on an explicit document diff against the current canonical text.
+- When the user asks to update, clarify, or confirm requirements, first analyze the existing requirement document and separate the findings into three buckets:
+- `Already present` — the requirement already exists in the document and should not be proposed as a new addition.
+- `Needs clarification` — the requirement exists but is too vague, incomplete, or missing an important constraint.
+- `Missing` — the requirement is genuinely absent from the document and should be proposed as a new addition.
+- When proposing requirement edits, cite the relevant existing clauses or sections from the current document before suggesting the change.
+- Do not restate the user's latest wording as if it were a newly discovered missing requirement without first proving that it is absent or insufficient in the canonical document.
+- The confirmation stage must present a real delta against the current requirement document so the user can approve only the actual changes, not re-read their own previous wording.
 - If the task appears to conflict with the current requirements, stop before implementation and do not proceed directly to code changes.
 - In that case, present the conflict explicitly to the user and propose the exact requirement changes needed first.
 - The proposal must name the requirement document(s) to be changed and list the concrete edits the agent wants to make to those requirements.
