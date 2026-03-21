@@ -62,6 +62,7 @@ export type FestivalEvent = {
   city: string;
   speakerLabel: string;
   affiliation: string;
+  heroRole: string;
   showingsLabel: string;
   summary: string;
   whyGo: string;
@@ -1244,6 +1245,7 @@ function parseSections() {
       extractField(body, 'Связка в рабочем файле')
     ).trim();
     const speakerData = splitSpeakerData(speakerRaw);
+    const heroRole = normalizeText(extractField(body, 'Регалия для hero'));
     const dialogueParticipants = formatLabel.includes('Открытый диалог')
       ? extractDialogueParticipants(speakerRaw)
       : [];
@@ -1285,6 +1287,7 @@ function parseSections() {
       city: DEFAULT_CITY,
       speakerLabel: kind === 'special' ? '' : speakerData.speakerLabel,
       affiliation: kind === 'special' ? '' : speakerData.affiliation,
+      heroRole: kind === 'special' ? '' : heroRole,
       showingsLabel,
       summary,
       whyGo,

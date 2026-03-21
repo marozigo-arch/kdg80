@@ -612,7 +612,7 @@ function buildHeroVariants(): HeroVariant[] {
       quote: spec.quote,
       quoteSize: getHeroQuoteSize(spec.quote),
       speakerName: event.speakerLabel,
-      speakerRole: getSpeakerCaption(event.affiliation) || (spec.quoteType === 'lecture' ? event.formatLabel : ''),
+      speakerRole: event.heroRole || getSpeakerCaption(event.affiliation) || '',
       speakerImage: getSpeakerStripImage(event.speakerLabel, event.speakerImages[0]),
       speakerStyle: getHeroPortraitStyle(event.speakerLabel) ?? '',
       speakerSceneStyle: [getHeroSceneStyle(getSpeakerStripImage(event.speakerLabel, event.speakerImages[0])), getHeroSceneOverride(event.speakerLabel)].filter(Boolean).join(' '),
@@ -847,7 +847,7 @@ function getDialogueMonogram(name: string) {
 
 		                    <div class="hero-showcase__speaker" data-hero-speaker-shell hidden={!defaultHeroIsQuote}>
 		                      <strong data-hero-speaker-name>{defaultHeroIsQuote ? defaultHeroVariant.speakerName : ''}</strong>
-		                      <span data-hero-speaker-role>{defaultHeroIsQuote ? defaultHeroVariant.speakerRole : ''}</span>
+		                      <span data-hero-speaker-role hidden={!defaultHeroIsQuote || !defaultHeroVariant.speakerRole}>{defaultHeroIsQuote ? defaultHeroVariant.speakerRole : ''}</span>
 		                    </div>
 
 		                    <div class="hero-showcase__actions">
@@ -1373,6 +1373,7 @@ function getDialogueMonogram(name: string) {
   <script is:inline>
     const siteHeader = document.querySelector('.site-header');
     const heroShowcase = document.querySelector('[data-hero-showcase]');
+    const heroBrand = document.querySelector('.hero__brand');
     const speakerStrip = document.querySelector('.speaker-strip');
     const telegramAppLinks = Array.from(document.querySelectorAll('[data-telegram-deep-link]'));
     let headerStateFrame = 0;
@@ -1380,6 +1381,12 @@ function getDialogueMonogram(name: string) {
     const getHeaderScrollThreshold = () => {
       if (!(siteHeader instanceof HTMLElement)) {
         return 24;
+      }
+
+      const isDesktopHeader = window.matchMedia('(min-width: 760px)').matches;
+      if (!isDesktopHeader && heroBrand instanceof HTMLElement) {
+        const heroBrandTop = heroBrand.getBoundingClientRect().top + window.scrollY;
+        return Math.max(heroBrandTop - siteHeader.offsetHeight - 8, 24);
       }
 
       return siteHeader.offsetHeight + 24;
@@ -1595,6 +1602,7 @@ function getDialogueMonogram(name: string) {
 
         if (speakerRole instanceof HTMLElement) {
           speakerRole.textContent = variant.speakerRole;
+          speakerRole.hidden = !variant.speakerRole;
         }
 
 	        if (portrait instanceof HTMLImageElement) {
