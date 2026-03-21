@@ -46,6 +46,16 @@
 - The verification pass must check the actual rendered result, not only the code or static CSS diff.
 - When the user reports a visual defect, re-open the affected screens in Playwright, capture fresh screenshots, and compare the result against the reported problem before closing the task.
 
+## Hero Reference Pack
+
+- For any hero-related work on this festival site, treat these files as the primary visual references and re-check them before closing the task:
+- `/workspaces/kdg80/Исходные данные/Идеи/Desctop.png`
+- `/workspaces/kdg80/Исходные данные/Идеи/Mobile 1.png`
+- `/workspaces/kdg80/Исходные данные/Идеи/Mobile 2.png`
+- Desktop and mobile hero placement must be treated as two different composition systems. Do not assume one placement formula can be scaled down to the other.
+- For desktop, the speaker should visually live on the split seam between the white and red panels.
+- For mobile, the speaker should be bottom-anchored, editorially oversized, and may partially exit the right edge when that improves the composition.
+
 ## Git / Push Policy
 
 - Keep the cloud/remote repository reasonably up to date during normal work.
