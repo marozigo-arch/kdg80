@@ -56,6 +56,15 @@
 - For desktop, the speaker should visually live on the split seam between the white and red panels.
 - For mobile, the speaker should be bottom-anchored, editorially oversized, and may partially exit the right edge when that improves the composition.
 
+## Requirements Governance Policy
+
+- Before implementing a task, first check the relevant requirements documents and verify that the requested work does not contradict the currently fixed requirements.
+- If the task appears to conflict with the current requirements, stop before implementation and do not proceed directly to code changes.
+- In that case, present the conflict explicitly to the user and propose the exact requirement changes needed first.
+- The proposal must name the requirement document(s) to be changed and list the concrete edits the agent wants to make to those requirements.
+- Only after the user confirms the requirement changes may the implementation work begin.
+- The goal is to keep the requirements documentation current and prevent important approved behavior from being accidentally lost during later iterations.
+
 ## Git / Push Policy
 
 - Keep the cloud/remote repository reasonably up to date during normal work.
