@@ -4,6 +4,7 @@
 
 ## 1. Что было проанализировано
 
+- Канонический hero-spec: [hero-requirements.md](/workspaces/kdg80/docs/hero-requirements.md)
 - Текущий статический сайт-заглушка: [index.html](/workspaces/codespaces-blank/index.html), [styles.css](/workspaces/codespaces-blank/styles.css)
 - Текущая выкладка и S3-деплой: [deploy-to-yc.sh](/workspaces/codespaces-blank/deploy-to-yc.sh), [deploy-preview-to-yc.sh](/workspaces/codespaces-blank/deploy-preview-to-yc.sh)
 - Актуальный мастер-файл фестиваля: [festival_site_master_actual_v3.md](/workspaces/codespaces-blank/Исходные%20данные/festival_site_master_actual_v3.md)
