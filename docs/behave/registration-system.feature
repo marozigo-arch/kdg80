@@ -1,126 +1,177 @@
-Feature: Festival registration system
-  As a festival team
-  I want the registration system to work through a Fly.io API
-  So that visitors can register safely and operators can monitor registrations
+Feature: Проверка регистрации через сайт и Telegram
+  To verify the registration system end to end
+  we automate visitor actions on the website
+  and test-user actions in Telegram
 
   Background:
-    Given the public website uses a dedicated HTTPS API endpoint for registration
-    And the registration backend is deployed on Fly.io
-    And the website registration form submits directly to the Fly.io API
-    And the database stores personal data only as encrypted payloads plus blind indexes
-    And ticket artifacts are published as static HTML, PDF and ICS files
+    Given the public festival website is available for testing
+    And the test Telegram bot is available for testing
+
+  @telegram_bootstrap @telethon
+  Scenario: Первый пользователь Telegram становится суперадмином
+    Given the bot has no admins yet
+    When test Telegram user "superadmin" sends "/start"
+    Then "superadmin" becomes the superadmin
+    And the bot shows button navigation
+    And the bot shows the help text
+    When test Telegram user "second-user" sends "/start"
+    Then "second-user" is not added as an admin
 
   @happy_path @playwright @telethon
-  Scenario: Successful registration for an open event
-    Given an event "scientific-library-open" is open for registration with available seats
-    When the visitor submits valid full name, email and Russian phone for that event
-    Then the registration is created
-    And the visitor sees the ticket page at "/ticket/<public_hash>" on the main site domain
-    And the ticket page shows a 6-character short ticket ID
-    And the ticket page shows the full venue address
-    And the ticket page invites the visitor to add the event to a calendar
-    And the ticket page offers Google Calendar, Apple Calendar and ICS options
+  Scenario Outline: Посетитель успешно регистрируется на открытое событие
+    Given event "<event_slug>" is open for registration
+    And the Telegram superadmin chat is ready to receive notifications
+    When the visitor opens the event page for "<event_slug>"
+    And the visitor fills the registration form with valid full name, email and Russian phone
+    And the visitor submits the registration form
+    Then the visitor sees the ticket page for "<event_slug>"
+    And the ticket page shows the visitor full name
+    And the ticket page shows masked phone and masked email
+    And the ticket page shows the event date, time, venue, hall and full address
+    And the ticket page shows a 6-character ticket ID
     And the ticket page offers "Download PDF"
+    And the ticket page offers Google Calendar, Apple Calendar, Android / ICS and "Download ICS"
     And the ticket page says "Printing the ticket is not required"
     And the ticket page does not offer self-service cancellation
-    And the superadmin receives a Telegram notification with visitor name, event, date, time and remaining seats
+    And the superadmin receives a Telegram notification about that registration
 
-  @dedupe
-  Scenario: Duplicate registration is blocked inside the same event
-    Given an event "science-center-open" is open for registration
-    And a visitor is already registered for that event with a normalized email and phone
-    When the same visitor submits another registration for the same event
-    Then the system rejects the registration
-    And the visitor sees a duplicate-registration message
+    Examples:
+      | event_slug              |
+      | scientific-library-open |
+      | science-center-open     |
+      | tretyakovka-open        |
+      | blockhouse-open         |
+      | oceania-open            |
 
-  @multi_event
-  Scenario: The same visitor can register for another event
-    Given a visitor is registered for event "science-center-open"
-    And event "tretyakovka-open" is open for registration
-    When the same visitor submits registration for event "tretyakovka-open"
-    Then the system accepts the registration
-    And the second registration belongs to a different event
-
-  @past_event
-  Scenario: Registration is blocked for a past event
-    Given event "archive-event" is in the past
-    When a visitor submits registration for "archive-event"
-    Then the system rejects the registration
-    And the visitor sees "Registration is closed: the event has already passed"
-
-  @sold_out
-  Scenario: Registration is blocked when seats are exhausted
-    Given event "blockhouse-last-seat" has no free seats
-    When a visitor submits registration for that event
-    Then the system rejects the registration
-    And the visitor sees "No seats left"
-
-  @race_condition
-  Scenario: Only one visitor gets the last seat
-    Given event "last-seat-event" has exactly 1 free seat
-    When 2 visitors submit registration for that event at the same time
-    Then exactly 1 registration is successful
-    And the other registration is rejected with "No seats left" or a retry message
-    And the stored seats_taken value does not exceed capacity
-
-  @ticket_artifacts
-  Scenario: Ticket HTML and PDF are generated without a heavy browser pipeline
-    Given an event "oceania-open" is open for registration
-    When a visitor successfully registers for that event
-    Then the backend generates a static HTML ticket page from a lightweight template
-    And the backend generates a PDF ticket from the same ticket view-model
-    And the backend generates an ICS calendar file from the same event data
-    And the backend generates a long public hash and a unique 6-character short ticket ID
-    And all generated artifacts are uploaded to the configured bucket
-    And the database stores only the artifact URLs and encrypted personal payload
-
-  @telegram_outage
-  Scenario: Registration succeeds while Telegram API is temporarily unavailable
+  @validation @playwright
+  Scenario Outline: Посетитель видит inline-ошибку при некорректных данных
     Given event "scientific-library-open" is open for registration
-    And Telegram delivery is temporarily unavailable
-    When a visitor submits valid registration data
-    Then the registration is still created
-    And the ticket HTML and PDF are still generated
-    And a pending notification is written to telegram_outbox
-    When Telegram delivery is restored
-    Then the queued notification is eventually sent
+    When the visitor opens the event page for "scientific-library-open"
+    And the visitor enters "<full_name>", "<email>" and "<phone>"
+    And the visitor submits the registration form
+    Then the registration is not created
+    And the visitor sees the inline error "<error_message>"
 
-  @roles
-  Scenario: The first starter becomes superadmin and operators are assigned explicitly
-    Given no Telegram admin exists yet
-    When user "first-admin" sends "/start" to the bot
-    Then "first-admin" becomes superadmin
-    And the bot shows button navigation after "/start"
-    And the bot supports the "/help" command
-    When user "second-user" sends "/start" to the bot
-    Then "second-user" does not become admin automatically
-    When the superadmin grants operator role to "second-user"
-    Then "second-user" can open event reports and event-level exports
+    Examples:
+      | full_name               | email                     | phone          | error_message                                                              |
+      |                         | ivan@example.com          | +79991234567   | Укажите имя и фамилию полностью.                                           |
+      | Иван                    | ivan@example.com          | +79991234567   | Укажите имя и фамилию полностью.                                           |
+      | Иван Иванов             | invalid-email             | +79991234567   | Проверьте email: адрес выглядит некорректно.                               |
+      | Иван Иванов             | temp@example-tempmail.tld | +79991234567   | Используйте постоянный email. Адреса временной почты для регистрации не подходят. |
+      | Иван Иванов             | ivan@example.com          | +7123          | Введите российский номер в формате +7XXXXXXXXXX.                           |
+      | <script>alert(1)</script> | ivan@example.com       | +79991234567   | Укажите имя и фамилию полностью.                                           |
 
-  @operator_tools
-  Scenario: Operator receives report access and superadmin keeps emergency export access
-    Given an operator exists in the system
-    And registrations already exist for event "tretyakovka-open"
-    When the operator requests the event report in Telegram
-    Then the bot returns the participant list for that event
-    And the Telegram interface shows masked email and phone
-    And the bot can generate an XLSX file with event, name, email, phone and ticket link
-    When Telegram remains unavailable for a long period
-    Then the superadmin can use the protected emergency export endpoint
+  @dedupe @playwright
+  Scenario: Один и тот же email или телефон нельзя использовать дважды для одного события
+    Given a visitor is already registered for event "science-center-open"
+    When the same visitor submits the registration form again for "science-center-open"
+    Then the registration is rejected
+    And the visitor sees the duplicate-registration message
 
-  @registration_switch
-  Scenario: Registration is opened and closed from Telegram
-    Given event "science-center-open" exists in the system
-    And registration for that event is closed
+  @multi_event @playwright
+  Scenario: Один и тот же человек может зарегистрироваться на другое событие
+    Given a visitor is already registered for event "science-center-open"
+    And event "tretyakovka-open" is open for registration
+    When the same visitor submits the registration form for "tretyakovka-open"
+    Then the second registration is accepted
+    And the visitor sees the ticket page for "tretyakovka-open"
+
+  @past_event @playwright
+  Scenario: Посетитель не может зарегистрироваться на прошедшее событие
+    Given event "archive-event" is in the past
+    When the visitor opens the event page for "archive-event"
+    Then the page shows that the event has already passed
+    When the visitor submits a direct registration request for "archive-event"
+    Then the request is rejected with the past-event message
+
+  @sold_out @playwright
+  Scenario: Посетитель не может зарегистрироваться если места закончились
+    Given event "blockhouse-last-seat" has no free seats
+    When the visitor opens the event page for "blockhouse-last-seat"
+    And the visitor submits valid registration data
+    Then the registration is rejected
+    And the visitor sees the sold-out message
+
+  @race_condition @playwright @telethon
+  Scenario: Только один посетитель получает последнее место
+    Given event "last-seat-event" has exactly 1 free seat
+    When visitor "A" and visitor "B" submit valid registration forms for that event at the same time
+    Then exactly one visitor sees the ticket page
+    And the other visitor sees the sold-out or retry message
+    And the superadmin receives exactly one new Telegram notification for that event
+
+  @ticket_page @playwright
+  Scenario: Посетитель повторно открывает сохранённый билет и скачивает файлы
+    Given a visitor is already registered for event "oceania-open"
+    And the visitor has the saved ticket link
+    When the visitor opens the saved ticket link
+    Then the ticket page shows the same visitor and event details
+    And the visitor can download the PDF
+    And the visitor can download the ICS file
+    And the downloaded PDF contains the same ticket ID and event details
+
+  @telegram_help @telethon
+  Scenario: Суперадмин видит help и основные кнопки
+    Given the superadmin is connected to the bot
+    When the superadmin sends "/help"
+    Then the bot shows the list of available commands
+    When the superadmin opens the main keyboard
+    Then the bot shows buttons for events, search, exports, open registration, close registration, operators and help
+
+  @telegram_find @telethon
+  Scenario: Суперадмин находит регистрацию по ФИО
+    Given a visitor is already registered for event "scientific-library-open"
+    And the superadmin is connected to the bot
+    When the superadmin searches for that visitor by full name
+    Then the bot shows the matching registration with masked contacts
+
+  @operator_permissions @telethon
+  Scenario: Оператор видит отчёты, но не может менять статус регистрации
+    Given the superadmin has assigned operator role to "operator-1"
+    And registrations exist for event "tretyakovka-open"
+    When Telegram user "operator-1" requests the report for "tretyakovka-open"
+    Then the bot shows the participant list with masked email and masked phone
+    And "operator-1" can download the event XLSX
+    When Telegram user "operator-1" sends the open-registration command for "tretyakovka-open"
+    Then the bot rejects the command
+
+  @registration_switch @playwright @telethon
+  Scenario: Суперадмин открывает и закрывает регистрацию через Telegram
+    Given event "science-center-open" is closed for registration
+    And the superadmin is connected to the bot
     When the superadmin sends the open-registration command for "science-center-open"
-    Then registration for "science-center-open" becomes open in the internal system
+    Then the bot confirms that registration is open
+    When the visitor opens the event page for "science-center-open"
+    Then the registration form is available
     When the superadmin sends the close-registration command for "science-center-open"
-    Then registration for "science-center-open" becomes closed
-    When an operator sends the open-registration command for "science-center-open"
-    Then the command is rejected
+    Then the bot confirms that registration is closed
+    When the visitor opens the event page for "science-center-open" again
+    Then the registration form is not available
 
-  @privacy
-  Scenario: Personal data is not stored in plaintext inside the database
-    Given a visitor completed registration successfully
-    Then the database does not store plaintext full name, email or phone in the registration row
-    And the database stores encrypted payload fields and blind indexes only
+  @telegram_outage @playwright @telethon
+  Scenario: Регистрация проходит даже если Telegram временно недоступен
+    Given event "scientific-library-open" is open for registration
+    And Telegram delivery from the backend is temporarily unavailable
+    When the visitor opens the event page for "scientific-library-open"
+    And the visitor submits valid registration data
+    Then the visitor still sees the ticket page
+    And the superadmin does not receive the notification immediately
+    When Telegram delivery is restored
+    Then the superadmin eventually receives the delayed notification
+
+  @daily_export @telethon
+  Scenario: Суперадмин получает ежедневные выгрузки
+    Given the superadmin is connected to the bot
+    When the daily export job is triggered in the test environment
+    Then the superadmin receives the combined XLSX export
+    And the superadmin receives the SQLite backup
+
+  @emergency_export
+  Scenario: Суперадмин использует аварийный export если Telegram долго недоступен
+    Given Telegram remains unavailable for a long period
+    And the superadmin has the emergency export secret
+    When the superadmin requests the emergency export endpoint
+    Then the export file is returned
+    And the endpoint does not allow changing registration state
+    When the request is made without the correct secret
+    Then the request is rejected
