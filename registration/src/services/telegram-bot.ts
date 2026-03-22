@@ -13,6 +13,7 @@ import {
 } from './telegram-admins';
 import {
   getTelegramEventById,
+  getTelegramEventBySlug,
   listTelegramEvents,
   setTelegramEventRegistrationState,
   type TelegramEventListFilter,
@@ -82,6 +83,8 @@ function formatHelp(role: TelegramAdminRole) {
 
   if (role === 'superadmin') {
     lines.push('/operators — список администраторов.');
+    lines.push('/registration_open <slug> — открыть регистрацию на событие.');
+    lines.push('/registration_close <slug> — закрыть регистрацию на событие.');
     lines.push('/export_all — общий XLSX по всем событиям.');
     lines.push('/backup_sqlite — резервная копия SQLite.');
     lines.push('/cleanup_test_run <run_id> — удалить тестовые регистрации конкретного прогона.');
@@ -93,6 +96,52 @@ function formatHelp(role: TelegramAdminRole) {
   }
 
   return lines.join('\n');
+}
+
+async function applyRegistrationStateFromCommand(
+  ctx: Context,
+  db: Database.Database,
+  telegramUserId: string,
+  commandText: string,
+  commandName: 'registration_open' | 'registration_close',
+) {
+  const admin = getTelegramAdminByUserId(db, telegramUserId);
+  if (!admin || admin.role !== 'superadmin') {
+    await ctx.reply('Менять статус регистрации может только суперадмин.');
+    return;
+  }
+
+  const slug = commandText.replace(new RegExp(`^/${commandName}(?:@\\w+)?`, 'u'), '').trim();
+  if (!slug) {
+    await ctx.reply(`Укажите slug события: /${commandName} <slug>`, {
+      reply_markup: buildMainKeyboard(admin.role),
+    });
+    return;
+  }
+
+  const event = getTelegramEventBySlug(db, slug);
+  if (!event) {
+    await ctx.reply('Событие с таким slug не найдено.', {
+      reply_markup: buildMainKeyboard(admin.role),
+    });
+    return;
+  }
+
+  const nextState = commandName === 'registration_open' ? 'open' : 'closed';
+  const updated = setTelegramEventRegistrationState(db, event.id, nextState);
+  if (!updated) {
+    await ctx.reply('Не удалось обновить статус регистрации.', {
+      reply_markup: buildMainKeyboard(admin.role),
+    });
+    return;
+  }
+
+  await ctx.reply(
+    `${commandName === 'registration_open' ? 'Регистрация открыта' : 'Регистрация закрыта'} для события «${updated.title}».`,
+    {
+      reply_markup: buildMainKeyboard(admin.role),
+    },
+  );
 }
 
 function formatEventDate(isoValue: string) {
@@ -385,6 +434,26 @@ export function registerTelegramBot(app: FastifyInstance, deps: TelegramBotDeps)
     }
 
     await sendEventList(ctx, deps.db, admin.role, 'all', 1);
+  });
+
+  bot.command('registration_open', async (ctx) => {
+    await applyRegistrationStateFromCommand(
+      ctx,
+      deps.db,
+      String(ctx.from?.id ?? ''),
+      ctx.message?.text ?? '',
+      'registration_open',
+    );
+  });
+
+  bot.command('registration_close', async (ctx) => {
+    await applyRegistrationStateFromCommand(
+      ctx,
+      deps.db,
+      String(ctx.from?.id ?? ''),
+      ctx.message?.text ?? '',
+      'registration_close',
+    );
   });
 
   bot.command('find', async (ctx) => {
@@ -888,10 +957,24 @@ export function registerTelegramBot(app: FastifyInstance, deps: TelegramBotDeps)
     bot,
     async ensureWebhook() {
       const webhookUrl = `${deps.appBaseUrl.replace(/\/+$/u, '')}${deps.webhookPath}`;
+      const webhookInfo = await bot.api.getWebhookInfo();
+      const allowedUpdates = ['message', 'callback_query'] as const;
+      const hasExpectedUrl = webhookInfo.url === webhookUrl;
+      const existingUpdates = webhookInfo.allowed_updates ?? [];
+      const hasExpectedUpdates = allowedUpdates.every((item) => existingUpdates.includes(item));
+
+      if (hasExpectedUrl && hasExpectedUpdates) {
+        app.log.info({ webhookUrl }, 'telegram_webhook_already_configured');
+        return webhookInfo;
+      }
+
       await bot.api.setWebhook(webhookUrl, {
         secret_token: deps.webhookSecret,
-        allowed_updates: ['message', 'callback_query'],
+        allowed_updates: allowedUpdates,
       });
+
+      app.log.info({ webhookUrl }, 'telegram_webhook_updated');
+      return bot.api.getWebhookInfo();
     },
   };
 }

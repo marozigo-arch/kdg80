@@ -116,6 +116,29 @@ export function getTelegramEventById(db: Database.Database, eventId: number) {
   return row ? toView(row) : null;
 }
 
+export function getTelegramEventBySlug(db: Database.Database, slug: string) {
+  const row = db.prepare(`
+    SELECT
+      id,
+      slug,
+      title,
+      starts_at,
+      ends_at,
+      venue_name,
+      hall_name,
+      address,
+      capacity,
+      seats_taken,
+      registration_public_state,
+      registration_opens_at
+    FROM events
+    WHERE slug = ?
+    LIMIT 1
+  `).get(slug) as EventRow | undefined;
+
+  return row ? toView(row) : null;
+}
+
 export function setTelegramEventRegistrationState(
   db: Database.Database,
   eventId: number,
