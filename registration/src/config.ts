@@ -59,7 +59,11 @@ function parseBoolean(value: string | undefined, fallback: boolean) {
 export function loadConfig(): AppConfig {
   const host = process.env.HOST?.trim() || '0.0.0.0';
   const port = parsePort(process.env.PORT, 3001);
-  const appBaseUrl = trimTrailingSlash(process.env.APP_BASE_URL?.trim() || `http://localhost:${port}`);
+  const flyAppName = process.env.FLY_APP_NAME?.trim();
+  const appBaseUrl = trimTrailingSlash(
+    process.env.APP_BASE_URL?.trim()
+      || (flyAppName ? `https://${flyAppName}.fly.dev` : `http://localhost:${port}`),
+  );
   const publicSiteBaseUrl = trimTrailingSlash(process.env.PUBLIC_SITE_BASE_URL?.trim() || 'http://localhost:4321');
   const publicTicketBaseUrl = trimTrailingSlash(process.env.PUBLIC_TICKET_BASE_URL?.trim() || appBaseUrl);
   const sqlitePath = path.resolve(process.cwd(), process.env.SQLITE_PATH?.trim() || './data/registration.sqlite');
