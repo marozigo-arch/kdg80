@@ -356,7 +356,7 @@ function buildRoutes() {
     }
   }
 
-  cachedHomepageMyths = [...homepageMythsByText.values()].slice(0, 18);
+  cachedHomepageMyths = [...homepageMythsByText.values()].slice(0, 20);
 
   return routes;
 }

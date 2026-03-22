@@ -422,6 +422,23 @@ summary {
   gap: 0.7rem;
 }
 
+.hero__utility-link {
+  width: fit-content;
+  margin-top: -0.08rem;
+  color: rgba(18, 17, 14, 0.74);
+  font-size: 0.94rem;
+  text-decoration: underline;
+  text-decoration-color: rgba(155, 46, 26, 0.2);
+  text-underline-offset: 0.18rem;
+  transition: color 180ms ease, text-decoration-color 180ms ease;
+}
+
+.hero__utility-link:hover,
+.hero__utility-link:focus-visible {
+  color: var(--accent-deep);
+  text-decoration-color: rgba(155, 46, 26, 0.52);
+}
+
 .hero__meta span {
   display: inline-flex;
   align-items: center;
@@ -1063,7 +1080,7 @@ summary {
 }
 
 .speaker-section {
-  padding-top: 1.25rem;
+  padding-top: 0.6rem;
 }
 
 .speaker-poster {
@@ -1155,12 +1172,18 @@ summary {
 
 .speaker-strip {
   display: grid;
-  grid-template-columns: repeat(8, calc(100% / 3.85));
+  grid-auto-flow: column;
+  grid-auto-columns: calc(100% / 3.85);
   align-items: stretch;
   gap: 0;
-  background: #12100f;
   overflow-x: auto;
   overflow-y: hidden;
+  background: #12100f;
+  scrollbar-width: none;
+}
+
+.speaker-strip::-webkit-scrollbar {
+  display: none;
 }
 
 .speaker-entry {
@@ -1273,6 +1296,43 @@ summary {
   pointer-events: none;
 }
 
+.speaker-poster__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.72rem 0.82rem 0.86rem;
+  background: #12100f;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.speaker-poster__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  padding: 0.34rem 0;
+  color: rgba(247, 241, 232, 0.86);
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgba(247, 241, 232, 0.28);
+  text-underline-offset: 0.2rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: color 180ms ease, text-decoration-color 180ms ease, opacity 180ms ease;
+}
+
+.speaker-poster__more:hover,
+.speaker-poster__more:focus-visible {
+  color: #fff;
+  text-decoration-color: rgba(247, 241, 232, 0.68);
+}
+
+.speaker-poster__more[disabled] {
+  opacity: 0.72;
+  cursor: progress;
+}
+
 .dialogue-strip,
 .footer-panels {
   display: grid;
@@ -1291,6 +1351,26 @@ summary {
   background: rgba(252, 246, 237, 0.78);
   border: 1px solid rgba(18, 17, 14, 0.08);
   box-shadow: var(--shadow);
+}
+
+.program-dialogues {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+.program-dialogues__head {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.program-dialogues__head h3 {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.38rem, 3.4vw, 2rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
 }
 
 .dialogue-card {
@@ -2841,8 +2921,8 @@ summary {
   }
 
   .speaker-strip {
-    grid-template-columns: repeat(8, minmax(9.5rem, 1fr));
-    overflow: hidden;
+    grid-auto-columns: minmax(9.5rem, 1fr);
+    overflow-x: auto;
   }
 
   .speaker-entry {
@@ -3179,28 +3259,28 @@ summary {
 .hero-showcase__theme-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 2.34rem;
-  padding: 0.56rem 0.92rem;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  color: #fff;
-  font-size: 0.94rem;
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 0.12rem 0;
+  border: 0;
+  border-radius: 0;
+  color: rgba(255, 248, 243, 0.86);
+  font-size: 0.92rem;
   font-weight: 500;
-  background: rgba(255, 255, 255, 0.06);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 248, 243, 0.28);
+  text-underline-offset: 0.18rem;
+  background: none;
   cursor: pointer;
   transition:
-    transform 180ms ease,
-    background-color 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease;
+    color 180ms ease,
+    text-decoration-color 180ms ease;
 }
 
 .hero-showcase__theme-link:hover,
 .hero-showcase__theme-link:focus-visible {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+  text-decoration-color: rgba(255, 248, 243, 0.68);
 }
 
 .hero-showcase__theme-link[hidden],

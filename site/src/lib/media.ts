@@ -107,6 +107,26 @@ export function getSpeakerStripStyle(name: string) {
   return SPEAKER_STRIP_STYLE_OVERRIDES.find((entry) => name.includes(entry.match))?.style;
 }
 
+export type SpeakerStripCard = {
+  name: string;
+  affiliation: string;
+  anchor: string;
+  image: string;
+  style?: string;
+};
+
+export function toSpeakerStripCard(entry: Pick<SpeakerShowcaseEntry, 'name' | 'affiliation' | 'images' | 'anchor'>): SpeakerStripCard {
+  const fallbackImage = entry.images[0] ?? '';
+
+  return {
+    name: entry.name,
+    affiliation: getSpeakerCaption(entry.affiliation),
+    anchor: entry.anchor,
+    image: getSpeakerStripImage(entry.name, fallbackImage),
+    style: getSpeakerStripStyle(entry.name),
+  };
+}
+
 export function getDialoguePortraitImage(name: string, fallback: string) {
   return getSpeakerStripImage(name, fallback);
 }
@@ -125,4 +145,5 @@ export function getEventPortraitStyle(value: string, isLecture = false) {
 
   return EVENT_PORTRAIT_OVERRIDES.find((entry) => value.includes(entry.match))?.style ?? undefined;
 }
+import type { SpeakerShowcaseEntry } from './festival';
 

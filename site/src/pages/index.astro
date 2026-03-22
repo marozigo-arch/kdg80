@@ -1,6 +1,7 @@
 ---
 import EventCard from '../components/EventCard.astro';
 import InterestChooser from '../components/InterestChooser.astro';
+import SpeakerPoster from '../components/SpeakerPoster.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import Layout from '../layouts/Layout.astro';
@@ -14,7 +15,6 @@ import {
 import {
   getEventPortraitImage,
   getSpeakerStripImage,
-  getSpeakerStripStyle,
 } from '../lib/media';
 import {
   getHomepageHeroMyths,
@@ -31,8 +31,8 @@ const homepageHeroMyths = getHomepageHeroMyths();
 const SPEAKER_SHOWCASE_LIMIT = 8;
 const allSpeakerShowcase = getSpeakerShowcase(events, Number.POSITIVE_INFINITY);
 const speakerShowcase = allSpeakerShowcase.slice(0, SPEAKER_SHOWCASE_LIMIT);
+const speakerLoadHref = '/data/speakers-more.json';
 const openDialogues = getOpenDialogues(events).slice(0, 5);
-const nextEvent = events[0];
 type RelatedEventCard = NonNullable<(typeof events)[number]['relatedEvent']>;
 type HeroQuoteType = 'festival' | 'lecture';
 type HeroVariantBase = {
@@ -716,8 +716,8 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
 
               <div class="hero__actions">
                 <a class="button button--primary" href={programHref}>Смотреть программу</a>
-                <a class="button button--ghost" href="#interest-chooser-title">По интересам</a>
               </div>
+              <a class="hero__utility-link" href="#interest-chooser-title">Выбрать маршрут по интересам</a>
             </div>
 
             <aside class="hero__aside" aria-label="Сильные истории фестиваля">
@@ -830,94 +830,9 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
         </div>
       </section>
 
-      <section class="hero-upcoming" aria-labelledby="next-event-title">
-        <div class="container">
-          <article class="hero-ticket hero-ticket--compact hero-ticket--bar">
-            <p class="hero-ticket__eyebrow">Ближайшее событие</p>
-            <h2 id="next-event-title">{nextEvent.title}</h2>
-            <div class="hero-ticket__meta">
-              <span>{nextEvent.dateLabel}</span>
-              <span>{nextEvent.timeLabel}</span>
-              <span>{nextEvent.venue}</span>
-            </div>
-            <p class="hero-ticket__summary">{getCardText(nextEvent)}</p>
-            <a class="button button--ghost" href={`#event-${nextEvent.slug}`}>К событию</a>
-          </article>
-        </div>
-      </section>
+      <SpeakerPoster entries={speakerShowcase} totalCount={allSpeakerShowcase.length} loadHref={speakerLoadHref} />
 
       <InterestChooser items={routeItems} />
-
-      <section class="section speaker-section" id="speakers">
-        <div class="container">
-          <div class="speaker-poster">
-            <div class="speaker-poster__masthead">
-              <div class="speaker-poster__topline">
-                <p class="speaker-poster__eyebrow">Люди фестиваля</p>
-                <p class="speaker-poster__stamp">Калининград / 2026 / 80 историй о главном</p>
-              </div>
-
-              <h2>
-                <span>ГОЛОСА</span>
-                <span>ФЕСТИВАЛЯ</span>
-              </h2>
-
-              <p class="speaker-poster__note">
-                Крупные лица, резкий кроп, без карточного воздуха.
-              </p>
-            </div>
-
-            <div
-              class="speaker-strip"
-            >
-              {speakerShowcase.map((speaker, index) => (
-                <a class={`speaker-entry speaker-entry--${index + 1}`} href={`#${speaker.anchor}`}>
-                  <div class="speaker-entry__meta">
-                    <strong>{speaker.name}</strong>
-                    {speaker.affiliation && <span>{getSpeakerCaption(speaker.affiliation)}</span>}
-                  </div>
-
-                  <div class="speaker-entry__media">
-                    <img
-                      class="speaker-entry__portrait"
-                      src={getSpeakerStripImage(speaker.name, speaker.images[0])}
-                      alt={speaker.name}
-                      loading="lazy"
-                      fetchpriority="low"
-                      decoding="async"
-                      style={getSpeakerStripStyle(speaker.name)}
-                    />
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section section--compact" id="dialogues">
-        <div class="container">
-          <div class="section__header section__header--split">
-            <div>
-              <p class="section__eyebrow">Открытые диалоги</p>
-              <h2>Их нужно выделять как отдельную драматургию фестиваля, а не как ещё один тип карточки</h2>
-            </div>
-            <p class="section__text">
-              Здесь оставляю короткий ряд афишных анонсов: многоголосие, столкновение точек зрения и ощущение публичного разговора.
-            </p>
-          </div>
-
-          <div class="dialogue-strip">
-            {openDialogues.map((event) => (
-              <a class="dialogue-card" href={`#event-${event.slug}`}>
-                <span class="dialogue-card__meta">{event.dateLabel}</span>
-                <strong>{event.title}</strong>
-                <span>{event.venue}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section class="section section--program" id="program">
         <div class="container">
@@ -931,6 +846,25 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
               а на первый план выходят дата, афиша события и заметный человек.
             </p>
           </div>
+
+          {openDialogues.length > 0 && (
+            <section class="program-dialogues" id="dialogues" aria-labelledby="dialogues-title">
+              <div class="program-dialogues__head">
+                <p class="section__eyebrow">Открытые диалоги</p>
+                <h3 id="dialogues-title">Пять разговоров, где важны спор, опыт и столкновение взглядов.</h3>
+              </div>
+
+              <div class="dialogue-strip dialogue-strip--program">
+                {openDialogues.map((event) => (
+                  <a class="dialogue-card" href={`#event-${event.slug}`}>
+                    <span class="dialogue-card__meta">{event.dateLabel}</span>
+                    <strong>{event.title}</strong>
+                    <span>{event.venue}</span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
 
           <div class="month-nav-wrap">
             <nav class="month-nav" aria-label="Навигация по месяцам">
