@@ -1,5 +1,8 @@
 ---
-const registrationApiBaseUrl = (import.meta.env.PUBLIC_REGISTRATION_API_BASE_URL || 'http://localhost:3001').replace(/\/+$/u, '');
+const registrationApiBaseUrl = (
+  import.meta.env.PUBLIC_REGISTRATION_API_BASE_URL
+  || 'https://znanie-kgd80-fest.fly.dev'
+).replace(/\/+$/u, '');
 const consentUrl = '/docs/registration-personal-data-consent-draft.pdf';
 const privacyUrl = 'https://znanierussia.ru/privacy_policy';
 const supportEmail = 'bilet@kdg80.ru';
