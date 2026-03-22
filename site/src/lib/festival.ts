@@ -52,6 +52,7 @@ export type FestivalEvent = {
   title: string;
   format: string;
   formatLabel: string;
+  accessLabel?: string;
   dateLabel: string;
   monthLabel: string;
   monthAnchor: string;

@@ -18,6 +18,7 @@ export type RouteNavItem = {
 
 export type RouteMyth = {
   id: string;
+  mythNumber: number;
   text: string;
   strength: 'A' | 'B' | 'C';
   eventTitle: string;
@@ -167,9 +168,10 @@ function parseRouteSections() {
 function parseMythsByEvent() {
   const source = fs.readFileSync(MYTHS_PATH, 'utf-8');
   const lines = source.split('\n');
-  const myths = new Map<string, Array<{ text: string; strength: 'A' | 'B' | 'C' }>>();
+  const myths = new Map<string, Array<{ mythNumber: number; text: string; strength: 'A' | 'B' | 'C' }>>();
   let currentEventTitle = '';
   let currentStrength: 'A' | 'B' | 'C' = 'B';
+  let mythNumber = 0;
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -199,8 +201,9 @@ function parseMythsByEvent() {
       continue;
     }
 
+    mythNumber += 1;
     const current = myths.get(currentEventTitle) ?? [];
-    current.push({ text, strength: currentStrength });
+    current.push({ mythNumber, text, strength: currentStrength });
     myths.set(currentEventTitle, current);
   }
 
@@ -252,21 +255,24 @@ function createProvisionalZooExcursion(events: FestivalEvent[]) {
     title: 'Премьера новой тематической экскурсии по Калининградскому зоопарку',
     format: 'Экскурсия',
     formatLabel: 'Экскурсия',
-    dateLabel: 'Дата будет объявлена',
-    monthLabel: 'Скоро',
-    monthAnchor: 'soon',
-    timeLabel: 'Время будет объявлено',
+    accessLabel: '',
+    dateLabel: 'Июнь 2026',
+    monthLabel: 'Июнь',
+    monthAnchor: 'june',
+    timeLabel: 'Точное время будет объявлено',
     durationLabel: 'Продолжительность уточняется',
+    venue: 'Калининградский зоопарк',
+    address: 'проспект Мира, 26',
     summary: 'Премьера новой тематической экскурсии по зоопарку, которая лучше раскроет, что появилось в зоопарке в советское время, познакомит с историей зоопарка того периода и покажет вживую, как менялся зоопарк после немецкой эпохи.',
     whyGo: 'Экскурсия задумывается как весёлая и полная необычных зоопарковых историй прогулка по советскому слою Калининградского зоопарка.',
     registrationUrl: undefined,
     calendarReady: false,
     googleCalendarUrl: undefined,
     icsUrl: undefined,
-    calendarNote: 'Дата экскурсии будет объявлена позже.',
+    calendarNote: 'Точная дата и время экскурсии будут объявлены позже.',
     kind: 'special' as const,
     isoStart: undefined,
-    showingsLabel: 'Премьера экскурсии, дата уточняется',
+    showingsLabel: 'Премьера экскурсии в июне',
     speakerLectureLinks: [],
   } satisfies FestivalEvent;
 }
@@ -299,6 +305,7 @@ function buildRoutes() {
     const myths = collectedEvents.flatMap((event) =>
       (mythsByEvent.get(event.title) ?? []).map((myth, index) => ({
         id: `${spec.slug}-${event.slug}-${index + 1}`,
+        mythNumber: myth.mythNumber,
         text: myth.text,
         strength: myth.strength,
         eventTitle: event.title,
@@ -437,11 +444,6 @@ const ROUTE_SECTION_RULES: Array<{ id: string; title: string; match: (event: Fes
     match: (event) => normalizeFestivalLookup(event.formatLabel).includes(normalizeFestivalLookup('Иммерсивный спектакль')),
   },
   {
-    id: 'exhibitions',
-    title: 'Выставки',
-    match: (event) => normalizeFestivalLookup(event.formatLabel).includes(normalizeFestivalLookup('Выставка')),
-  },
-  {
     id: 'excursions',
     title: 'Экскурсия',
     match: (event) => normalizeFestivalLookup(event.formatLabel).includes(normalizeFestivalLookup('Экскурсия')),
@@ -455,6 +457,11 @@ const ROUTE_SECTION_RULES: Array<{ id: string; title: string; match: (event: Fes
     id: 'lectures',
     title: 'Лекции',
     match: (event) => normalizeFestivalLookup(event.formatLabel).includes(normalizeFestivalLookup('Лекция')),
+  },
+  {
+    id: 'exhibitions',
+    title: 'Выставки',
+    match: (event) => normalizeFestivalLookup(event.formatLabel).includes(normalizeFestivalLookup('Выставка')),
   },
 ];
 

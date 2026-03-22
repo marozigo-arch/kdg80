@@ -6,7 +6,13 @@
 - Prefer Gemini for routine consultations and quick external validation more often than Opus. Use it proactively for ordinary consulting passes unless the user explicitly asks for Opus or there is a clear reason to escalate beyond Gemini.
 - If the user asks to "use Opus", "launch Opus", "run Opus", "call Opus", or uses the Russian equivalents, interpret that as a concrete instruction to use the Claude model alias `opus`.
 - In this workspace, when the user references `Opus`, prefer `claude --model opus --effort high` or an equivalent default configuration that resolves to the latest available Claude Opus model.
-- When a command, script, or workflow needs an explicit Gemini consultation invocation, prefer headless Gemini CLI via `gemini -p "<prompt>" --output-format text`. Add `-m <model>` only when a specific Gemini model is required and known to work in this workspace.
+- When a command, script, or workflow needs an explicit Gemini consultation invocation, prefer headless Gemini CLI via `gemini -m gemini-3-pro-preview -p "<prompt>" --output-format text` for routine Gemini consultations in this workspace.
+- Do not rely on the Gemini CLI default model here for headless consultations unless you have just verified it is healthy in the current session.
+- Do not downgrade to Gemini 2.5 or switch to a Flash model unless the user explicitly approves that downgrade.
+- Use another Gemini 3 Pro model alias only when the user explicitly asks for it or when you have just validated that the alias is available and behaving correctly in this installed CLI.
+- Do not guess Gemini model ids from UI copy alone; use the exact alias names supported by the installed Gemini CLI build.
+- Keep Gemini prompts compact. Summarize repository context instead of pasting large raw documents by default.
+- For large context, prefer piping via stdin or using a temporary file/heredoc over building very large inline shell strings.
 - For website work, use Claude Opus with high effort as a consulting and support model for interface design, UX decisions, frontend implementation, and code-level problem solving.
 - Treat Opus as the specialist assistant for site UI review, interface improvement work, deeper UX validation, and website-specific implementation consultation when the user asks for Opus or when a Gemini pass is not enough.
 - For general-purpose consultation, second opinions, implementation validation, and non-visual code strategy, prefer Gemini first and use Opus as a follow-up when the user requests it or Gemini's answer is insufficient.
@@ -29,6 +35,10 @@
 - Prefer a single deliberate headless request over multiple quick retries. Improve the prompt before rerunning; do not spam Gemini with repeated partial attempts.
 - For lightweight validation or second-opinion checks, allow enough time for Gemini CLI initialization and response generation instead of treating the first silent seconds as failure.
 - For substantial implementation, debugging, code review, or strategy consultations, prefer a wait budget in the several-minutes range before treating the run as stalled.
+- Treat `MODEL_CAPACITY_EXHAUSTED` or `No capacity available for model ...` as a model-availability problem first, not as evidence that the prompt was too large.
+- If a Gemini 3 Pro request fails on the default or preview route, retry only with another validated Gemini 3 Pro alias for this installed CLI, not with Flash or 2.5 unless the user explicitly approves.
+- If prompt size might still matter, test that hypothesis separately with the same task on a working Gemini 3 Pro route instead of inferring it from a preview-model 429.
+- When the prompt is large, pass it through stdin or a temp file and trim it to the minimum context needed before retrying.
 - If Gemini fails because of auth, model selection, CLI initialization, or environment issues, report the actual command pattern and the concrete error instead of silently replacing the consultation with the agent's own opinion.
 
 ## Skill Usage Policy

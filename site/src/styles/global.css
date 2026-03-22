@@ -734,6 +734,7 @@ summary {
   font-size: 0.63rem;
   font-weight: 600;
   letter-spacing: 0.095em;
+  font-variant-numeric: tabular-nums;
   text-transform: uppercase;
   background: rgba(255, 244, 238, 0.14);
   border: 1px solid rgba(255, 244, 238, 0.16);
@@ -780,8 +781,8 @@ summary {
   opacity: 0;
   transform: translate3d(0, 0.38em, 0);
   will-change: opacity, transform;
-  animation: word-reveal-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(var(--word-index, 0) * 42ms);
+  animation: word-reveal-enter var(--word-reveal-duration, 480ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--word-index, 0) * var(--word-reveal-stagger, 42ms));
 }
 
 .word-reveal__word[data-static="true"] {
@@ -891,6 +892,7 @@ summary {
   background: rgba(255, 246, 240, 0.16);
   border: 1px solid rgba(255, 246, 240, 0.22);
   backdrop-filter: blur(12px);
+  cursor: pointer;
   transition:
     transform 180ms ease,
     background-color 180ms ease,
@@ -1069,6 +1071,8 @@ summary {
   border-radius: 0.85rem;
   background: #12100f;
   box-shadow: var(--shadow-strong);
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 980px;
 }
 
 .speaker-poster__masthead {
@@ -1273,6 +1277,11 @@ summary {
 .footer-panels {
   display: grid;
   gap: 0.8rem;
+}
+
+.dialogue-strip {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 380px;
 }
 
 .dialogue-card,
@@ -2471,6 +2480,14 @@ summary {
     display: none;
   }
 
+  .hero-showcase[data-hero-kind="myth"] .hero-showcase__brandbadge {
+    display: block;
+    top: 0.95rem;
+    right: 0.95rem;
+    width: min(4.55rem, 8.6vw);
+    padding: 0.46rem 0.5rem;
+  }
+
   .hero-showcase__shape-proxy {
     display: none;
   }
@@ -2655,8 +2672,17 @@ summary {
 }
 
 @media (min-width: 980px) {
+  .hero__shell {
+    min-height: 38.125rem;
+  }
+
+  .hero__copy,
+  .hero__aside {
+    min-height: 38.125rem;
+  }
+
   .hero-showcase {
-    min-height: 29.35rem;
+    min-height: 38.125rem;
   }
 
   .hero-showcase__card {
@@ -3013,6 +3039,9 @@ summary {
   border-radius: 1rem;
   background: rgba(252, 246, 237, 0.98);
   box-shadow: 0 22px 48px rgba(18, 17, 14, 0.12);
+  z-index: 70;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .site-header__route-link {
@@ -3159,6 +3188,7 @@ summary {
   font-size: 0.94rem;
   font-weight: 500;
   background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
   transition:
     transform 180ms ease,
     background-color 180ms ease,
@@ -3195,7 +3225,9 @@ summary {
 }
 
 .hero-showcase[data-hero-kind="myth"] .hero-showcase__brandbadge {
-  display: none;
+  display: block;
+  background: rgba(255, 247, 240, 0.12);
+  box-shadow: 0 16px 28px rgba(18, 13, 11, 0.18);
 }
 
 .hero-showcase[data-hero-kind="myth"] .hero-showcase__card {
@@ -3356,6 +3388,26 @@ summary {
     linear-gradient(150deg, #8f2e1b, #3b1a15);
 }
 
+.route-hero__brandbadge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  width: min(4rem, 22vw);
+  padding: 0.42rem 0.44rem;
+  border-radius: 1rem;
+  background: rgba(255, 247, 240, 0.12);
+  border: 1px solid rgba(255, 247, 240, 0.18);
+  box-shadow: 0 16px 28px rgba(18, 13, 11, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.route-hero__brandbadge img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .route-hero__myth-body {
   position: relative;
   z-index: 1;
@@ -3370,6 +3422,7 @@ summary {
   font-size: 0.98rem;
   font-weight: 700;
   letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
   text-transform: uppercase;
   justify-self: start;
   padding: 0;
@@ -3658,6 +3711,12 @@ summary {
     font-size: 0.96rem;
   }
 
+  .route-hero__brandbadge {
+    top: 0.95rem;
+    right: 0.95rem;
+    width: min(4.6rem, 14vw);
+  }
+
   .route-subnav__desktop {
     display: flex;
   }
@@ -3674,21 +3733,29 @@ summary {
 
 @media (max-width: 759px) {
   :root {
-    --header-logo-width-hero: clamp(7.05rem, 31vw, 8.15rem);
-    --header-logo-width-festival: clamp(9.55rem, 43vw, 10.95rem);
+    --header-logo-width-festival: clamp(9rem, 40.5vw, 10.35rem);
+    --header-logo-width-hero: var(--header-logo-width-festival);
+    --header-logo-ratio-hero: var(--header-logo-ratio-festival);
     --header-logo-gap: 0.35rem;
+    --header-hero-logo-pad-block: 0.2rem;
+    --header-hero-logo-pad-right: clamp(2.35rem, 8vw, 3.25rem);
+    --site-header-mobile-route-slot: 4.8rem;
   }
 
   .site-header__row {
+    justify-content: flex-start;
     gap: 0.72rem;
   }
 
   .site-header__nav {
     display: flex;
-    flex: 0 0 auto;
+    flex: 0 0 var(--site-header-mobile-route-slot);
     align-items: center;
+    justify-content: flex-end;
     gap: 0.38rem;
     margin-left: auto;
+    width: var(--site-header-mobile-route-slot);
+    min-width: var(--site-header-mobile-route-slot);
   }
 
   .site-header__nav > a {
@@ -3696,6 +3763,7 @@ summary {
   }
 
   .site-header__cta {
+    flex: 0 0 auto;
     margin-left: 0;
     min-height: 2.35rem;
     padding-inline: 0.76rem;
@@ -3703,20 +3771,29 @@ summary {
   }
 
   .site-header__route-menu {
-    width: auto;
+    display: flex;
+    justify-content: flex-end;
+    width: var(--site-header-mobile-route-slot);
+    min-width: var(--site-header-mobile-route-slot);
   }
 
   .site-header__route-panel {
-    position: absolute;
-    top: calc(100% + 0.55rem);
-    right: 0;
-    left: auto;
-    min-width: min(18.5rem, calc(100vw - 1.4rem));
-    max-width: calc(100vw - 1.4rem);
+    position: fixed;
+    top: calc(var(--site-header-height, 4.25rem) + 0.4rem);
+    left: 0.7rem;
+    right: 0.7rem;
+    min-width: 0;
+    max-width: none;
+    max-height: calc(100dvh - var(--site-header-height, 4.25rem) - 1rem);
+    padding: 0.8rem;
+    border-radius: 1.1rem;
   }
 
   .site-header__route-menu summary {
+    justify-content: center;
     min-height: 2.35rem;
+    width: 100%;
+    min-width: var(--site-header-mobile-route-slot);
     padding: 0.52rem 0.68rem;
     border: 1px solid rgba(18, 17, 14, 0.08);
     border-radius: 999px;
@@ -3742,7 +3819,6 @@ summary {
 
   .site-header[data-scrolled="true"] .site-header__route-menu summary {
     gap: 0.35rem;
-    padding-inline: 0.62rem;
   }
 
   .site-header[data-scrolled="true"] .site-header__route-summary-label {
@@ -3753,6 +3829,10 @@ summary {
 
   .site-header[data-scrolled="true"] .site-header__route-summary-label::before {
     content: none;
+  }
+
+  .site-header__route-link {
+    padding: 0.82rem 0.84rem;
   }
 
   .hero-showcase__theme-link,

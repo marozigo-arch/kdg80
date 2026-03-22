@@ -39,7 +39,7 @@ const headerKind = isHome ? 'home' : (currentRouteSlug ? 'route' : 'default');
     </a>
 
     <nav class="site-header__nav" aria-label="Быстрые разделы">
-      <details class="site-header__route-menu">
+      <details class="site-header__route-menu" data-route-menu>
         <summary aria-label="Темы">
           <span class="site-header__route-summary-icon" aria-hidden="true"></span>
           <span class="site-header__route-summary-label" data-mobile-label="Темы">По интересам</span>
@@ -75,7 +75,9 @@ const headerKind = isHome ? 'home' : (currentRouteSlug ? 'route' : 'default');
 
     siteHeader.dataset.enhanced = 'true';
 
+    const routeMenu = siteHeader.querySelector('[data-route-menu]');
     let headerStateFrame = 0;
+    let isHeaderScrolled = siteHeader.dataset.scrolled === 'true';
 
     const syncHeaderHeight = () => {
       document.documentElement.style.setProperty('--site-header-height', `${siteHeader.offsetHeight}px`);
@@ -111,8 +113,13 @@ const headerKind = isHome ? 'home' : (currentRouteSlug ? 'route' : 'default');
         : headerKind === 'route'
           ? getRouteThreshold()
           : siteHeader.offsetHeight + 24;
+      const hysteresis = 16;
+      const nextScrolled = isHeaderScrolled
+        ? window.scrollY > threshold - hysteresis
+        : window.scrollY > threshold + hysteresis;
 
-      siteHeader.dataset.scrolled = window.scrollY > threshold ? 'true' : 'false';
+      isHeaderScrolled = nextScrolled;
+      siteHeader.dataset.scrolled = nextScrolled ? 'true' : 'false';
     };
 
     const requestHeaderLogoStateSync = () => {
@@ -133,9 +140,41 @@ const headerKind = isHome ? 'home' : (currentRouteSlug ? 'route' : 'default');
       });
     });
 
+    if (routeMenu instanceof HTMLDetailsElement) {
+      document.addEventListener('click', (event) => {
+        if (!routeMenu.open) {
+          return;
+        }
+
+        const target = event.target;
+        if (!(target instanceof Node) || routeMenu.contains(target)) {
+          return;
+        }
+
+        routeMenu.open = false;
+      });
+
+      routeMenu.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target instanceof HTMLAnchorElement) {
+          routeMenu.open = false;
+        }
+      });
+    }
+
     window.addEventListener('load', requestHeaderLogoStateSync);
-    window.addEventListener('hashchange', requestHeaderLogoStateSync);
+    window.addEventListener('hashchange', () => {
+      if (routeMenu instanceof HTMLDetailsElement) {
+        routeMenu.open = false;
+      }
+      requestHeaderLogoStateSync();
+    });
     window.addEventListener('scroll', requestHeaderLogoStateSync, { passive: true });
-    window.addEventListener('resize', requestHeaderLogoStateSync);
+    window.addEventListener('resize', () => {
+      if (routeMenu instanceof HTMLDetailsElement) {
+        routeMenu.open = false;
+      }
+      requestHeaderLogoStateSync();
+    });
   })();
 </script>

@@ -11,10 +11,30 @@ const variants = route.heroMyths.length ? route.heroMyths : route.myths;
 const defaultVariant = variants[0];
 const variantsPayload = JSON.stringify(variants);
 const defaultWords = defaultVariant ? getWordParts(defaultVariant.text) : [];
+const defaultWordRevealStyle = getWordRevealStyle(defaultWords.length);
 const defaultSpeakerLineParts = defaultVariant ? getMythContextParts(defaultVariant.speakerLine) : null;
 
 function getWordParts(value: string) {
   return value.trim().split(/\s+/u).filter(Boolean);
+}
+
+function getWordRevealTiming(wordCount: number) {
+  const safeCount = Math.max(wordCount, 1);
+  const duration = 400;
+  const totalWindow = 720;
+  const stagger = safeCount > 1
+    ? Math.max(18, Math.min(46, Math.round((totalWindow - duration) / (safeCount - 1))))
+    : 0;
+  return { stagger, duration };
+}
+
+function getWordRevealStyle(wordCount: number) {
+  const { stagger, duration } = getWordRevealTiming(wordCount);
+  return `--word-reveal-stagger: ${stagger}ms; --word-reveal-duration: ${duration}ms;`;
+}
+
+function getMythLabel(mythNumber?: number) {
+  return mythNumber ? `Заблуждение #${mythNumber}` : 'Заблуждение';
 }
 
 function getMythContextParts(value: string) {
@@ -39,9 +59,18 @@ function getMythContextParts(value: string) {
   <div class="container route-hero__shell">
     {defaultVariant && (
       <div class="route-hero__myth-card" data-route-hero-card>
+        <div class="route-hero__brandbadge" aria-hidden="true">
+          <img src="/shared-assets/logo-80-istorii-hero.svg" alt="" width="431" height="373" decoding="async" loading="eager" />
+        </div>
         <div class="route-hero__myth-body">
-          <p class="route-hero__myth-label">Заблуждение</p>
-          <a class="route-hero__myth-link word-reveal" data-route-hero-link data-word-reveal href={defaultVariant.eventHref}>
+          <p class="route-hero__myth-label" data-route-hero-label>{getMythLabel(defaultVariant.mythNumber)}</p>
+          <a
+            class="route-hero__myth-link word-reveal"
+            data-route-hero-link
+            data-word-reveal
+            href={defaultVariant.eventHref}
+            style={defaultWordRevealStyle}
+          >
             {defaultWords.map((word, index) => (
               <>
                 <span class="word-reveal__word" style={`--word-index: ${index};`}>{word}</span>
@@ -87,10 +116,11 @@ function getMythContextParts(value: string) {
 
 <script is:inline>
   const routeHero = document.querySelector('[data-route-hero]');
+  const DESKTOP_ROUTE_HERO_AUTOPLAY_MS = 9000;
 
   const isHeavyMyth = (variant) => /уничтож|разруш|невозможно спасти/iu.test(String(variant?.text ?? ''));
 
-  const buildDeck = (variants) => {
+  const buildDeck = (variants, avoidFirstIndex = -1) => {
     const deck = [...variants.keys()];
     for (let index = deck.length - 1; index > 0; index -= 1) {
       const nextIndex = Math.floor(Math.random() * (index + 1));
@@ -129,6 +159,13 @@ function getMythContextParts(value: string) {
       }
     }
 
+    if (deck.length > 1 && avoidFirstIndex >= 0 && deck[0] === avoidFirstIndex) {
+      const nextIndex = deck.findIndex((deckItem) => deckItem !== avoidFirstIndex);
+      if (nextIndex > 0) {
+        [deck[0], deck[nextIndex]] = [deck[nextIndex], deck[0]];
+      }
+    }
+
     return deck;
   };
 
@@ -140,6 +177,14 @@ function getMythContextParts(value: string) {
     const words = String(text ?? '').trim().split(/\s+/u).filter(Boolean);
     element.textContent = '';
     element.classList.add('word-reveal');
+    const safeCount = Math.max(Number(words.length) || 1, 1);
+    const duration = 400;
+    const totalWindow = 720;
+    const stagger = safeCount > 1
+      ? Math.max(18, Math.min(46, Math.round((totalWindow - duration) / (safeCount - 1))))
+      : 0;
+    element.style.setProperty('--word-reveal-stagger', `${stagger}ms`);
+    element.style.setProperty('--word-reveal-duration', `${duration}ms`);
 
     if (!words.length) {
       return;
@@ -187,10 +232,15 @@ function getMythContextParts(value: string) {
 
   const setRouteHeroVariant = (root, variant, index) => {
     root.dataset.routeIndex = String(index);
+    const label = root.querySelector('[data-route-hero-label]');
     const mythLink = root.querySelector('[data-route-hero-link]');
     const speakerLine = root.querySelector('[data-route-hero-context]');
     const cta = root.querySelector('[data-route-hero-cta]');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (label instanceof HTMLElement) {
+      label.textContent = variant.mythNumber ? `Заблуждение #${variant.mythNumber}` : 'Заблуждение';
+    }
 
     if (mythLink instanceof HTMLAnchorElement) {
       mythLink.href = variant.eventHref;
@@ -226,6 +276,11 @@ function getMythContextParts(value: string) {
           }, prefersReducedMotion ? 0 : 220);
         };
 
+        const resetDeck = (lastShownIndex = -1) => {
+          deck = buildDeck(variants, lastShownIndex);
+          deckIndex = 0;
+        };
+
         const queueNext = () => {
           if (prefersReducedMotion || isMobile || userInteracted) {
             return;
@@ -236,14 +291,14 @@ function getMythContextParts(value: string) {
           }
 
           timer = window.setTimeout(() => {
+            const currentVariantIndex = deck[deckIndex];
             deckIndex += 1;
             if (deckIndex >= deck.length) {
-              deck = buildDeck(variants);
-              deckIndex = 0;
+              resetDeck(currentVariantIndex);
             }
             goToIndex(deckIndex);
             queueNext();
-          }, 6000);
+          }, DESKTOP_ROUTE_HERO_AUTOPLAY_MS);
         };
 
         setRouteHeroVariant(routeHero, variants[deck[deckIndex]], deckIndex);
@@ -256,10 +311,10 @@ function getMythContextParts(value: string) {
               window.clearTimeout(timer);
               timer = 0;
             }
+            const currentVariantIndex = deck[deckIndex];
             deckIndex += 1;
             if (deckIndex >= deck.length) {
-              deck = buildDeck(variants);
-              deckIndex = 0;
+              resetDeck(currentVariantIndex);
             }
             goToIndex(deckIndex);
           });
