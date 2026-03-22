@@ -3543,10 +3543,9 @@ summary {
   width: min(4rem, 22vw);
   padding: 0.42rem 0.44rem;
   border-radius: 1rem;
-  background: rgba(255, 247, 240, 0.12);
-  border: 1px solid rgba(255, 247, 240, 0.18);
-  box-shadow: 0 16px 28px rgba(18, 13, 11, 0.18);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 248, 242, 0.94);
+  border: 1px solid rgba(18, 17, 14, 0.08);
+  box-shadow: 0 14px 24px rgba(18, 17, 14, 0.14);
 }
 
 .route-hero__brandbadge img {
