@@ -1,39 +1,39 @@
 Feature: Проверка регистрации через сайт и Telegram
-  To verify the registration system end to end
-  we automate visitor actions on the website
-  and test-user actions in Telegram
+  Чтобы проверить систему регистрации end-to-end
+  мы автоматизируем действия посетителя на сайте
+  и действия тестовых пользователей в Telegram
 
   Background:
-    Given the public festival website is available for testing
-    And the test Telegram bot is available for testing
+    Given публичный сайт фестиваля доступен для тестирования
+    And тестовый Telegram-бот доступен для тестирования
 
   @telegram_bootstrap @telethon
   Scenario: Первый пользователь Telegram становится суперадмином
-    Given the bot has no admins yet
-    When test Telegram user "superadmin" sends "/start"
-    Then "superadmin" becomes the superadmin
-    And the bot shows button navigation
-    And the bot shows the help text
-    When test Telegram user "second-user" sends "/start"
-    Then "second-user" is not added as an admin
+    Given у бота ещё нет администраторов
+    When тестовый пользователь Telegram "superadmin" отправляет "/start"
+    Then "superadmin" становится суперадмином
+    And бот показывает кнопочную навигацию
+    And бот показывает текст помощи
+    When тестовый пользователь Telegram "second-user" отправляет "/start"
+    Then "second-user" не добавляется в администраторы
 
   @happy_path @playwright @telethon
   Scenario Outline: Посетитель успешно регистрируется на открытое событие
-    Given event "<event_slug>" is open for registration
-    And the Telegram superadmin chat is ready to receive notifications
-    When the visitor opens the event page for "<event_slug>"
-    And the visitor fills the registration form with valid full name, email and Russian phone
-    And the visitor submits the registration form
-    Then the visitor sees the ticket page for "<event_slug>"
-    And the ticket page shows the visitor full name
-    And the ticket page shows masked phone and masked email
-    And the ticket page shows the event date, time, venue, hall and full address
-    And the ticket page shows a 6-character ticket ID
-    And the ticket page offers "Download PDF"
-    And the ticket page offers Google Calendar, Apple Calendar, Android / ICS and "Download ICS"
-    And the ticket page says "Printing the ticket is not required"
-    And the ticket page does not offer self-service cancellation
-    And the superadmin receives a Telegram notification about that registration
+    Given событие "<event_slug>" открыто для регистрации
+    And чат суперадмина в Telegram готов принимать уведомления
+    When посетитель открывает страницу события "<event_slug>"
+    And посетитель заполняет форму регистрации валидными ФИО, email и российским телефоном
+    And посетитель отправляет форму регистрации
+    Then посетитель видит страницу билета для "<event_slug>"
+    And страница билета показывает полное ФИО посетителя
+    And страница билета показывает маскированные телефон и email
+    And страница билета показывает дату, время, площадку, зал и полный адрес события
+    And страница билета показывает 6-символьный номер билета
+    And страница билета предлагает "Скачать PDF"
+    And страница билета предлагает Google Calendar, Apple Calendar, Android / ICS и "Скачать ICS"
+    And страница билета содержит текст "Печать билета не требуется"
+    And страница билета не предлагает самостоятельную отмену регистрации
+    And суперадмин получает уведомление в Telegram об этой регистрации
 
     Examples:
       | event_slug              |
@@ -45,12 +45,12 @@ Feature: Проверка регистрации через сайт и Telegram
 
   @validation @playwright
   Scenario Outline: Посетитель видит inline-ошибку при некорректных данных
-    Given event "scientific-library-open" is open for registration
-    When the visitor opens the event page for "scientific-library-open"
-    And the visitor enters "<full_name>", "<email>" and "<phone>"
-    And the visitor submits the registration form
-    Then the registration is not created
-    And the visitor sees the inline error "<error_message>"
+    Given событие "scientific-library-open" открыто для регистрации
+    When посетитель открывает страницу события "scientific-library-open"
+    And посетитель вводит "<full_name>", "<email>" и "<phone>"
+    And посетитель отправляет форму регистрации
+    Then регистрация не создаётся
+    And посетитель видит inline-ошибку "<error_message>"
 
     Examples:
       | full_name               | email                     | phone          | error_message                                                              |
@@ -63,115 +63,115 @@ Feature: Проверка регистрации через сайт и Telegram
 
   @dedupe @playwright
   Scenario: Один и тот же email или телефон нельзя использовать дважды для одного события
-    Given a visitor is already registered for event "science-center-open"
-    When the same visitor submits the registration form again for "science-center-open"
-    Then the registration is rejected
-    And the visitor sees the duplicate-registration message
+    Given посетитель уже зарегистрирован на событие "science-center-open"
+    When тот же посетитель снова отправляет форму регистрации на "science-center-open"
+    Then регистрация отклоняется
+    And посетитель видит сообщение о дубле регистрации
 
   @multi_event @playwright
   Scenario: Один и тот же человек может зарегистрироваться на другое событие
-    Given a visitor is already registered for event "science-center-open"
-    And event "tretyakovka-open" is open for registration
-    When the same visitor submits the registration form for "tretyakovka-open"
-    Then the second registration is accepted
-    And the visitor sees the ticket page for "tretyakovka-open"
+    Given посетитель уже зарегистрирован на событие "science-center-open"
+    And событие "tretyakovka-open" открыто для регистрации
+    When тот же посетитель отправляет форму регистрации на "tretyakovka-open"
+    Then вторая регистрация принимается
+    And посетитель видит страницу билета для "tretyakovka-open"
 
   @past_event @playwright
   Scenario: Посетитель не может зарегистрироваться на прошедшее событие
-    Given event "archive-event" is in the past
-    When the visitor opens the event page for "archive-event"
-    Then the page shows that the event has already passed
-    When the visitor submits a direct registration request for "archive-event"
-    Then the request is rejected with the past-event message
+    Given событие "archive-event" уже прошло
+    When посетитель открывает страницу события "archive-event"
+    Then страница показывает, что событие уже прошло
+    When посетитель отправляет прямой запрос на регистрацию для "archive-event"
+    Then запрос отклоняется с сообщением о прошедшем событии
 
   @sold_out @playwright
   Scenario: Посетитель не может зарегистрироваться если места закончились
-    Given event "blockhouse-last-seat" has no free seats
-    When the visitor opens the event page for "blockhouse-last-seat"
-    And the visitor submits valid registration data
-    Then the registration is rejected
-    And the visitor sees the sold-out message
+    Given у события "blockhouse-last-seat" не осталось свободных мест
+    When посетитель открывает страницу события "blockhouse-last-seat"
+    And посетитель отправляет валидные регистрационные данные
+    Then регистрация отклоняется
+    And посетитель видит сообщение, что места закончились
 
   @race_condition @playwright @telethon
   Scenario: Только один посетитель получает последнее место
-    Given event "last-seat-event" has exactly 1 free seat
-    When visitor "A" and visitor "B" submit valid registration forms for that event at the same time
-    Then exactly one visitor sees the ticket page
-    And the other visitor sees the sold-out or retry message
-    And the superadmin receives exactly one new Telegram notification for that event
+    Given у события "last-seat-event" осталось ровно 1 свободное место
+    When посетитель "A" и посетитель "B" одновременно отправляют валидные формы регистрации на это событие
+    Then ровно один посетитель видит страницу билета
+    And второй посетитель видит сообщение о закончившихся местах или просьбу повторить попытку
+    And суперадмин получает ровно одно новое уведомление в Telegram по этому событию
 
   @ticket_page @playwright
   Scenario: Посетитель повторно открывает сохранённый билет и скачивает файлы
-    Given a visitor is already registered for event "oceania-open"
-    And the visitor has the saved ticket link
-    When the visitor opens the saved ticket link
-    Then the ticket page shows the same visitor and event details
-    And the visitor can download the PDF
-    And the visitor can download the ICS file
-    And the downloaded PDF contains the same ticket ID and event details
+    Given посетитель уже зарегистрирован на событие "oceania-open"
+    And у посетителя сохранена ссылка на билет
+    When посетитель открывает сохранённую ссылку на билет
+    Then страница билета показывает те же данные посетителя и события
+    And посетитель может скачать PDF
+    And посетитель может скачать ICS-файл
+    And скачанный PDF содержит тот же номер билета и те же данные события
 
   @telegram_help @telethon
   Scenario: Суперадмин видит help и основные кнопки
-    Given the superadmin is connected to the bot
-    When the superadmin sends "/help"
-    Then the bot shows the list of available commands
-    When the superadmin opens the main keyboard
-    Then the bot shows buttons for events, search, exports, open registration, close registration, operators and help
+    Given суперадмин подключён к боту
+    When суперадмин отправляет "/help"
+    Then бот показывает список доступных команд
+    When суперадмин открывает главную клавиатуру
+    Then бот показывает кнопки "События", "Поиск", "Экспорт", "Открыть регистрацию", "Закрыть регистрацию", "Операторы" и "Помощь"
 
   @telegram_find @telethon
   Scenario: Суперадмин находит регистрацию по ФИО
-    Given a visitor is already registered for event "scientific-library-open"
-    And the superadmin is connected to the bot
-    When the superadmin searches for that visitor by full name
-    Then the bot shows the matching registration with masked contacts
+    Given посетитель уже зарегистрирован на событие "scientific-library-open"
+    And суперадмин подключён к боту
+    When суперадмин ищет этого посетителя по полному ФИО
+    Then бот показывает найденную регистрацию с маскированными контактами
 
   @operator_permissions @telethon
   Scenario: Оператор видит отчёты, но не может менять статус регистрации
-    Given the superadmin has assigned operator role to "operator-1"
-    And registrations exist for event "tretyakovka-open"
-    When Telegram user "operator-1" requests the report for "tretyakovka-open"
-    Then the bot shows the participant list with masked email and masked phone
-    And "operator-1" can download the event XLSX
-    When Telegram user "operator-1" sends the open-registration command for "tretyakovka-open"
-    Then the bot rejects the command
+    Given суперадмин выдал роль оператора пользователю "operator-1"
+    And для события "tretyakovka-open" уже существуют регистрации
+    When пользователь Telegram "operator-1" запрашивает отчёт по "tretyakovka-open"
+    Then бот показывает список участников с маскированными email и телефоном
+    And "operator-1" может скачать XLSX по событию
+    When пользователь Telegram "operator-1" отправляет команду открытия регистрации для "tretyakovka-open"
+    Then бот отклоняет эту команду
 
   @registration_switch @playwright @telethon
   Scenario: Суперадмин открывает и закрывает регистрацию через Telegram
-    Given event "science-center-open" is closed for registration
-    And the superadmin is connected to the bot
-    When the superadmin sends the open-registration command for "science-center-open"
-    Then the bot confirms that registration is open
-    When the visitor opens the event page for "science-center-open"
-    Then the registration form is available
-    When the superadmin sends the close-registration command for "science-center-open"
-    Then the bot confirms that registration is closed
-    When the visitor opens the event page for "science-center-open" again
-    Then the registration form is not available
+    Given событие "science-center-open" закрыто для регистрации
+    And суперадмин подключён к боту
+    When суперадмин отправляет команду открытия регистрации для "science-center-open"
+    Then бот подтверждает, что регистрация открыта
+    When посетитель открывает страницу события "science-center-open"
+    Then форма регистрации доступна
+    When суперадмин отправляет команду закрытия регистрации для "science-center-open"
+    Then бот подтверждает, что регистрация закрыта
+    When посетитель снова открывает страницу события "science-center-open"
+    Then форма регистрации недоступна
 
   @telegram_outage @playwright @telethon
   Scenario: Регистрация проходит даже если Telegram временно недоступен
-    Given event "scientific-library-open" is open for registration
-    And Telegram delivery from the backend is temporarily unavailable
-    When the visitor opens the event page for "scientific-library-open"
-    And the visitor submits valid registration data
-    Then the visitor still sees the ticket page
-    And the superadmin does not receive the notification immediately
-    When Telegram delivery is restored
-    Then the superadmin eventually receives the delayed notification
+    Given событие "scientific-library-open" открыто для регистрации
+    And доставка сообщений в Telegram со стороны бэкенда временно недоступна
+    When посетитель открывает страницу события "scientific-library-open"
+    And посетитель отправляет валидные регистрационные данные
+    Then посетитель всё равно видит страницу билета
+    And суперадмин не получает уведомление сразу
+    When доставка сообщений в Telegram восстанавливается
+    Then суперадмин в итоге получает отложенное уведомление
 
   @daily_export @telethon
   Scenario: Суперадмин получает ежедневные выгрузки
-    Given the superadmin is connected to the bot
-    When the daily export job is triggered in the test environment
-    Then the superadmin receives the combined XLSX export
-    And the superadmin receives the SQLite backup
+    Given суперадмин подключён к боту
+    When в тестовом окружении запускается ежедневная задача выгрузки
+    Then суперадмин получает общий XLSX-экспорт
+    And суперадмин получает резервную копию SQLite
 
   @emergency_export
   Scenario: Суперадмин использует аварийный export если Telegram долго недоступен
-    Given Telegram remains unavailable for a long period
-    And the superadmin has the emergency export secret
-    When the superadmin requests the emergency export endpoint
-    Then the export file is returned
-    And the endpoint does not allow changing registration state
-    When the request is made without the correct secret
-    Then the request is rejected
+    Given Telegram недоступен длительное время
+    And у суперадмина есть секрет для аварийного export endpoint
+    When суперадмин обращается к аварийному export endpoint
+    Then файл выгрузки возвращается успешно
+    And endpoint не позволяет менять состояние регистрации
+    When запрос выполняется без корректного секрета
+    Then запрос отклоняется
