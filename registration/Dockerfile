@@ -12,6 +12,7 @@ COPY registration/package.json registration/package-lock.json registration/tscon
 RUN npm ci
 
 COPY registration/src ./src
+COPY site/package.json ../site/package.json
 COPY site/src/lib/festival.ts ../site/src/lib/festival.ts
 COPY site/src/data/media-manifest.json ../site/src/data/media-manifest.json
 COPY site/src/data/summary-overrides.json ../site/src/data/summary-overrides.json

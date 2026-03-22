@@ -8,6 +8,7 @@
 !registration/src/
 !registration/src/**
 !site/
+!site/package.json
 !site/src/
 !site/src/lib/
 !site/src/lib/festival.ts
