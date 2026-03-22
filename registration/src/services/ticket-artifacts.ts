@@ -119,6 +119,13 @@ function buildHtml(input: TicketArtifactInput) {
         flex-wrap: wrap;
         margin-top: 24px;
       }
+      .actions-title {
+        margin: 24px 0 12px;
+        font-size: 13px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(23, 18, 13, 0.56);
+      }
       .button {
         display: inline-flex;
         align-items: center;
@@ -130,6 +137,7 @@ function buildHtml(input: TicketArtifactInput) {
         font-weight: 700;
         color: white;
         background: var(--accent);
+        flex: 1 1 180px;
       }
       .button--ghost {
         color: var(--ink);
@@ -140,6 +148,10 @@ function buildHtml(input: TicketArtifactInput) {
         margin-top: 18px;
         font-size: 14px;
         color: rgba(23, 18, 13, 0.72);
+      }
+      .note a {
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
     </style>
   </head>
@@ -164,10 +176,13 @@ function buildHtml(input: TicketArtifactInput) {
             <div>${escapeHtml(input.address)}</div>
           </section>
         </div>
+        <p class="actions-title">Добавьте событие в календарь, чтобы не забыть</p>
         <div class="actions">
           <a class="button" href="${escapeHtml(pdfUrl)}">Скачать PDF</a>
-          <a class="button button--ghost" href="${escapeHtml(icsUrl)}">Скачать ICS</a>
           <a class="button button--ghost" href="${escapeHtml(googleCalendarUrl.toString())}" target="_blank" rel="noreferrer">Google Calendar</a>
+          <a class="button button--ghost" href="${escapeHtml(icsUrl)}">iPhone / Apple Calendar</a>
+          <a class="button button--ghost" href="${escapeHtml(icsUrl)}">Android / ICS</a>
+          <a class="button button--ghost" href="${escapeHtml(icsUrl)}" download>Скачать ICS</a>
         </div>
         <p class="note">Печать билета не требуется. Рассадка свободная. Добавьте событие в календарь, чтобы не забыть.</p>
         <p class="note">Постоянная ссылка на билет: <a href="${escapeHtml(ticketUrl)}">${escapeHtml(ticketUrl)}</a></p>
