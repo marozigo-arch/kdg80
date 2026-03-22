@@ -11,6 +11,7 @@ import { registerRegistrationApi } from './api/registration';
 import { registerAdminApi } from './api/admin';
 import { createStoragePublisher } from './lib/storage';
 import { syncCatalog } from './services/catalog';
+import { startDailyJobs } from './services/daily-jobs';
 import { registerTelegramBot } from './services/telegram-bot';
 import { startTelegramOutboxWorker } from './services/telegram-outbox';
 
@@ -114,6 +115,13 @@ await app.listen({
 
 if (telegramBot) {
   await telegramBot.ensureWebhook();
+  startDailyJobs({
+    db,
+    bot: telegramBot.bot,
+    logger: app.log,
+    privateKeyPemBase64: config.piiPrivateKeyPemBase64,
+    timeZone: config.timeZone,
+  });
 
   if (config.piiPrivateKeyPemBase64) {
     startTelegramOutboxWorker({

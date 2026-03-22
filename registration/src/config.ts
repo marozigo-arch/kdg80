@@ -8,6 +8,7 @@ type AppConfig = {
   publicTicketBaseUrl: string;
   sqlitePath: string;
   localPublicRoot: string;
+  timeZone: string;
   allowedOrigins: string[];
   consentVersion: string;
   consentTextHash: string;
@@ -63,6 +64,7 @@ export function loadConfig(): AppConfig {
   const publicTicketBaseUrl = trimTrailingSlash(process.env.PUBLIC_TICKET_BASE_URL?.trim() || appBaseUrl);
   const sqlitePath = path.resolve(process.cwd(), process.env.SQLITE_PATH?.trim() || './data/registration.sqlite');
   const localPublicRoot = path.resolve(process.cwd(), process.env.LOCAL_PUBLIC_ROOT?.trim() || './data/public');
+  const timeZone = process.env.TZ?.trim() || 'Europe/Kaliningrad';
   const allowedOrigins = parseOrigins(process.env.CORS_ORIGINS, publicSiteBaseUrl);
   const consentVersion = process.env.CONSENT_VERSION?.trim() || 'draft-1';
   const consentTextHash = process.env.CONSENT_TEXT_HASH?.trim() || 'dev-draft';
@@ -91,6 +93,7 @@ export function loadConfig(): AppConfig {
     publicTicketBaseUrl,
     sqlitePath,
     localPublicRoot,
+    timeZone,
     allowedOrigins,
     consentVersion,
     consentTextHash,
