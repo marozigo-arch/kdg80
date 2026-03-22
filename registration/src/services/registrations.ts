@@ -38,6 +38,15 @@ function isUniqueConstraintError(error: unknown, lookup: string) {
     && error.message.includes(lookup);
 }
 
+function isBusyDatabaseError(error: unknown) {
+  return error instanceof Error
+    && (
+      error.message.includes('database is locked')
+      || error.message.includes('database is busy')
+      || error.message.includes('SQLITE_BUSY')
+    );
+}
+
 function readEventForRegistration(db: Database.Database, eventSlug: string) {
   return db.prepare(`
     SELECT id, slug, title, starts_at, ends_at, venue_name, hall_name, address, capacity, seats_taken, registration_public_state
@@ -62,13 +71,38 @@ function readEventForRegistration(db: Database.Database, eventSlug: string) {
 }
 
 export async function createRegistration(payload: RegistrationPayload, deps: RegistrationDeps) {
+  if (!payload || typeof payload !== 'object') {
+    throw new RegistrationError(400, 'validation_error', 'Проверьте данные формы и попробуйте ещё раз.');
+  }
+
+  if (typeof payload.website === 'string' && payload.website.trim()) {
+    throw new RegistrationError(400, 'validation_error', 'Проверьте данные формы и попробуйте ещё раз.');
+  }
+
+  if (typeof payload.eventSlug !== 'string' || !payload.eventSlug.trim()) {
+    throw new RegistrationError(400, 'validation_error', 'Не удалось определить событие для регистрации.');
+  }
+
   if (!payload.consentAccepted) {
     throw new RegistrationError(400, 'consent_required', 'Подтвердите согласие на обработку персональных данных, чтобы продолжить.');
   }
 
-  const fullName = normalizeFullName(payload.fullName);
-  const email = normalizeEmail(payload.email);
-  const phone = normalizePhone(payload.phone);
+  let fullName: string;
+  let email: string;
+  let phone: string;
+
+  try {
+    fullName = normalizeFullName(String(payload.fullName ?? ''));
+    email = normalizeEmail(String(payload.email ?? ''));
+    phone = normalizePhone(String(payload.phone ?? ''));
+  } catch (error) {
+    throw new RegistrationError(
+      400,
+      'validation_error',
+      error instanceof Error ? error.message : 'Проверьте данные формы и попробуйте ещё раз.',
+    );
+  }
+
   const event = readEventForRegistration(deps.db, payload.eventSlug);
 
   if (!event) {
@@ -220,6 +254,10 @@ export async function createRegistration(payload: RegistrationPayload, deps: Reg
 
     if (isUniqueConstraintError(error, 'registrations.event_id, registrations.phone_fingerprint')) {
       throw new RegistrationError(409, 'duplicate_phone', 'На это событие уже есть регистрация с таким номером телефона.');
+    }
+
+    if (isBusyDatabaseError(error)) {
+      throw new RegistrationError(429, 'retry_later', 'Слишком много одновременных попыток. Попробуйте ещё раз через 10–15 секунд.');
     }
 
     throw error;

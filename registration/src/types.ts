@@ -52,6 +52,7 @@ export type RegistrationPayload = {
   email: string;
   phone: string;
   consentAccepted: boolean;
+  website?: string;
   testRunId?: string;
 };
 

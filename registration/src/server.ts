@@ -99,6 +99,7 @@ await registerAdminApi(app, {
 });
 await registerRegistrationApi(app, {
   db,
+  allowedOrigins: config.allowedOrigins,
   consentVersion: config.consentVersion,
   consentTextHash: config.consentTextHash,
   fingerprintSecret: config.piiFingerprintSecret,

@@ -7,6 +7,7 @@ import { listPublicEventStates } from '../services/catalog';
 
 type RegistrationApiDeps = {
   db: Database.Database;
+  allowedOrigins: string[];
   consentVersion: string;
   consentTextHash: string;
   fingerprintSecret: string | null;
@@ -15,6 +16,18 @@ type RegistrationApiDeps = {
   ticketsPrefix: string;
   storagePublisher: StoragePublisher;
 };
+
+function trimTrailingSlash(value: string) {
+  return value.replace(/\/+$/u, '');
+}
+
+function hasAllowedOrigin(originHeader: unknown, allowedOrigins: string[]) {
+  if (typeof originHeader !== 'string' || !originHeader.trim()) {
+    return false;
+  }
+
+  return allowedOrigins.includes(trimTrailingSlash(originHeader.trim()));
+}
 
 export async function registerRegistrationApi(app: FastifyInstance, deps: RegistrationApiDeps) {
   app.get('/api/v1/public/events/:slug', async (request, reply) => {
@@ -31,12 +44,36 @@ export async function registerRegistrationApi(app: FastifyInstance, deps: Regist
     return event;
   });
 
-  app.post('/api/v1/register', async (request, reply) => {
+  app.post('/api/v1/register', {
+    config: {
+      rateLimit: {
+        max: 8,
+        timeWindow: '1 minute',
+      },
+    },
+  }, async (request, reply) => {
     if (!deps.fingerprintSecret || !deps.publicKeyPemBase64) {
       reply.code(503);
       return {
         error: 'registration_not_ready',
         message: 'Регистрация пока не настроена на сервере.',
+      };
+    }
+
+    if (!hasAllowedOrigin(request.headers.origin, deps.allowedOrigins)) {
+      reply.code(403);
+      return {
+        error: 'origin_forbidden',
+        message: 'Регистрация доступна только через официальный сайт фестиваля.',
+      };
+    }
+
+    const contentType = request.headers['content-type'];
+    if (typeof contentType !== 'string' || !contentType.toLowerCase().startsWith('application/json')) {
+      reply.code(415);
+      return {
+        error: 'unsupported_media_type',
+        message: 'Форма регистрации принимает только JSON-запросы.',
       };
     }
 
