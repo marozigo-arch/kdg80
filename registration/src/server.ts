@@ -47,6 +47,7 @@ const telegramBot = config.telegramBotToken && config.telegramWebhookSecret
       webhookSecret: config.telegramWebhookSecret,
       appBaseUrl: config.appBaseUrl,
       webhookPath: config.telegramWebhookPath,
+      privateKeyPemBase64: config.piiPrivateKeyPemBase64,
     })
   : null;
 

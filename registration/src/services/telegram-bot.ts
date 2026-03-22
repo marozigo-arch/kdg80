@@ -14,6 +14,7 @@ import {
   type TelegramEventListFilter,
   type TelegramEventView,
 } from './telegram-events';
+import { searchRegistrationsByFullName } from './registration-search';
 
 type TelegramBotDeps = {
   db: Database.Database;
@@ -21,6 +22,7 @@ type TelegramBotDeps = {
   webhookSecret: string;
   appBaseUrl: string;
   webhookPath: string;
+  privateKeyPemBase64: string | null;
 };
 
 const EVENTS_PER_PAGE = 6;
@@ -118,6 +120,17 @@ function formatEventCard(event: TelegramEventView) {
   ].join('\n');
 }
 
+function formatSearchResults(results: ReturnType<typeof searchRegistrationsByFullName>) {
+  return results.map((item, index) => [
+    `${index + 1}. ${item.fullName}`,
+    `Событие: ${item.eventTitle}`,
+    `Дата: ${formatEventDate(item.startsAt)}`,
+    `Email: ${item.emailMasked}`,
+    `Телефон: ${item.phoneMasked}`,
+    item.ticketUrl ? `Билет: ${item.ticketUrl}` : 'Билет: будет доступен после публикации',
+  ].join('\n')).join('\n\n');
+}
+
 function listHeading(filter: TelegramEventListFilter) {
   if (filter === 'open') {
     return 'Открытые регистрации';
@@ -159,6 +172,9 @@ function buildEventKeyboard(event: TelegramEventView, role: TelegramAdminRole, f
     }
   }
 
+  keyboard.text('Остаток мест', `m:${event.id}:${filter}:${page}`);
+  keyboard.text('Отчёт', `r:${event.id}:${filter}:${page}`);
+  keyboard.text('XLSX', `x:${event.id}:${filter}:${page}`).row();
   keyboard.text('Назад к списку', `l:${filter}:${page}`);
   return keyboard;
 }
@@ -219,6 +235,7 @@ async function sendEventCard(
 
 export function registerTelegramBot(app: FastifyInstance, deps: TelegramBotDeps) {
   const bot = new Bot(deps.token);
+  const pendingFindPrompts = new Map<string, number>();
 
   const requireAdminRole = (telegramUserId: string) => getTelegramAdminByUserId(deps.db, telegramUserId);
 
@@ -262,6 +279,52 @@ export function registerTelegramBot(app: FastifyInstance, deps: TelegramBotDeps)
     }
 
     await ctx.reply(formatHelp(admin.role), {
+      reply_markup: buildMainKeyboard(admin.role),
+    });
+  });
+
+  bot.command('events', async (ctx) => {
+    const admin = requireAdminRole(String(ctx.from?.id ?? ''));
+    if (!admin) {
+      await ctx.reply('Доступ к боту ограничен администраторами.');
+      return;
+    }
+
+    await sendEventList(ctx, deps.db, admin.role, 'all', 1);
+  });
+
+  bot.command('find', async (ctx) => {
+    const admin = requireAdminRole(String(ctx.from?.id ?? ''));
+    if (!admin) {
+      await ctx.reply('Доступ к боту ограничен администраторами.');
+      return;
+    }
+
+    if (!deps.privateKeyPemBase64) {
+      await ctx.reply('Поиск пока недоступен: на сервере не настроен приватный ключ для расшифровки ПДн.');
+      return;
+    }
+
+    const commandText = ctx.message?.text ?? '';
+    const query = commandText.replace(/^\/find(@\w+)?/u, '').trim();
+
+    if (!query) {
+      pendingFindPrompts.set(String(ctx.from?.id ?? ''), Date.now());
+      await ctx.reply('Пришлите ФИО следующим сообщением, и я покажу последние совпадения.', {
+        reply_markup: buildMainKeyboard(admin.role),
+      });
+      return;
+    }
+
+    const results = searchRegistrationsByFullName(deps.db, deps.privateKeyPemBase64, query);
+    if (!results.length) {
+      await ctx.reply('Совпадений не найдено.', {
+        reply_markup: buildMainKeyboard(admin.role),
+      });
+      return;
+    }
+
+    await ctx.reply(formatSearchResults(results), {
       reply_markup: buildMainKeyboard(admin.role),
     });
   });
@@ -334,7 +397,22 @@ export function registerTelegramBot(app: FastifyInstance, deps: TelegramBotDeps)
       return;
     }
 
-    await ctx.reply('Этот раздел будет добавлен следующим шагом. Уже доступен список событий и управление открытием/закрытием регистрации.', {
+    if (ctx.message?.text === 'Поиск') {
+      if (!deps.privateKeyPemBase64) {
+        await ctx.reply('Поиск пока недоступен: на сервере не настроен приватный ключ.', {
+          reply_markup: buildMainKeyboard(admin.role),
+        });
+        return;
+      }
+
+      pendingFindPrompts.set(String(ctx.from?.id ?? ''), Date.now());
+      await ctx.reply('Пришлите ФИО следующим сообщением. Я покажу до 10 последних совпадений.', {
+        reply_markup: buildMainKeyboard(admin.role),
+      });
+      return;
+    }
+
+    await ctx.reply('Раздел экспорта будет добавлен следующим шагом. Уже доступен список событий и управление открытием/закрытием регистрации.', {
       reply_markup: buildMainKeyboard(admin.role),
     });
   });
@@ -418,6 +496,82 @@ export function registerTelegramBot(app: FastifyInstance, deps: TelegramBotDeps)
 
     await ctx.editMessageText(formatEventCard(updated), {
       reply_markup: buildEventKeyboard(updated, admin.role, filter as TelegramEventListFilter, Number(pageRaw)),
+    });
+  });
+
+  bot.callbackQuery(/^m:(\d+):(all|open|closed):(\d+)$/u, async (ctx) => {
+    const admin = requireAdminRole(String(ctx.from?.id ?? ''));
+    if (!admin) {
+      await ctx.answerCallbackQuery({
+        text: 'Недостаточно прав.',
+        show_alert: true,
+      });
+      return;
+    }
+
+    const [, eventIdRaw] = ctx.match;
+    const event = getTelegramEventById(deps.db, Number(eventIdRaw));
+    await ctx.answerCallbackQuery({
+      text: event ? `Осталось мест: ${event.seatsLeft}` : 'Событие не найдено.',
+      show_alert: true,
+    });
+  });
+
+  bot.callbackQuery(/^(r|x):(\d+):(all|open|closed):(\d+)$/u, async (ctx) => {
+    const admin = requireAdminRole(String(ctx.from?.id ?? ''));
+    if (!admin) {
+      await ctx.answerCallbackQuery({
+        text: 'Недостаточно прав.',
+        show_alert: true,
+      });
+      return;
+    }
+
+    const [, action] = ctx.match;
+    await ctx.answerCallbackQuery({
+      text: action === 'r'
+        ? 'Кнопка отчёта уже зарезервирована. Добавлю event-level отчёт следующим шагом.'
+        : 'Кнопка XLSX уже зарезервирована. Добавлю выгрузку следующим шагом.',
+      show_alert: true,
+    });
+  });
+
+  bot.on('message:text', async (ctx, next) => {
+    const admin = requireAdminRole(String(ctx.from?.id ?? ''));
+    if (!admin) {
+      await next();
+      return;
+    }
+
+    const userId = String(ctx.from?.id ?? '');
+    const pendingAt = pendingFindPrompts.get(userId);
+    const text = ctx.message.text.trim();
+    const reservedLabels = new Set([
+      'События',
+      'Поиск',
+      'Экспорт',
+      'Открыть регистрацию',
+      'Закрыть регистрацию',
+      'Операторы',
+      'Помощь',
+    ]);
+
+    if (!pendingAt || !deps.privateKeyPemBase64 || text.startsWith('/') || reservedLabels.has(text)) {
+      await next();
+      return;
+    }
+
+    pendingFindPrompts.delete(userId);
+    const results = searchRegistrationsByFullName(deps.db, deps.privateKeyPemBase64, text);
+    if (!results.length) {
+      await ctx.reply('Совпадений не найдено.', {
+        reply_markup: buildMainKeyboard(admin.role),
+      });
+      return;
+    }
+
+    await ctx.reply(formatSearchResults(results), {
+      reply_markup: buildMainKeyboard(admin.role),
     });
   });
 
