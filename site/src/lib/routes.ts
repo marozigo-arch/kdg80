@@ -18,6 +18,7 @@ export type RouteNavItem = {
 
 export type RouteMyth = {
   id: string;
+  mythNumber: number;
   text: string;
   strength: 'A' | 'B' | 'C';
   eventTitle: string;
@@ -167,9 +168,10 @@ function parseRouteSections() {
 function parseMythsByEvent() {
   const source = fs.readFileSync(MYTHS_PATH, 'utf-8');
   const lines = source.split('\n');
-  const myths = new Map<string, Array<{ text: string; strength: 'A' | 'B' | 'C' }>>();
+  const myths = new Map<string, Array<{ mythNumber: number; text: string; strength: 'A' | 'B' | 'C' }>>();
   let currentEventTitle = '';
   let currentStrength: 'A' | 'B' | 'C' = 'B';
+  let mythNumber = 0;
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -199,8 +201,9 @@ function parseMythsByEvent() {
       continue;
     }
 
+    mythNumber += 1;
     const current = myths.get(currentEventTitle) ?? [];
-    current.push({ text, strength: currentStrength });
+    current.push({ mythNumber, text, strength: currentStrength });
     myths.set(currentEventTitle, current);
   }
 
@@ -299,6 +302,7 @@ function buildRoutes() {
     const myths = collectedEvents.flatMap((event) =>
       (mythsByEvent.get(event.title) ?? []).map((myth, index) => ({
         id: `${spec.slug}-${event.slug}-${index + 1}`,
+        mythNumber: myth.mythNumber,
         text: myth.text,
         strength: myth.strength,
         eventTitle: event.title,

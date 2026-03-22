@@ -734,6 +734,7 @@ summary {
   font-size: 0.63rem;
   font-weight: 600;
   letter-spacing: 0.095em;
+  font-variant-numeric: tabular-nums;
   text-transform: uppercase;
   background: rgba(255, 244, 238, 0.14);
   border: 1px solid rgba(255, 244, 238, 0.16);
@@ -780,8 +781,8 @@ summary {
   opacity: 0;
   transform: translate3d(0, 0.38em, 0);
   will-change: opacity, transform;
-  animation: word-reveal-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(var(--word-index, 0) * 42ms);
+  animation: word-reveal-enter var(--word-reveal-duration, 480ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--word-index, 0) * var(--word-reveal-stagger, 42ms));
 }
 
 .word-reveal__word[data-static="true"] {
@@ -3379,6 +3380,7 @@ summary {
   font-size: 0.98rem;
   font-weight: 700;
   letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
   text-transform: uppercase;
   justify-self: start;
   padding: 0;

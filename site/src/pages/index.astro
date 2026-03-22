@@ -65,6 +65,7 @@ type HeroQuoteVariant = HeroVariantBase & {
 type HeroMythVariant = HeroVariantBase & {
   kind: 'myth';
   label: string;
+  mythNumber?: number;
   title: string;
   body: string;
   eventHref: string;
@@ -552,6 +553,25 @@ function getWordParts(value: string) {
   return value.trim().split(/\s+/u).filter(Boolean);
 }
 
+function getWordRevealTiming(wordCount: number) {
+  const safeCount = Math.max(wordCount, 1);
+  const duration = 400;
+  const totalWindow = 720;
+  const stagger = safeCount > 1
+    ? Math.max(18, Math.min(46, Math.round((totalWindow - duration) / (safeCount - 1))))
+    : 0;
+  return { stagger, duration };
+}
+
+function getWordRevealStyle(wordCount: number) {
+  const { stagger, duration } = getWordRevealTiming(wordCount);
+  return `--word-reveal-stagger: ${stagger}ms; --word-reveal-duration: ${duration}ms;`;
+}
+
+function getMythPrompt(mythNumber?: number) {
+  return mythNumber ? `Заблуждение #${mythNumber}` : 'Заблуждение';
+}
+
 function getMythContextParts(value: string) {
   const match = value.match(/заблуждени[а-я]*/iu);
   if (!match || typeof match.index !== 'number') {
@@ -617,8 +637,9 @@ function buildHeroVariants(): HeroVariant[] {
   const mythVariants = homepageHeroMyths.map((myth) => ({
     id: myth.id,
     kind: 'myth',
-    prompt: 'Заблуждение',
-    label: 'Заблуждение',
+    prompt: getMythPrompt(myth.mythNumber),
+    label: getMythPrompt(myth.mythNumber),
+    mythNumber: myth.mythNumber,
     title: myth.text,
     body: myth.speakerLine,
     eventHref: myth.eventHref,
@@ -641,8 +662,8 @@ const heroVariants = buildHeroVariants();
 const fallbackHeroVariant: HeroMythVariant = {
   id: 'fallback',
   kind: 'myth',
-  prompt: 'Заблуждение',
-  label: 'Заблуждение',
+  prompt: getMythPrompt(),
+  label: getMythPrompt(),
   title: 'Советский Калининград — это только фон без живых человеческих историй.',
   body: '— этот маршрут по фестивалю собран как раз для того, чтобы увидеть, как из людей, мест и привычек складывалась новая область.',
   eventHref: programHref,
@@ -658,6 +679,7 @@ const defaultHeroShowsBody = defaultHeroIsMyth;
 const defaultHeroSceneStyle = defaultHeroIsQuote ? defaultHeroVariant.speakerSceneStyle ?? '' : '';
 const defaultHeroQuoteSize = defaultHeroIsQuote ? defaultHeroVariant.quoteSize : 'image';
 const defaultHeroWordParts = defaultHeroIsMyth ? getWordParts(defaultHeroVariant.title) : [];
+const defaultHeroWordRevealStyle = defaultHeroIsMyth ? getWordRevealStyle(defaultHeroWordParts.length) : undefined;
 const defaultHeroMythContext = defaultHeroIsMyth ? getMythContextParts(defaultHeroVariant.body) : null;
 const heroVariantsPayload = JSON.stringify(heroStoryVariants);
 
@@ -754,7 +776,12 @@ const speakerShowcasePayload = JSON.stringify(
                       <p data-hero-quote>{defaultHeroIsQuote ? defaultHeroVariant.quote : ''}</p>
                     </blockquote>
 
-                    <h2 class="hero-showcase__title word-reveal" data-hero-title hidden={!defaultHeroShowsTitle}>
+                    <h2
+                      class="hero-showcase__title word-reveal"
+                      data-hero-title
+                      hidden={!defaultHeroShowsTitle}
+                      style={defaultHeroWordRevealStyle}
+                    >
                       {defaultHeroIsMyth
                         ? defaultHeroWordParts.map((word, index) => (
                           <>
@@ -1051,6 +1078,16 @@ const speakerShowcasePayload = JSON.stringify(
     let heroSwitchTimer = 0;
     let heroAutoplayTimer = 0;
 
+    const getWordRevealTiming = (wordCount) => {
+      const safeCount = Math.max(Number(wordCount) || 1, 1);
+      const duration = 400;
+      const totalWindow = 720;
+      const stagger = safeCount > 1
+        ? Math.max(18, Math.min(46, Math.round((totalWindow - duration) / (safeCount - 1))))
+        : 0;
+      return { stagger, duration };
+    };
+
     const setWordRevealText = (element, text, animate) => {
       if (!(element instanceof HTMLElement)) {
         return;
@@ -1059,6 +1096,9 @@ const speakerShowcasePayload = JSON.stringify(
       const words = String(text ?? '').trim().split(/\s+/u).filter(Boolean);
       element.textContent = '';
       element.classList.add('word-reveal');
+      const { stagger, duration } = getWordRevealTiming(words.length);
+      element.style.setProperty('--word-reveal-stagger', `${stagger}ms`);
+      element.style.setProperty('--word-reveal-duration', `${duration}ms`);
 
       if (!words.length) {
         return;
