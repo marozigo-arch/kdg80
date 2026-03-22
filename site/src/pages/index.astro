@@ -1,6 +1,7 @@
 ---
 import EventCard from '../components/EventCard.astro';
 import InterestChooser from '../components/InterestChooser.astro';
+import RegistrationClient from '../components/RegistrationClient.astro';
 import SpeakerPoster from '../components/SpeakerPoster.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -1391,4 +1392,5 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
       cycleNodes.forEach((node) => observer.observe(node));
     }
   </script>
+  <RegistrationClient />
 </Layout>

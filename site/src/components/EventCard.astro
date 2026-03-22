@@ -448,17 +448,21 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
       <aside class="event-card__actions">
         {temporalState === 'past' ? (
           <div class="button button--ghost button--disabled event-card__past-state" aria-disabled="true">Событие прошло</div>
-        ) : event.registrationUrl ? (
-          <a
-            class="button button--primary"
-            href={event.registrationUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Регистрация
-          </a>
         ) : (
-          <div class="notice">Дата спектакля будет объявлена позже.</div>
+          <div class="event-card__registration-control" data-registration-card data-event-slug={event.slug}>
+            <button
+              class="button button--primary button--disabled event-card__registration-button"
+              type="button"
+              data-registration-cta
+              data-event-slug={event.slug}
+              data-event-title={event.title}
+              disabled
+              aria-disabled="true"
+            >
+              Проверяем регистрацию…
+            </button>
+            <div class="notice event-card__registration-notice" data-registration-notice hidden></div>
+          </div>
         )}
 
         {temporalState !== 'past' && event.calendarReady ? (

@@ -1,5 +1,6 @@
 ---
 import EventCard from '../components/EventCard.astro';
+import RegistrationClient from '../components/RegistrationClient.astro';
 import RouteHero from '../components/RouteHero.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -110,5 +111,6 @@ const description = route.description || `Маршрут по интересам
     </main>
 
     <SiteFooter routeItems={routeItems} programHref={programHref} />
+    <RegistrationClient />
   </div>
 </Layout>
