@@ -189,7 +189,7 @@ function parseMythsByEvent() {
       continue;
     }
 
-    const finalMatch = trimmed.match(/^-+\s+Итоговая:\s*(.+)$/u);
+    const finalMatch = trimmed.match(/^-+\s+Итогов(?:ая|ое)\s*:?\s*(.+)$/u);
     if (!finalMatch) {
       continue;
     }
@@ -318,9 +318,7 @@ function buildRoutes() {
     const mythsByPriority = [...myths].sort((left, right) =>
       left.priority - right.priority
       || left.eventTitle.localeCompare(right.eventTitle, 'ru'));
-    const heroMyths = mythsByPriority
-      .filter((myth) => myth.strength !== 'C')
-      .slice(0, Math.max(3, Math.min(6, mythsByPriority.length)));
+    const heroMyths = mythsByPriority;
 
     return {
       id: spec.id,
@@ -336,11 +334,22 @@ function buildRoutes() {
     } satisfies FestivalRoute;
   });
 
-  cachedHomepageMyths = routes
+  const homepageMyths = routes
     .flatMap((route) => route.myths)
     .filter((myth) => myth.priority < 100)
-    .sort((left, right) => left.priority - right.priority)
-    .slice(0, 18);
+    .sort((left, right) =>
+      left.priority - right.priority
+      || left.eventTitle.localeCompare(right.eventTitle, 'ru'));
+
+  const homepageMythsByText = new Map<string, RouteMyth>();
+  for (const myth of homepageMyths) {
+    const key = normalizeFestivalLookup(myth.text);
+    if (!homepageMythsByText.has(key)) {
+      homepageMythsByText.set(key, myth);
+    }
+  }
+
+  cachedHomepageMyths = [...homepageMythsByText.values()].slice(0, 18);
 
   return routes;
 }

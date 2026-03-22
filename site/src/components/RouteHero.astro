@@ -88,12 +88,47 @@ function getMythContextParts(value: string) {
 <script is:inline>
   const routeHero = document.querySelector('[data-route-hero]');
 
+  const isHeavyMyth = (variant) => /уничтож|разруш|невозможно спасти/iu.test(String(variant?.text ?? ''));
+
   const buildDeck = (variants) => {
     const deck = [...variants.keys()];
     for (let index = deck.length - 1; index > 0; index -= 1) {
       const nextIndex = Math.floor(Math.random() * (index + 1));
       [deck[index], deck[nextIndex]] = [deck[nextIndex], deck[index]];
     }
+
+    const firstSoftIndex = deck.findIndex((deckItem) => !isHeavyMyth(variants[deckItem]));
+    if (firstSoftIndex > 0 && isHeavyMyth(variants[deck[0]])) {
+      [deck[0], deck[firstSoftIndex]] = [deck[firstSoftIndex], deck[0]];
+    }
+
+    for (let index = 1; index < deck.length; index += 1) {
+      const previousVariant = variants[deck[index - 1]];
+      const currentVariant = variants[deck[index]];
+      const sameEvent = previousVariant?.eventTitle && currentVariant?.eventTitle
+        && previousVariant.eventTitle === currentVariant.eventTitle;
+      const sameHeavyCluster = isHeavyMyth(previousVariant) && isHeavyMyth(currentVariant);
+
+      if (!sameEvent && !sameHeavyCluster) {
+        continue;
+      }
+
+      const swapIndex = deck.findIndex((deckItem, candidateIndex) => {
+        if (candidateIndex <= index) {
+          return false;
+        }
+
+        const candidate = variants[deckItem];
+        const avoidsSameEvent = !previousVariant?.eventTitle || candidate?.eventTitle !== previousVariant.eventTitle;
+        const avoidsHeavyCluster = !(isHeavyMyth(previousVariant) && isHeavyMyth(candidate));
+        return avoidsSameEvent && avoidsHeavyCluster;
+      });
+
+      if (swapIndex > index) {
+        [deck[index], deck[swapIndex]] = [deck[swapIndex], deck[index]];
+      }
+    }
+
     return deck;
   };
 

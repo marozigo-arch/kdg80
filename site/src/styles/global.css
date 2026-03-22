@@ -69,7 +69,12 @@
   --radius-lg: 30px;
   --container: 1380px;
   --site-header-height: 68px;
-  --header-logo-width: clamp(10.75rem, 48vw, 17.5rem);
+  --header-logo-width-hero: clamp(10.75rem, 48vw, 17.5rem);
+  --header-logo-width-festival: clamp(10.75rem, 48vw, 17.5rem);
+  --header-logo-ratio-hero: 541 / 126;
+  --header-logo-ratio-festival: 877 / 150;
+  --header-logo-width: var(--header-logo-width-hero);
+  --header-logo-ratio: var(--header-logo-ratio-hero);
   --header-logo-gap: 0.6rem;
   --header-hero-logo-pad-block: 0.16rem;
   --header-hero-logo-pad-right: 0.45rem;
@@ -147,6 +152,16 @@ summary {
   overflow: visible;
 }
 
+.site-header:not([data-scrolled="true"]) {
+  --header-logo-width: var(--header-logo-width-hero);
+  --header-logo-ratio: var(--header-logo-ratio-hero);
+}
+
+.site-header[data-scrolled="true"] {
+  --header-logo-width: var(--header-logo-width-festival);
+  --header-logo-ratio: var(--header-logo-ratio-festival);
+}
+
 .site-header__row {
   display: flex;
   align-items: center;
@@ -164,13 +179,16 @@ summary {
   margin-inline-end: var(--header-logo-gap);
   min-width: 0;
   line-height: 0;
+  transition:
+    flex-basis 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .site-header__logo-shell {
   position: relative;
   display: block;
   inline-size: min(100%, var(--header-logo-width));
-  aspect-ratio: 877 / 150;
+  aspect-ratio: var(--header-logo-ratio);
 }
 
 .site-header__logo-state {
@@ -3655,11 +3673,21 @@ summary {
 }
 
 @media (max-width: 759px) {
+  :root {
+    --header-logo-width-hero: clamp(7.05rem, 31vw, 8.15rem);
+    --header-logo-width-festival: clamp(9.55rem, 43vw, 10.95rem);
+    --header-logo-gap: 0.35rem;
+  }
+
+  .site-header__row {
+    gap: 0.72rem;
+  }
+
   .site-header__nav {
     display: flex;
     flex: 0 0 auto;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.38rem;
     margin-left: auto;
   }
 
@@ -3670,8 +3698,8 @@ summary {
   .site-header__cta {
     margin-left: 0;
     min-height: 2.35rem;
-    padding-inline: 0.82rem;
-    font-size: 0.9rem;
+    padding-inline: 0.76rem;
+    font-size: 0.88rem;
   }
 
   .site-header__route-menu {
@@ -3689,7 +3717,7 @@ summary {
 
   .site-header__route-menu summary {
     min-height: 2.35rem;
-    padding: 0.55rem 0.72rem;
+    padding: 0.52rem 0.68rem;
     border: 1px solid rgba(18, 17, 14, 0.08);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.62);
