@@ -456,10 +456,43 @@ Background loop inside same app
 
 ## 22. Остаток перед реализацией
 
-- Технические решения для day-1 MVP считаются зафиксированными. — Статус: `Зафиксировано`
-- Внешнее подтверждение ещё требуется только для юридического текста согласия на обработку ПДн. — Статус: `В доработке`
+- Документация для day-1 MVP считается финализированной и готовой к реализации. — Статус: `Зафиксировано`
+- Ручная юридическая правка текста согласия после согласования с юристом входит в согласованный предзапусковый scope и не требует пересмотра архитектуры, если не меняются сами категории данных, цели обработки и роли участников процесса. — Статус: `Зафиксировано`
+- Любая ручная правка текста согласия обязана сопровождаться новым `consent_version`, обновлением `consent_text_hash`, регенерацией PDF, проверкой ссылок из checkbox-блока и повторной smoke-проверкой формы регистрации. — Статус: `Зафиксировано`
 
-## 23. Внешние источники, на которые опирается схема
+## 23. Минимальные secrets для Fly.io
+
+Ниже — минимальный набор именно secrets. Это не полный список env/config приложения.
+
+### Обязательные Fly secrets
+
+- `TELEGRAM_BOT_TOKEN` — токен Telegram-бота.
+- `TELEGRAM_WEBHOOK_SECRET` — секрет для проверки Telegram webhook.
+- `EMERGENCY_EXPORT_TOKEN` — bearer token аварийного read-only export endpoint.
+- `PII_PRIVATE_KEY_PEM_B64` — закрытый ключ для расшифровки PII, сохранённый в base64.
+- `PII_PUBLIC_KEY_PEM_B64` — открытый ключ для шифрования PII, тоже удобно хранить в base64 на том же Fly-приложении.
+- `PII_FINGERPRINT_SECRET` — HMAC-secret для blind indexes по ФИО, email и телефону.
+- `S3_ACCESS_KEY_ID` — access key для записи только в `tickets/*` и `exports/*`.
+- `S3_SECRET_ACCESS_KEY` — secret key для того же bucket user/service account.
+- `TELEGRAM_SESSION_S22` не относится к production secrets Fly.io и не должен туда попадать; он нужен только локальному E2E-контуру с Telethon. — Статус: `Зафиксировано`
+
+### Обычно тоже лучше хранить как secrets
+
+- `BOT_WEBAPP_AUTH_SECRET` — если позже появится подписанный internal bot/web auth exchange.
+- `BACKUP_ARCHIVE_SECRET` — если backup/export файлы будут дополнительно шифроваться перед отправкой или публикацией.
+
+### Нужны приложению, но не обязаны быть secrets
+
+- `APP_BASE_URL`
+- `PUBLIC_SITE_BASE_URL`
+- `S3_BUCKET`
+- `S3_ENDPOINT`
+- `S3_REGION`
+- `TICKETS_PREFIX`
+- `EXPORTS_PREFIX`
+- `TZ=Europe/Kaliningrad`
+
+## 24. Внешние источники, на которые опирается схема
 
 - Fly.io Volumes overview: https://fly.io/docs/volumes/overview/
 - Fly.io App Availability: https://fly.io/docs/apps/app-availability/
