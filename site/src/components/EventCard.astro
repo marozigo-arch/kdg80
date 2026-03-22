@@ -183,11 +183,12 @@ const cardText = getCardText(event);
 const cardExtraText = getCardExtraText(event);
 const hasExpandableCardSummary = hasExpandableSummary(event);
 const useScientificLibraryVisitSchedule = usesScientificLibraryVisitSchedule(event);
+const accessLabel = event.accessLabel ?? 'Бесплатно';
 const specialServiceLabels = isSpecialEvent
   ? [
-      'Дата и время будут объявлены дополнительно',
+      event.dateLabel === 'Дата будет объявлена' ? 'Дата будет объявлена дополнительно' : event.dateLabel,
+      event.timeLabel === 'Время будет объявлено' ? 'Время будет объявлено дополнительно' : event.timeLabel,
       event.showingsLabel,
-      event.registrationUrl ? 'Бесплатно, по регистрации' : 'Регистрация откроется позже',
     ].filter(Boolean)
   : [];
 const temporalState = getEventTemporalState(event, now);
@@ -316,7 +317,7 @@ const temporalState = getEventTemporalState(event, now);
       <div class="event-card__body-head">
         <div class="event-card__labels">
           <span class="event-card__format event-card__format--body">{event.formatLabel}</span>
-          <span class="event-card__access event-card__access--free">Бесплатно</span>
+          {accessLabel && <span class="event-card__access event-card__access--free">{accessLabel}</span>}
         </div>
         {!isLecture && <h4 class="event-card__title">{event.title}</h4>}
       </div>

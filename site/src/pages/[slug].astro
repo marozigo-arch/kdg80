@@ -1,7 +1,6 @@
 ---
 import EventCard from '../components/EventCard.astro';
 import RouteHero from '../components/RouteHero.astro';
-import RouteSubnav from '../components/RouteSubnav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import Layout from '../layouts/Layout.astro';
@@ -46,7 +45,6 @@ const description = route.description || `Маршрут по интересам
 
     <main>
       <RouteHero route={route} routeProgramHref={routeProgramHref} />
-      <RouteSubnav items={routeItems} currentRouteSlug={route.slug} />
 
       <section class="section section--route-program" id="route-program">
         <div class="container">
