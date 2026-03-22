@@ -149,7 +149,7 @@ const HERO_SCENE_STYLE_OVERRIDES: Array<{ match: string; style: string }> = [
   { match: 'Никитин', style: '--hero-mobile-portrait-right: -20%;' },
   { match: 'Мосиенко', style: '--hero-mobile-portrait-right: -20%; --hero-mobile-copy-width: 44%;' },
   { match: 'Казакова', style: '--hero-mobile-copy-width: 46%;' },
-  { match: 'Соколова', style: '--hero-mobile-portrait-height: 62%; --hero-copy-width: 27rem; --hero-copy-start: 8.5rem;' },
+  { match: 'Соколова', style: '--hero-mobile-portrait-height: 62%; --hero-copy-width: 30rem; --hero-copy-start: 7.75rem;' },
   { match: 'Долотова', style: '--hero-mobile-portrait-right: -20%; --hero-mobile-copy-width: 50%;' },
   { match: 'Конюхова', style: '--hero-mobile-portrait-right: -20%; --hero-mobile-copy-width: 50%;' },
 ];
@@ -682,17 +682,6 @@ const defaultHeroWordParts = defaultHeroIsMyth ? getWordParts(defaultHeroVariant
 const defaultHeroWordRevealStyle = defaultHeroIsMyth ? getWordRevealStyle(defaultHeroWordParts.length) : undefined;
 const defaultHeroMythContext = defaultHeroIsMyth ? getMythContextParts(defaultHeroVariant.body) : null;
 const heroVariantsPayload = JSON.stringify(heroStoryVariants);
-
-const speakerShowcasePayload = JSON.stringify(
-  allSpeakerShowcase.map((speaker) => ({
-    name: speaker.name,
-    affiliation: speaker.affiliation,
-    anchor: speaker.anchor,
-    weight: speaker.weight,
-    image: getSpeakerStripImage(speaker.name, speaker.images[0]),
-    style: getSpeakerStripStyle(speaker.name) ?? '',
-  })),
-);
 ---
 
 <Layout
@@ -755,6 +744,7 @@ const speakerShowcasePayload = JSON.stringify(
                     src={defaultHeroIsQuote ? defaultHeroVariant.speakerImage : ''}
                     alt=""
                     loading="eager"
+                    fetchpriority={defaultHeroIsQuote ? 'high' : undefined}
                     decoding="async"
                     style={defaultHeroIsQuote ? defaultHeroVariant.speakerStyle ?? '' : ''}
                   />
@@ -879,8 +869,6 @@ const speakerShowcasePayload = JSON.stringify(
 
             <div
               class="speaker-strip"
-              data-visible-count={SPEAKER_SHOWCASE_LIMIT}
-              data-speakers={speakerShowcasePayload}
             >
               {speakerShowcase.map((speaker, index) => (
                 <a class={`speaker-entry speaker-entry--${index + 1}`} href={`#${speaker.anchor}`}>
@@ -895,6 +883,7 @@ const speakerShowcasePayload = JSON.stringify(
                       src={getSpeakerStripImage(speaker.name, speaker.images[0])}
                       alt={speaker.name}
                       loading="lazy"
+                      fetchpriority="low"
                       decoding="async"
                       style={getSpeakerStripStyle(speaker.name)}
                     />
@@ -979,18 +968,17 @@ const speakerShowcasePayload = JSON.stringify(
 
   <script is:inline>
     const heroShowcase = document.querySelector('[data-hero-showcase]');
-    const speakerStrip = document.querySelector('.speaker-strip');
     const interestChooser = document.querySelector('[data-interest-chooser]');
     const interestZone = document.querySelector('[data-interest-zone]');
     const programSection = document.querySelector('#program');
+    const DESKTOP_HERO_AUTOPLAY_MS = 9000;
 
-    const shuffleInPlace = (items) => {
-      const next = [...items];
-      for (let index = next.length - 1; index > 0; index -= 1) {
-        const randomIndex = Math.floor(Math.random() * (index + 1));
-        [next[index], next[randomIndex]] = [next[randomIndex], next[index]];
-      }
-      return next;
+    let cachedHeaderHeight = 64;
+    let chooserSyncFrame = 0;
+
+    const updateHeaderHeight = () => {
+      const rootStyle = getComputedStyle(document.documentElement);
+      cachedHeaderHeight = Number.parseFloat(rootStyle.getPropertyValue('--site-header-height')) || 64;
     };
 
     const syncInterestChooserState = () => {
@@ -998,9 +986,7 @@ const speakerShowcasePayload = JSON.stringify(
         return;
       }
 
-      const rootStyle = getComputedStyle(document.documentElement);
-      const headerHeight = Number.parseFloat(rootStyle.getPropertyValue('--site-header-height')) || 64;
-      const stickTop = headerHeight + 8;
+      const stickTop = cachedHeaderHeight + 8;
       const zoneTop = interestZone.getBoundingClientRect().top;
       const programTop = programSection.getBoundingClientRect().top;
       const isProgramActive = programTop <= stickTop + 28;
@@ -1010,11 +996,26 @@ const speakerShowcasePayload = JSON.stringify(
       interestChooser.dataset.stuck = isChooserStuck ? 'true' : 'false';
     };
 
+    const scheduleInterestChooserSync = () => {
+      if (chooserSyncFrame) {
+        return;
+      }
+
+      chooserSyncFrame = window.requestAnimationFrame(() => {
+        chooserSyncFrame = 0;
+        syncInterestChooserState();
+      });
+    };
+
     if (interestChooser instanceof HTMLElement && interestZone instanceof HTMLElement && programSection instanceof HTMLElement) {
+      updateHeaderHeight();
       syncInterestChooserState();
-      window.addEventListener('load', syncInterestChooserState);
-      window.addEventListener('scroll', syncInterestChooserState, { passive: true });
-      window.addEventListener('resize', syncInterestChooserState);
+      window.addEventListener('load', scheduleInterestChooserSync);
+      window.addEventListener('scroll', scheduleInterestChooserSync, { passive: true });
+      window.addEventListener('resize', () => {
+        updateHeaderHeight();
+        scheduleInterestChooserSync();
+      });
     }
 
     const buildWeightedDeck = (variants) => {
@@ -1321,7 +1322,7 @@ const speakerShowcasePayload = JSON.stringify(
             }
             queueHeroVariant(heroShowcase, variants[deck[deckIndex]], deckIndex, variants.length);
             startAutoplay();
-          }, 6000);
+          }, DESKTOP_HERO_AUTOPLAY_MS);
         };
 
         setHeroVariant(heroShowcase, variants[deck[deckIndex]], deckIndex, variants.length);
@@ -1355,114 +1356,6 @@ const speakerShowcasePayload = JSON.stringify(
     };
 
     hydrateHeroShowcase();
-
-    const pickWeightedSpeakers = (pool, count) => {
-      const available = [...pool];
-      const selection = [];
-
-      while (selection.length < count && available.length) {
-        const totalWeight = available.reduce((sum, speaker) => sum + Math.max(Number(speaker.weight) || 1, 0.1), 0);
-        let threshold = Math.random() * totalWeight;
-        let selectedIndex = available.length - 1;
-
-        for (let index = 0; index < available.length; index += 1) {
-          threshold -= Math.max(Number(available[index].weight) || 1, 0.1);
-          if (threshold <= 0) {
-            selectedIndex = index;
-            break;
-          }
-        }
-
-        selection.push(available.splice(selectedIndex, 1)[0]);
-      }
-
-      return selection;
-    };
-
-    const buildSpeakerEntry = (speaker, index) => {
-      const entry = document.createElement('a');
-      entry.className = `speaker-entry speaker-entry--${index + 1}`;
-      entry.href = `#${speaker.anchor}`;
-
-      const meta = document.createElement('div');
-      meta.className = 'speaker-entry__meta';
-
-      const title = document.createElement('strong');
-      title.textContent = speaker.name;
-      meta.appendChild(title);
-
-      if (speaker.affiliation) {
-        const caption = document.createElement('span');
-        caption.textContent = speaker.affiliation.replace(/\s+/g, ' ').trim();
-        meta.appendChild(caption);
-      }
-
-      const media = document.createElement('div');
-      media.className = 'speaker-entry__media';
-
-      const image = document.createElement('img');
-      image.className = 'speaker-entry__portrait';
-      image.src = speaker.image;
-      image.alt = speaker.name;
-      image.loading = 'lazy';
-      image.decoding = 'async';
-
-      if (speaker.style) {
-        image.style.cssText = speaker.style;
-      }
-
-      media.appendChild(image);
-      entry.append(meta, media);
-
-      return entry;
-    };
-
-    const hydrateSpeakerStrip = async () => {
-      if (!speakerStrip?.dataset.speakers || speakerStrip.dataset.ready === 'true') {
-        return;
-      }
-
-      speakerStrip.dataset.ready = 'true';
-
-      try {
-        const speakerPool = JSON.parse(speakerStrip.dataset.speakers);
-        const visibleCount = Number.parseInt(speakerStrip.dataset.visibleCount || '', 10)
-          || speakerStrip.children.length
-          || 8;
-        const selectedSpeakers = shuffleInPlace(
-          pickWeightedSpeakers(speakerPool, Math.min(visibleCount, speakerPool.length)),
-        );
-
-        const fragment = document.createDocumentFragment();
-        selectedSpeakers.forEach((speaker, index) => {
-          fragment.appendChild(buildSpeakerEntry(speaker, index));
-        });
-
-        speakerStrip.replaceChildren(fragment);
-      } catch (error) {
-        console.error('Speaker showcase randomizer failed', error);
-        speakerStrip.dataset.ready = 'false';
-      }
-    };
-
-    if (speakerStrip?.dataset.speakers) {
-      if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) {
-            return;
-          }
-
-          observer.disconnect();
-          void hydrateSpeakerStrip();
-        }, { rootMargin: '320px 0px' });
-
-        observer.observe(speakerStrip);
-      } else {
-        window.setTimeout(() => {
-          void hydrateSpeakerStrip();
-        }, 0);
-      }
-    }
 
     const cycleNodes = Array.from(document.querySelectorAll('[data-portrait-frames]'));
     const timers = new Map();

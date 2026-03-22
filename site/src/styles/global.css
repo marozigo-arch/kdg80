@@ -892,6 +892,7 @@ summary {
   background: rgba(255, 246, 240, 0.16);
   border: 1px solid rgba(255, 246, 240, 0.22);
   backdrop-filter: blur(12px);
+  cursor: pointer;
   transition:
     transform 180ms ease,
     background-color 180ms ease,
@@ -1070,6 +1071,8 @@ summary {
   border-radius: 0.85rem;
   background: #12100f;
   box-shadow: var(--shadow-strong);
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 980px;
 }
 
 .speaker-poster__masthead {
@@ -1274,6 +1277,11 @@ summary {
 .footer-panels {
   display: grid;
   gap: 0.8rem;
+}
+
+.dialogue-strip {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 380px;
 }
 
 .dialogue-card,
@@ -3169,6 +3177,7 @@ summary {
   font-size: 0.94rem;
   font-weight: 500;
   background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
   transition:
     transform 180ms ease,
     background-color 180ms ease,

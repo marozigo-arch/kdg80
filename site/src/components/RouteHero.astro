@@ -113,6 +113,7 @@ function getMythContextParts(value: string) {
 
 <script is:inline>
   const routeHero = document.querySelector('[data-route-hero]');
+  const DESKTOP_ROUTE_HERO_AUTOPLAY_MS = 9000;
 
   const isHeavyMyth = (variant) => /уничтож|разруш|невозможно спасти/iu.test(String(variant?.text ?? ''));
 
@@ -294,7 +295,7 @@ function getMythContextParts(value: string) {
             }
             goToIndex(deckIndex);
             queueNext();
-          }, 6000);
+          }, DESKTOP_ROUTE_HERO_AUTOPLAY_MS);
         };
 
         setRouteHeroVariant(routeHero, variants[deck[deckIndex]], deckIndex);
