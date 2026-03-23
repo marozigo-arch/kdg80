@@ -5,16 +5,16 @@
 ## 1. Что было проанализировано
 
 - Канонический hero-spec: [hero-requirements.md](/workspaces/kdg80/docs/hero-requirements.md)
-- Текущий статический сайт-заглушка: [index.html](/workspaces/codespaces-blank/index.html), [styles.css](/workspaces/codespaces-blank/styles.css)
-- Текущая выкладка и S3-деплой: [deploy-to-yc.sh](/workspaces/codespaces-blank/deploy-to-yc.sh), [deploy-preview-to-yc.sh](/workspaces/codespaces-blank/deploy-preview-to-yc.sh)
-- Актуальный мастер-файл фестиваля: [festival_site_master_actual_v3.md](/workspaces/codespaces-blank/Исходные%20данные/festival_site_master_actual_v3.md)
-- Локальные референсы: [Референсы](/workspaces/codespaces-blank/Исходные%20данные/Референсы), [added](/workspaces/codespaces-blank/added)
+- Текущий статический сайт-заглушка: [index.html](/workspaces/kdg80/index.html), [styles.css](/workspaces/kdg80/styles.css)
+- Текущая выкладка и S3-деплой: [deploy-to-yc.sh](/workspaces/kdg80/deploy-to-yc.sh), [deploy-preview-to-yc.sh](/workspaces/kdg80/deploy-preview-to-yc.sh)
+- Актуальный мастер-файл фестиваля: [festival_site_master_actual_v3.md](/workspaces/kdg80/Исходные%20данные/festival_site_master_actual_v3.md)
+- Локальные референсы: [Референсы](/workspaces/kdg80/Исходные%20данные/Референсы), [added](/workspaces/kdg80/added)
 - Hero reference pack для текущей композиции:
 - [Desctop.png](/workspaces/kdg80/Исходные данные/Идеи/Desctop.png)
 - [Mobile 1.png](/workspaces/kdg80/Исходные данные/Идеи/Mobile 1.png)
 - [Mobile 2.png](/workspaces/kdg80/Исходные данные/Идеи/Mobile 2.png)
-- Доступные изображения лекций, спектакля и спикеров в [Фотографии](/workspaces/codespaces-blank/Исходные%20данные/Фотографии)
-- Текущие SEO/GEO-файлы: [robots.txt](/workspaces/codespaces-blank/robots.txt), [llms.txt](/workspaces/codespaces-blank/llms.txt), [llms-full.txt](/workspaces/codespaces-blank/llms-full.txt), [sitemap.xml](/workspaces/codespaces-blank/sitemap.xml)
+- Доступные изображения лекций, спектакля и спикеров в [Фотографии](/workspaces/kdg80/Исходные%20данные/Фотографии)
+- Текущие SEO/GEO-файлы: [robots.txt](/workspaces/kdg80/robots.txt), [llms.txt](/workspaces/kdg80/llms.txt), [llms-full.txt](/workspaces/kdg80/llms-full.txt), [sitemap.xml](/workspaces/kdg80/sitemap.xml)
 - Официальный сайт Российского общества «Знание»: `znanierussia.ru`, дополнительно просмотренный через `playwright-cli`
 
 ## 2. Ключевые выводы по исходным данным
@@ -249,6 +249,7 @@
 - вертикальный разрыв перед новым месяцем должен считываться заметно сильнее, чем внутренний gap между карточками внутри месяца
 - заголовок месяца должен быть крупнее и работать как сильный календарный якорь скролла
 - возможность быстро перейти к ближайшему месяцу
+- `/programma/` должен существовать как самостоятельный публичный маршрут, а переходы на программу с других страниц должны вести на `/programma/#month-...`, а не на `/#month-...`
 
 `/arhiv/`
 
@@ -947,6 +948,10 @@
 - с корня не должно быть ссылок на preview
 - preview-страницы должны получать `noindex, nofollow`
 - по решению владельца проекта **авторизация не требуется**
+- preview должен собираться из `site/dist`, а не из legacy placeholder-файлов в корне репозитория
+- preview должен сохранять nested routes Astro-сайта, включая `/programma/` и тематические страницы
+- при выкладке в подпапку root-absolute site URLs нужно переписывать под preview-prefix, иначе статические ассеты и внутренние ссылки выпадут в корень домена
+- same-origin пути `/tickets/registration/states.json` и `/tickets/<public_hash>/` при этом не переписываются под preview-prefix, потому что они должны оставаться на корне домена
 - основная защита preview:
   - секретный непрогнозируемый slug
   - отсутствие ссылок с корня
@@ -955,8 +960,8 @@
 
 ### Что уже подготовлено в репозитории
 
-- [deploy-preview-to-yc.sh](/workspaces/codespaces-blank/deploy-preview-to-yc.sh) — отдельный скрипт для preview-деплоя
-- [deploy-to-yc.sh](/workspaces/codespaces-blank/deploy-to-yc.sh) — обновлен так, чтобы уметь деплоить staging-каталог
+- [deploy-preview-to-yc.sh](/workspaces/kdg80/deploy-preview-to-yc.sh) — отдельный скрипт для preview-деплоя Astro-сборки в секретный prefix
+- [deploy-to-yc.sh](/workspaces/kdg80/deploy-to-yc.sh) — умеет деплоить как legacy root placeholder, так и подготовленный static tree
 
 ## 25. Future-ready архитектура под возможную кастомную регистрацию
 

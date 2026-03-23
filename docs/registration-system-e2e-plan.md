@@ -22,6 +22,11 @@
 - Для E2E желательно отдельное staging-приложение и отдельный test bot, чтобы не засорять production-чат. — Статус: `Зафиксировано`
 - Публичная форма в E2E должна отправлять запрос напрямую на Fly staging API, а не в обход через локальные моки формы. — Статус: `Зафиксировано`
 - Для day-1 MVP production-like E2E может использовать штатный `.fly.dev` HTTPS URL приложения, если custom domain на Fly ещё не подключён. — Статус: `Зафиксировано`
+- Для статического сайта на Yandex Object Storage production-like browser E2E должен иметь same-origin preview-path на основном домене `kgd80.ru`, а не только `localhost`, иначе проверки `states.json`, ticket URLs и CORS-поведения теряют смысл. — Статус: `Зафиксировано`
+- Hidden preview для E2E должен публиковаться из собранного `site/dist`, а не из legacy placeholder-файлов в корне репозитория. — Статус: `Зафиксировано`
+- Preview-публикация должна сохранять реальные nested routes сайта, включая `/programma/` и тематические страницы, чтобы Playwright работал по тем же URL, что и пользовательский сценарий. — Статус: `Зафиксировано`
+- При деплое preview в секретную подпапку root-absolute site URLs должны переписываться под preview-prefix, но same-origin пути `/tickets/registration/states.json` и публичные `/tickets/<public_hash>/` должны оставаться в корне домена. — Статус: `Зафиксировано`
+- Скрипты preview/E2E должны уметь читать локальные секреты как из корневого `.env`, так и из `docs/.env`, потому что в текущем workspace тестовые и YC-ключи хранятся именно там. — Статус: `Зафиксировано`
 
 ### Production-first hygiene
 

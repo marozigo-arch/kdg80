@@ -465,5 +465,5 @@ export function getSmartProgramHref(events: FestivalEvent[], isHome = false, now
   const currentOrUpcoming = datedEvents.find((event) => getEventTemporalState(event, now) !== 'past');
   const fallbackEvent = currentOrUpcoming ?? datedEvents[0];
   const anchor = fallbackEvent ? `#month-${fallbackEvent.monthAnchor}` : '#program';
-  return isHome ? anchor : `/${anchor}`;
+  return isHome ? anchor : `/programma/${anchor}`;
 }

@@ -1,6 +1,6 @@
 ---
-import EventCard from '../components/EventCard.astro';
 import InterestChooser from '../components/InterestChooser.astro';
+import ProgramSection from '../components/ProgramSection.astro';
 import RegistrationClient from '../components/RegistrationClient.astro';
 import SpeakerPoster from '../components/SpeakerPoster.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -862,48 +862,7 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
         </section>
       )}
 
-      <section class="section section--program" id="program">
-        <div class="container">
-          <div class="section__header section__header--split">
-            <div>
-              <p class="section__eyebrow">Программа</p>
-              <h2>Вся лента должна сканироваться быстро: дата, картинка, спикер и минимум ключевой информации</h2>
-            </div>
-            <p class="section__text">
-              На десктопе перестраиваю список в плотный image-first ритм. Длинные абзацы убраны из первого экрана карточки,
-              а на первый план выходят дата, афиша события и заметный человек.
-            </p>
-          </div>
-
-          <div class="month-nav-wrap">
-            <nav class="month-nav" aria-label="Навигация по месяцам">
-              {monthGroups.map((group) => (
-                <a href={`#month-${group.anchor}`}>{group.label}</a>
-              ))}
-            </nav>
-          </div>
-
-          <div class="program">
-            {monthGroups.map((group) => (
-              <section class="month-block" id={`month-${group.anchor}`}>
-                <header class="month-block__header">
-                  <div>
-                    <p class="month-block__eyebrow">2026</p>
-                    <h3>{group.label}</h3>
-                  </div>
-                  <span class="month-block__count">{group.events.length} событий</span>
-                </header>
-
-                <div class="event-list">
-                  {group.events.map((event) => (
-                    <EventCard event={event} now={now} />
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ProgramSection monthGroups={monthGroups} now={now} />
     </main>
 
     <SiteFooter routeItems={routeItems} programHref={programHref} isHome />
