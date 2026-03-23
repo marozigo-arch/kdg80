@@ -23,14 +23,11 @@ type TicketArtifactInput = {
 };
 
 const ASSETS_ROOT = fileURLToPath(new URL('../assets/', import.meta.url));
-const FONT_DISPLAY_REGULAR = path.join(ASSETS_ROOT, 'fonts', 'Cygre-Regular.woff2');
-const FONT_DISPLAY_BOLD = path.join(ASSETS_ROOT, 'fonts', 'Cygre-Bold.woff2');
-const FONT_BODY = path.join(ASSETS_ROOT, 'fonts', 'FavoritPro-Book.otf');
-const FONT_BODY_MEDIUM = path.join(ASSETS_ROOT, 'fonts', 'FavoritPro-Medium.otf');
-const FONT_BODY_BOLD = path.join(ASSETS_ROOT, 'fonts', 'FavoritPro-Bold.otf');
 const FESTIVAL_LOGO_PNG = path.join(ASSETS_ROOT, 'logos', 'logo-znanie-festival.png');
 const FESTIVAL_MARK_PNG = path.join(ASSETS_ROOT, 'logos', 'logo-80-istorii-hero.png');
 const TICKET_IMAGES_DIR = path.join(ASSETS_ROOT, 'ticket-event-images');
+const PDF_FONT_REGULAR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
+const PDF_FONT_BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
 
 function trimTrailingSlash(value: string) {
   return value.replace(/\/+$/u, '');
@@ -599,13 +596,21 @@ function buildIcs(input: TicketArtifactInput) {
   ].join('\r\n');
 }
 
-function setFont(doc: PDFKit.PDFDocument, fontPath: string, fallback: string) {
+function setPdfFont(doc: PDFKit.PDFDocument, fontPath: string, fallback: string) {
   if (fs.existsSync(fontPath)) {
     doc.font(fontPath);
     return;
   }
 
   doc.font(fallback);
+}
+
+function setPdfRegularFont(doc: PDFKit.PDFDocument) {
+  setPdfFont(doc, PDF_FONT_REGULAR, 'Helvetica');
+}
+
+function setPdfBoldFont(doc: PDFKit.PDFDocument) {
+  setPdfFont(doc, PDF_FONT_BOLD, 'Helvetica-Bold');
 }
 
 function drawInfoCard(
@@ -622,13 +627,13 @@ function drawInfoCard(
   doc.save();
   doc.roundedRect(options.x, options.y, options.width, options.height, 18).fillAndStroke('#fffaf4', '#e4d7c6');
   doc.fillColor('#7a7066');
-  setFont(doc, FONT_BODY_MEDIUM, 'Helvetica-Bold');
+  setPdfBoldFont(doc);
   doc.fontSize(10).text(options.label.toUpperCase(), options.x + 14, options.y + 14, {
     width: options.width - 28,
     characterSpacing: 1.2,
   });
   doc.fillColor('#16120d');
-  setFont(doc, FONT_BODY, 'Helvetica');
+  setPdfRegularFont(doc);
   doc.fontSize(12).text(options.value, options.x + 14, options.y + 34, {
     width: options.width - 28,
     lineGap: 3,
@@ -683,21 +688,21 @@ function createPdfBuffer(input: TicketArtifactInput) {
     doc.save();
     doc.roundedRect(contentX, 106, 138, 30, 15).fill('#f3d6d0');
     doc.fillColor('#962d1b');
-    setFont(doc, FONT_BODY_MEDIUM, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fontSize(11).text('БИЛЕТ / ПРИГЛАШЕНИЕ', contentX + 14, 116, {
       width: 110,
       characterSpacing: 1.2,
     });
     doc.restore();
 
-    setFont(doc, FONT_DISPLAY_BOLD, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fillColor('#16120d');
     doc.fontSize(28).text(input.title, contentX, 154, {
       width: contentWidth * 0.72,
       lineGap: -1,
     });
 
-    setFont(doc, FONT_BODY, 'Helvetica');
+    setPdfRegularFont(doc);
     doc.fillColor('#544b42');
     doc.fontSize(13).text(
       'Сохраните этот билет в телефоне. Печать не требуется, а свободная рассадка позволит спокойно занять удобное место перед началом события.',
@@ -726,21 +731,21 @@ function createPdfBuffer(input: TicketArtifactInput) {
       doc.image(FESTIVAL_MARK_PNG, pageWidth - 136, heroY + 18, { fit: [84, 84] });
     }
 
-    setFont(doc, FONT_BODY_MEDIUM, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fillColor('#f0e6d7');
     doc.fontSize(11).text('ФЕСТИВАЛЬНЫЙ БИЛЕТ', contentX + 26, heroY + 82, {
       width: contentWidth - 52,
       characterSpacing: 1.5,
     });
 
-    setFont(doc, FONT_DISPLAY_BOLD, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fillColor('#ffffff');
     doc.fontSize(30).text(`Билет № ${input.shortTicketId}`, contentX + 26, heroY + 104, {
       width: contentWidth - 160,
       lineGap: 0,
     });
 
-    setFont(doc, FONT_BODY, 'Helvetica');
+    setPdfRegularFont(doc);
     doc.fillColor('#d7ccc0');
     doc.fontSize(12).text(
       `${formatEventDate(input.startsAt)} · ${input.venueName}`,
@@ -753,7 +758,7 @@ function createPdfBuffer(input: TicketArtifactInput) {
     );
 
     doc.fontSize(11).text(
-      'Логотипы и данные события на билете важнее декоративной иллюстрации: такой PDF устойчивее и быстрее генерируется на Fly.',
+      'Билет собран в облегчённом PDF-формате: логотипы и данные события сохраняются надёжно даже под нагрузкой.',
       contentX + 26,
       heroY + 166,
       {
@@ -808,18 +813,18 @@ function createPdfBuffer(input: TicketArtifactInput) {
     doc.roundedRect(contentX, lowerY, leftWidth, 122, 22).fillAndStroke('#fffaf4', '#e4d7c6');
     doc.restore();
     doc.fillColor('#7a7066');
-    setFont(doc, FONT_BODY_MEDIUM, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fontSize(10).text('ПОСЕТИТЕЛЬ', contentX + 18, lowerY + 16, {
       width: leftWidth - 36,
       characterSpacing: 1.2,
     });
     doc.fillColor('#16120d');
-    setFont(doc, FONT_DISPLAY_REGULAR, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fontSize(24).text(input.fullName, contentX + 18, lowerY + 36, {
       width: leftWidth - 36,
       lineGap: 2,
     });
-    setFont(doc, FONT_BODY, 'Helvetica');
+    setPdfRegularFont(doc);
     doc.fillColor('#544b42');
     doc.fontSize(12).text(`${input.emailMasked}\n${input.phoneMasked}`, contentX + 18, lowerY + 84, {
       width: leftWidth - 36,
@@ -830,17 +835,17 @@ function createPdfBuffer(input: TicketArtifactInput) {
     doc.roundedRect(rightX, lowerY, rightWidth, 122, 22).fillAndStroke('#18120e', '#18120e');
     doc.restore();
     doc.fillColor('#f5ede1');
-    setFont(doc, FONT_BODY_MEDIUM, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fontSize(10).text('КОРОТКИЙ НОМЕР БИЛЕТА', rightX + 18, lowerY + 16, {
       width: rightWidth - 36,
       characterSpacing: 1.2,
     });
-    setFont(doc, FONT_DISPLAY_BOLD, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fontSize(31).text(input.shortTicketId, rightX + 18, lowerY + 42, {
       width: rightWidth - 36,
       characterSpacing: 4,
     });
-    setFont(doc, FONT_BODY, 'Helvetica');
+    setPdfRegularFont(doc);
     doc.fontSize(11).text('Свободная рассадка. Достаточно открыть этот билет на телефоне.', rightX + 18, lowerY + 88, {
       width: rightWidth - 36,
       lineGap: 3,
@@ -848,19 +853,19 @@ function createPdfBuffer(input: TicketArtifactInput) {
 
     const footerY = lowerY + 142;
     doc.fillColor('#16120d');
-    setFont(doc, FONT_BODY_BOLD, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fontSize(13).text('Полный адрес площадки', contentX, footerY);
-    setFont(doc, FONT_BODY, 'Helvetica');
+    setPdfRegularFont(doc);
     doc.fillColor('#544b42');
     doc.fontSize(12).text(`${input.venueName}, ${input.hallName}\n${input.address}`, contentX, footerY + 18, {
       width: contentWidth * 0.56,
       lineGap: 4,
     });
 
-    setFont(doc, FONT_BODY_BOLD, 'Helvetica-Bold');
+    setPdfBoldFont(doc);
     doc.fillColor('#16120d');
     doc.fontSize(13).text('На странице билета доступны календарные действия', rightX, footerY);
-    setFont(doc, FONT_BODY, 'Helvetica');
+    setPdfRegularFont(doc);
     doc.fillColor('#544b42');
     doc.fontSize(12).text('Google Calendar, Apple Calendar, Android / ICS и скачивание ICS-файла.', rightX, footerY + 18, {
       width: rightWidth,
