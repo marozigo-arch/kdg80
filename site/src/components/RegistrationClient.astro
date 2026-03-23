@@ -4,7 +4,7 @@ const registrationApiBaseUrl = (
   || 'https://znanie-kgd80-fest.fly.dev'
 ).replace(/\/+$/u, '');
 const registrationStateManifestPath = import.meta.env.PUBLIC_REGISTRATION_STATE_MANIFEST_PATH || '/tickets/registration/states.json';
-const consentUrl = '/docs/registration-personal-data-consent-draft.pdf';
+const consentUrl = '/docs/registration-personal-data-consent.html';
 const privacyUrl = 'https://znanierussia.ru/privacy_policy';
 const supportEmail = 'bilet@kdg80.ru';
 ---
@@ -25,23 +25,23 @@ const supportEmail = 'bilet@kdg80.ru';
         <label class="registration-form__field">
           <span>ФИО</span>
           <input name="fullName" type="text" autocomplete="name" required maxlength="120" placeholder="Имя и фамилия" />
-          <small data-registration-error-for="fullName"></small>
+          <small data-registration-error-for="fullName" aria-live="polite"></small>
         </label>
 
         <label class="registration-form__field">
           <span>Email</span>
           <input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="name@example.com" />
-          <small data-registration-error-for="email"></small>
+          <small data-registration-error-for="email" aria-live="polite"></small>
         </label>
 
         <label class="registration-form__field">
           <span>Телефон</span>
           <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" required placeholder="+7 (___) ___-__-__" />
-          <small data-registration-error-for="phone"></small>
+          <small data-registration-error-for="phone" aria-live="polite"></small>
         </label>
 
-        <label class="registration-form__checkbox">
-          <input name="consentAccepted" type="checkbox" />
+        <label class="registration-form__checkbox" data-registration-consent>
+          <input name="consentAccepted" type="checkbox" aria-describedby="registration-consent-error" />
           <span>
             Я подтверждаю, что ознакомлен(а) с
             <a href={privacyUrl} target="_blank" rel="noreferrer">политикой конфиденциальности</a>
@@ -49,7 +49,7 @@ const supportEmail = 'bilet@kdg80.ru';
             <a href={consentUrl} target="_blank" rel="noreferrer">согласием на обработку персональных данных</a>.
           </span>
         </label>
-        <small data-registration-error-for="consentAccepted"></small>
+        <small id="registration-consent-error" data-registration-error-for="consentAccepted" aria-live="polite"></small>
 
         <label class="registration-form__honeypot" aria-hidden="true">
           <span>Ваш сайт</span>
@@ -60,7 +60,7 @@ const supportEmail = 'bilet@kdg80.ru';
           Каждый участник регистрируется сам. По вопросам, связанным с билетами, пишите на
           <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
         </p>
-        <p class="registration-form__status" data-registration-status hidden></p>
+        <p class="registration-form__status" data-registration-status hidden aria-live="polite"></p>
 
         <button class="button button--primary registration-form__submit" type="submit" data-registration-submit>
           Зарегистрироваться
@@ -77,14 +77,13 @@ const supportEmail = 'bilet@kdg80.ru';
     const ctaButtons = Array.from(document.querySelectorAll('[data-registration-cta]'));
     const shell = document.querySelector('[data-registration-shell]');
     const form = shell?.querySelector('[data-registration-form]');
-    const modalBody = shell?.querySelector('[data-registration-modal-body]');
     const titleNode = shell?.querySelector('[data-registration-event-title]');
     const summaryNode = shell?.querySelector('[data-registration-event-summary]');
     const speakerNode = shell?.querySelector('[data-registration-event-speaker]');
     const statusNode = shell?.querySelector('[data-registration-status]');
     const submitButton = shell?.querySelector('[data-registration-submit]');
+    const consentRow = shell?.querySelector('[data-registration-consent]');
     const closeTriggers = shell ? Array.from(shell.querySelectorAll('[data-registration-close]')) : [];
-    const errorNodes = shell ? Array.from(shell.querySelectorAll('[data-registration-error-for]')) : [];
     const stateCache = new Map();
     let activeEvent = null;
     let slowRequestTimer = 0;
@@ -94,22 +93,56 @@ const supportEmail = 'bilet@kdg80.ru';
     }
 
     const fieldNames = ['fullName', 'email', 'phone', 'consentAccepted'];
+    const fieldContainers = {
+      fullName: form.fullName?.closest('.registration-form__field'),
+      email: form.email?.closest('.registration-form__field'),
+      phone: form.phone?.closest('.registration-form__field'),
+      consentAccepted: consentRow,
+    };
+
+    function clearStatus() {
+      if (statusNode instanceof HTMLElement) {
+        statusNode.hidden = true;
+        statusNode.textContent = '';
+      }
+    }
+
+    function setFieldInvalidState(field, invalid) {
+      const container = fieldContainers[field];
+      const control = form[field];
+
+      if (container instanceof HTMLElement) {
+        container.dataset.invalid = invalid ? 'true' : 'false';
+        if (field === 'consentAccepted') {
+          container.classList.toggle('registration-form__checkbox--error', invalid);
+          if (!invalid) {
+            container.classList.remove('registration-form__checkbox--shake');
+          }
+        }
+      }
+
+      if (control instanceof HTMLElement) {
+        control.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+      }
+    }
 
     function getDraftKey(slug) {
       return `registration-draft:${slug}`;
     }
 
     function clearErrors() {
-      for (const node of errorNodes) {
-        if (node instanceof HTMLElement) {
-          node.textContent = '';
-        }
+      for (const fieldName of fieldNames) {
+        clearFieldError(fieldName);
       }
+      clearStatus();
+    }
 
-      if (statusNode instanceof HTMLElement) {
-        statusNode.hidden = true;
-        statusNode.textContent = '';
+    function clearFieldError(field) {
+      const node = shell.querySelector(`[data-registration-error-for="${field}"]`);
+      if (node instanceof HTMLElement) {
+        node.textContent = '';
       }
+      setFieldInvalidState(field, false);
     }
 
     function setFieldError(field, message) {
@@ -117,6 +150,7 @@ const supportEmail = 'bilet@kdg80.ru';
       if (node instanceof HTMLElement) {
         node.textContent = message;
       }
+      setFieldInvalidState(field, true);
     }
 
     function setStatus(message) {
@@ -395,8 +429,8 @@ const supportEmail = 'bilet@kdg80.ru';
       document.body.classList.add('registration-modal-open');
       shell.hidden = false;
 
-      if (modalBody instanceof HTMLElement) {
-        modalBody.scrollTop = 0;
+      if (shell instanceof HTMLElement) {
+        shell.scrollTop = 0;
       }
 
       if (titleNode instanceof HTMLElement) {
@@ -429,60 +463,145 @@ const supportEmail = 'bilet@kdg80.ru';
       form.reset();
     }
 
-    function validate() {
-      clearErrors();
-
-      const data = {
+    function collectFormData() {
+      return {
         fullName: form.fullName.value.trim().replace(/\s+/g, ' '),
         email: form.email.value.trim().toLowerCase(),
         phone: form.phone.value.trim(),
         consentAccepted: form.consentAccepted.checked,
       };
+    }
 
-      let valid = true;
-      const nameParts = data.fullName.split(' ').filter(Boolean);
+    function getFieldMessage(field, data) {
+      if (field === 'fullName') {
+        const nameParts = data.fullName.split(' ').filter(Boolean);
+        if (!data.fullName) {
+          return 'Укажите имя и фамилию полностью.';
+        }
 
-      if (!data.fullName) {
-        setFieldError('fullName', 'Укажите имя и фамилию полностью.');
-        valid = false;
-      } else if (!/^[A-Za-zА-Яа-яЁё' -]+$/u.test(data.fullName)) {
-        setFieldError('fullName', 'Укажите имя и фамилию полностью.');
-        valid = false;
-      } else if (nameParts.length < 2 || nameParts.some((item) => item.replace(/[-']/g, '').length < 2)) {
-        setFieldError('fullName', 'Укажите имя и фамилию полностью.');
-        valid = false;
+        if (!/^[A-Za-zА-Яа-яЁё' -]+$/u.test(data.fullName)) {
+          return 'Укажите имя и фамилию полностью.';
+        }
+
+        if (nameParts.length < 2 || nameParts.some((item) => item.replace(/[-']/g, '').length < 2)) {
+          return 'Укажите имя и фамилию полностью.';
+        }
+
+        return '';
       }
 
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-        setFieldError('email', 'Проверьте email: адрес выглядит некорректно.');
-        valid = false;
+      if (field === 'email') {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)
+          ? ''
+          : 'Проверьте email: адрес выглядит некорректно.';
       }
 
-      const digits = data.phone.replace(/\D+/g, '');
-      if (!(digits.length === 11 && /^[78]\d{10}$/.test(digits))) {
-        setFieldError('phone', 'Введите российский номер в формате +7XXXXXXXXXX.');
-        valid = false;
+      if (field === 'phone') {
+        const digits = data.phone.replace(/\D+/g, '');
+        return digits.length === 11 && /^[78]\d{10}$/.test(digits)
+          ? ''
+          : 'Введите российский номер в формате +7XXXXXXXXXX.';
       }
 
-      if (!data.consentAccepted) {
-        setFieldError('consentAccepted', 'Подтвердите согласие на обработку персональных данных, чтобы продолжить.');
-        valid = false;
+      if (field === 'consentAccepted') {
+        return data.consentAccepted
+          ? ''
+          : 'Подтвердите согласие на обработку персональных данных, чтобы продолжить.';
       }
 
-      return { valid, data };
+      return '';
+    }
+
+    function validateField(field) {
+      const data = collectFormData();
+      clearFieldError(field);
+      const message = getFieldMessage(field, data);
+      if (message) {
+        setFieldError(field, message);
+      }
+      return {
+        valid: !message,
+        data,
+      };
+    }
+
+    function revealFirstInvalidField(field) {
+      const control = form[field];
+      const container = fieldContainers[field];
+      const target = container instanceof HTMLElement ? container : control;
+
+      if (target instanceof HTMLElement) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+
+      if (control instanceof HTMLElement) {
+        control.focus({
+          preventScroll: true,
+        });
+      }
+
+      if (field === 'consentAccepted' && container instanceof HTMLElement) {
+        container.classList.remove('registration-form__checkbox--shake');
+        void container.offsetWidth;
+        container.classList.add('registration-form__checkbox--shake');
+        setStatus('Чтобы завершить регистрацию, подтвердите согласие на обработку персональных данных.');
+      }
+    }
+
+    function validateForm(options = { reveal: false }) {
+      clearErrors();
+      const data = collectFormData();
+      let firstInvalidField = '';
+
+      for (const fieldName of fieldNames) {
+        const message = getFieldMessage(fieldName, data);
+        if (!message) {
+          continue;
+        }
+
+        setFieldError(fieldName, message);
+        if (!firstInvalidField) {
+          firstInvalidField = fieldName;
+        }
+      }
+
+      if (firstInvalidField && options.reveal) {
+        revealFirstInvalidField(firstInvalidField);
+      }
+
+      return {
+        valid: !firstInvalidField,
+        data,
+      };
     }
 
     form.phone.addEventListener('input', () => {
       form.phone.value = normalizePhoneInput(form.phone.value);
       persistDraft();
+      if (form.phone.getAttribute('aria-invalid') === 'true') {
+        validateField('phone');
+      }
     });
 
     for (const fieldName of fieldNames) {
       const field = form[fieldName];
       if (field instanceof HTMLElement) {
-        field.addEventListener('blur', validate);
-        field.addEventListener('input', persistDraft);
-        field.addEventListener('change', persistDraft);
+        field.addEventListener('blur', () => {
+          validateField(fieldName);
+        });
+        field.addEventListener('input', () => {
+          persistDraft();
+          if (field.getAttribute('aria-invalid') === 'true') {
+            validateField(fieldName);
+          }
+        });
+        field.addEventListener('change', () => {
+          persistDraft();
+          validateField(fieldName);
+        });
       }
     }
 
@@ -498,7 +617,9 @@ const supportEmail = 'bilet@kdg80.ru';
         return;
       }
 
-      const { valid, data } = validate();
+      const { valid, data } = validateForm({
+        reveal: true,
+      });
       if (!valid) {
         return;
       }

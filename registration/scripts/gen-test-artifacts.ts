@@ -18,6 +18,7 @@ fs.mkdirSync(DIR, { recursive: true });
 const CASES = [
   {
     label: 'short-title',
+    eventSlug: 'razgovory-o-more',
     title: 'Разговоры о море',
     startsAt: '2026-04-16T13:00:00.000Z', // 16:00 Kaliningrad
     venueName: 'Музей Мирового океана',
@@ -26,6 +27,7 @@ const CASES = [
   },
   {
     label: 'friedland-gate',
+    eventSlug: 'sovetskoe-monumentalnoe-iskusstvo-na-territorii-kaliningradskoy-oblasti',
     title: 'Советское монументальное искусство на территории Калининградской области',
     startsAt: '2026-04-03T15:30:00.000Z', // 18:30 Kaliningrad
     venueName: 'Музей «Фридландские ворота»',
@@ -34,6 +36,7 @@ const CASES = [
   },
   {
     label: 'long-title',
+    eventSlug: 'privychki-kaliningradtsev-yumor-sueveriya-ne-tolko-podrostkovye-strashilki-legendy-kaliningradskih-dvorov',
     title: 'Привычки калининградцев, юмор, суеверия не только подростковые, страшилки, легенды калининградских дворов',
     startsAt: '2026-05-14T15:30:00.000Z',
     venueName: 'Калининградская областная научная библиотека',
