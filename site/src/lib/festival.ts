@@ -504,6 +504,11 @@ function startsWithTemplateLead(value: string) {
     || normalized.startsWith('открытый разговор о теме');
 }
 
+function startsWithSyntheticWhyGo(value: string) {
+  const normalized = normalizeText(value).toLowerCase();
+  return normalized.startsWith('это способ увидеть за темой');
+}
+
 function isGenericQuestionSet(items: string[]) {
   if (items.length < 3) {
     return false;
@@ -1314,7 +1319,7 @@ function parseSections() {
         : 'dated';
     const durationLabel = resolveDurationLabel(kind, body, formatRaw);
     const summary = composeEventSummary(title, body, formatRaw);
-    const whyGo = normalizeText(
+    const rawWhyGo = normalizeText(
       extractFirst(body, [
         'Зачем идти на эту лекцию',
         'Зачем идти на это событие',
@@ -1323,6 +1328,7 @@ function parseSections() {
         'Зачем идти на спектакль',
       ]),
     );
+    const whyGo = startsWithSyntheticWhyGo(rawWhyGo) ? '' : rawWhyGo;
     const speakerAbout = normalizeText(extractField(body, 'О спикере'));
     const questions = [
       '3 вопроса, на которые отвечает событие',

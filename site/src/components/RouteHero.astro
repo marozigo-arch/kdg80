@@ -1,6 +1,5 @@
 ---
 import type { FestivalRoute } from '../lib/routes';
-import { FESTIVAL_TAGLINE } from '../lib/branding';
 
 interface Props {
   route: FestivalRoute;
@@ -63,7 +62,6 @@ function getMythContextParts(value: string) {
         <div class="route-hero__brandbadge" aria-hidden="true">
           <span class="festival-lockup festival-lockup--badge">
             <img src="/shared-assets/logo-80-istorii-hero.svg" alt="" width="431" height="373" decoding="async" loading="eager" />
-            <span class="festival-lockup__tagline festival-lockup__tagline--badge">{FESTIVAL_TAGLINE}</span>
           </span>
         </div>
         <div class="route-hero__myth-body">

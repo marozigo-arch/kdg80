@@ -26,7 +26,6 @@ const ASSETS_ROOT = fileURLToPath(new URL('../assets/', import.meta.url));
 const FESTIVAL_LOGO_PNG = path.join(ASSETS_ROOT, 'logos', 'logo-znanie-festival.png');
 const FESTIVAL_MARK_PNG = path.join(ASSETS_ROOT, 'logos', 'logo-80-istorii-hero.png');
 const TICKET_IMAGES_DIR = path.join(ASSETS_ROOT, 'ticket-event-images');
-const FESTIVAL_TAGLINE = 'Узнать. Понять. Полюбить.';
 const SHARED_FONTS_ROOT = path.resolve(ASSETS_ROOT, '..', '..', '..', 'assets', 'fonts');
 const CYGRE_REGULAR_FONT = path.join(SHARED_FONTS_ROOT, 'Cygre-Regular.woff2');
 const CYGRE_BOLD_FONT = path.join(SHARED_FONTS_ROOT, 'Cygre-Bold.woff2');
@@ -601,7 +600,6 @@ function buildHtml(input: TicketArtifactInput) {
             <div class="hero__logos">
               <img src="${festivalLogoUrl}" alt="Российское общество Знание. Фестиваль 80 историй о главном" />
               <img src="${festivalMarkUrl}" alt="" aria-hidden="true" />
-              <p class="hero__tagline">${escapeHtml(FESTIVAL_TAGLINE)}</p>
             </div>
             <span class="hero__badge">Пригласительное</span>
           </div>
@@ -829,16 +827,11 @@ function createPdfBuffer(input: TicketArtifactInput) {
 
     setPdfMediumFont(doc);
     doc.fillColor('#7a7066');
-    doc.fontSize(9.2).text(FESTIVAL_TAGLINE, contentX, 88, {
-      width: 220,
-      lineGap: 0,
-    });
-
     doc.save();
-    doc.roundedRect(contentX, 106, 138, 30, 15).fill('#f3d6d0');
+    doc.roundedRect(contentX, 92, 138, 30, 15).fill('#f3d6d0');
     doc.fillColor('#962d1b');
     setPdfMediumFont(doc);
-    doc.fontSize(11).text('ПРИГЛАСИТЕЛЬНОЕ', contentX + 14, 116, {
+    doc.fontSize(11).text('ПРИГЛАСИТЕЛЬНОЕ', contentX + 14, 102, {
       width: 110,
       characterSpacing: 1.2,
     });
@@ -850,7 +843,7 @@ function createPdfBuffer(input: TicketArtifactInput) {
     const charsPerLineAt28 = Math.round(titleWidth / 15.2);
     const estimatedLines = Math.ceil(input.title.length / charsPerLineAt28);
     const titleFontSize = estimatedLines > 4 ? 20 : estimatedLines > 3 ? 23 : 28;
-    doc.fontSize(titleFontSize).text(input.title, contentX, 154, {
+    doc.fontSize(titleFontSize).text(input.title, contentX, 140, {
       width: titleWidth,
       lineGap: -1,
     });
@@ -889,15 +882,8 @@ function createPdfBuffer(input: TicketArtifactInput) {
     }
 
     setPdfMediumFont(doc);
-    doc.fillColor('#d7ccc0');
-    doc.fontSize(8.5).text(FESTIVAL_TAGLINE, contentX + 26, heroY + 69, {
-      width: 220,
-      lineGap: 0,
-    });
-
-    setPdfMediumFont(doc);
     doc.fillColor('#f0e6d7');
-    doc.fontSize(11).text('ФЕСТИВАЛЬНОЕ ПРИГЛАСИТЕЛЬНОЕ', contentX + 26, heroY + 82, {
+    doc.fontSize(11).text('ФЕСТИВАЛЬНОЕ ПРИГЛАСИТЕЛЬНОЕ', contentX + 26, heroY + 69, {
       width: contentWidth - 52,
       characterSpacing: 1.2,
     });

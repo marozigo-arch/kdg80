@@ -238,18 +238,6 @@ summary {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
-.site-header__logo-tagline {
-  display: block;
-  max-width: min(100%, 18ch);
-  margin-top: 0.14rem;
-  color: rgba(18, 17, 14, 0.68);
-  font-size: clamp(0.42rem, 0.56vw, 0.58rem);
-  font-weight: 600;
-  line-height: 1.16;
-  letter-spacing: 0.03em;
-  text-wrap: balance;
-}
-
 .site-header__nav {
   display: none;
   flex: 1 1 auto;
@@ -423,28 +411,8 @@ summary {
   width: 100%;
 }
 
-.festival-lockup__tagline {
-  margin: 0;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  line-height: 1.16;
-  text-wrap: balance;
-}
-
-.festival-lockup__tagline--hero {
-  color: rgba(18, 17, 14, 0.64);
-  font-size: 0.7rem;
-}
-
 .festival-lockup--badge {
   width: 100%;
-  gap: 0.22rem;
-}
-
-.festival-lockup__tagline--badge {
-  max-width: 9ch;
-  color: rgba(18, 17, 14, 0.66);
-  font-size: 0.39rem;
 }
 
 .hero__brand img {
@@ -2747,10 +2715,6 @@ summary {
     width: clamp(13.5rem, 20vw, 17rem);
   }
 
-  .festival-lockup__tagline--hero {
-    font-size: 0.74rem;
-  }
-
   .hero__copy {
     align-content: center;
     padding: 1.55rem 1.7rem 1.4rem;
@@ -4435,10 +4399,6 @@ body.registration-modal-open {
   .site-header__row {
     justify-content: flex-start;
     gap: 0.72rem;
-  }
-
-  .site-header__logo-tagline {
-    font-size: 0.42rem;
   }
 
   .site-header__nav {
