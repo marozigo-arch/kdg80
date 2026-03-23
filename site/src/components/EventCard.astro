@@ -82,8 +82,16 @@ function shouldShowQuestionBlock(value: Pick<FestivalEvent, 'questions' | 'kind'
   return value.kind !== 'special' && value.questions.length >= 3;
 }
 
-function hasExpandableSummary(value: Pick<FestivalEvent, 'whyGo' | 'summary' | 'questions' | 'kind'>) {
-  return Boolean(getCardExtraText(value) || shouldShowQuestionBlock(value));
+function shouldShowSpeakerAbout(
+  value: Pick<FestivalEvent, 'speakerAbout' | 'formatLabel' | 'kind'>,
+) {
+  return value.kind !== 'special' && isLectureEvent(value.formatLabel) && Boolean(value.speakerAbout);
+}
+
+function hasExpandableSummary(
+  value: Pick<FestivalEvent, 'whyGo' | 'summary' | 'questions' | 'kind' | 'speakerAbout' | 'formatLabel'>,
+) {
+  return Boolean(getCardExtraText(value) || shouldShowQuestionBlock(value) || shouldShowSpeakerAbout(value));
 }
 
 function getRelatedMetaLine(relatedEvent: RelatedEventCard) {
@@ -182,6 +190,7 @@ const dialogueStageParticipants = visualDialogueParticipants.length
 const cardText = getCardText(event);
 const cardExtraText = getCardExtraText(event);
 const hasExpandableCardSummary = hasExpandableSummary(event);
+const hasSpeakerAbout = shouldShowSpeakerAbout(event);
 const useScientificLibraryVisitSchedule = usesScientificLibraryVisitSchedule(event);
 const accessLabel = event.accessLabel ?? 'Бесплатно';
 const specialServiceLabels = isSpecialEvent
@@ -326,7 +335,10 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
       {isDialogueEvent && (
         <div class="event-card__cast">
           {event.dialogueParticipants.map((participant) => (
-            <span>{participant.name}</span>
+            <div class="event-card__cast-item">
+              <strong>{participant.name}</strong>
+              {participant.affiliation && <span>{participant.affiliation}</span>}
+            </div>
           ))}
         </div>
       )}
@@ -352,6 +364,12 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
                 </ul>
               </div>
             )}
+            {hasSpeakerAbout && (
+              <div class="event-card__speaker-about">
+                <p class="event-card__question-label">О спикере</p>
+                <p class="event-card__speaker-about-copy">{event.speakerAbout}</p>
+              </div>
+            )}
           </details>
         ) : (
           <p class="event-card__summary-plain">{cardText}</p>
@@ -372,6 +390,12 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
                     <li>{question}</li>
                   ))}
                 </ul>
+              </div>
+            )}
+            {hasSpeakerAbout && (
+              <div class="event-card__speaker-about">
+                <p class="event-card__question-label">О спикере</p>
+                <p class="event-card__speaker-about-copy">{event.speakerAbout}</p>
               </div>
             )}
           </details>

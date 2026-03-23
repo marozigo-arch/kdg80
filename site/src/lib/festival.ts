@@ -67,6 +67,7 @@ export type FestivalEvent = {
   showingsLabel: string;
   summary: string;
   whyGo: string;
+  speakerAbout: string;
   questions: string[];
   registrationUrl?: string;
   calendarReady: boolean;
@@ -1222,6 +1223,7 @@ function createProvisionalZooExcursion(events: FestivalEvent[]) {
     heroRole: '',
     summary: 'Премьера новой тематической экскурсии по зоопарку, которая лучше раскроет, что появилось в зоопарке в советское время, познакомит с историей зоопарка того периода и покажет вживую, как менялся зоопарк после немецкой эпохи.',
     whyGo: 'Экскурсия задумывается как весёлая и полная необычных зоопарковых историй прогулка по советскому слою Калининградского зоопарка.',
+    speakerAbout: '',
     questions: [],
     registrationUrl: undefined,
     calendarReady: false,
@@ -1321,6 +1323,7 @@ function parseSections() {
         'Зачем идти на спектакль',
       ]),
     );
+    const speakerAbout = normalizeText(extractField(body, 'О спикере'));
     const questions = [
       '3 вопроса, на которые отвечает событие',
       '3 вопроса, на которые отвечает лекция',
@@ -1389,6 +1392,7 @@ function parseSections() {
       showingsLabel,
       summary,
       whyGo,
+      speakerAbout: kind === 'special' ? '' : speakerAbout,
       questions,
       registrationUrl: kind === 'dated' ? `https://example.com/register?event=${slug}` : undefined,
       calendarReady: kind === 'dated' ? calendar.ready : false,

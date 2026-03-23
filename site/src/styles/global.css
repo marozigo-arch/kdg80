@@ -1943,6 +1943,7 @@ summary {
 .event-card__speaker,
 .event-card__affiliation,
 .event-card__summary-extra,
+.event-card__speaker-about-copy,
 .event-card__related-label,
 .event-card__range-label {
   margin: 0;
@@ -1953,21 +1954,28 @@ summary {
 }
 
 .event-card__cast {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  display: grid;
+  gap: 0.42rem;
 }
 
-.event-card__cast span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.95rem;
-  padding: 0.25rem 0.62rem;
-  border-radius: 999px;
-  color: var(--ink-soft);
-  font-size: 0.8rem;
+.event-card__cast-item {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.48rem 0.62rem 0.5rem;
+  border-radius: 0.92rem;
   background: rgba(18, 17, 14, 0.04);
   border: 1px solid rgba(18, 17, 14, 0.08);
+}
+
+.event-card__cast-item strong {
+  font-size: 0.84rem;
+  line-height: 1.25;
+}
+
+.event-card__cast-item span {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  line-height: 1.38;
 }
 
 .event-card__speaker-links {
@@ -2156,6 +2164,12 @@ summary {
   padding-top: 0.12rem;
 }
 
+.event-card__speaker-about {
+  display: grid;
+  gap: 0.42rem;
+  padding-top: 0.12rem;
+}
+
 .event-card__question-label {
   margin: 0;
   color: var(--accent-deep);
@@ -2172,6 +2186,12 @@ summary {
   color: var(--ink-soft);
   font-size: 0.93rem;
   line-height: 1.5;
+}
+
+.event-card__speaker-about-copy {
+  color: var(--ink-soft);
+  font-size: 0.93rem;
+  line-height: 1.58;
 }
 
 .event-card__question-list li::marker {
