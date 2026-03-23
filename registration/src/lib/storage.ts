@@ -23,6 +23,13 @@ type TicketArtifactFile = {
   cacheControl: string;
 };
 
+export type PublicStorageFile = {
+  key: string;
+  body: Buffer | string;
+  contentType: string;
+  cacheControl: string;
+};
+
 export type TicketArtifactBundle = {
   publicHash: string;
   files: TicketArtifactFile[];
@@ -32,6 +39,7 @@ export type StoragePublisher = {
   driver: 'local' | 's3';
   publishTicketArtifacts(bundle: TicketArtifactBundle): Promise<TicketArtifacts>;
   deleteTicketArtifacts(publicHash: string): Promise<void>;
+  publishPublicAsset(file: PublicStorageFile): Promise<void>;
 };
 
 function trimSlashes(value: string) {
@@ -74,15 +82,18 @@ function createS3Publisher(config: StorageConfig): StoragePublisher {
 
   return {
     driver: 's3',
+    async publishPublicAsset(file) {
+      await client.send(new PutObjectCommand({
+        Bucket: config.s3Bucket!,
+        Key: file.key,
+        Body: file.body,
+        ContentType: file.contentType,
+        CacheControl: file.cacheControl,
+      }));
+    },
     async publishTicketArtifacts(bundle) {
       for (const file of bundle.files) {
-        await client.send(new PutObjectCommand({
-          Bucket: config.s3Bucket!,
-          Key: file.key,
-          Body: file.body,
-          ContentType: file.contentType,
-          CacheControl: file.cacheControl,
-        }));
+        await this.publishPublicAsset(file);
       }
 
       return createTicketUrls(config.publicTicketBaseUrl, config.ticketsPrefix, bundle.publicHash);
@@ -104,11 +115,14 @@ function createLocalPublisher(config: StorageConfig): StoragePublisher {
 
   return {
     driver: 'local',
+    async publishPublicAsset(file) {
+      const targetPath = path.join(config.localPublicRoot, file.key);
+      fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+      fs.writeFileSync(targetPath, file.body);
+    },
     async publishTicketArtifacts(bundle) {
       for (const file of bundle.files) {
-        const targetPath = path.join(config.localPublicRoot, file.key);
-        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-        fs.writeFileSync(targetPath, file.body);
+        await this.publishPublicAsset(file);
       }
 
       return createTicketUrls(config.publicTicketBaseUrl, config.ticketsPrefix, bundle.publicHash);
