@@ -12,57 +12,61 @@ const supportEmail = 'bilet@kdg80.ru';
 <div class="registration-modal-shell" data-registration-shell hidden>
   <div class="registration-modal__backdrop" data-registration-close></div>
   <section class="registration-modal" role="dialog" aria-modal="true" aria-labelledby="registration-modal-title">
-    <button class="registration-modal__close" type="button" data-registration-close aria-label="Закрыть форму регистрации">Закрыть</button>
-    <p class="registration-modal__eyebrow">Регистрация</p>
-    <h2 id="registration-modal-title" data-registration-event-title>Регистрация на событие</h2>
-    <p class="registration-modal__summary" data-registration-event-summary></p>
-    <p class="registration-modal__speaker" data-registration-event-speaker hidden></p>
+    <div class="registration-modal__header">
+      <button class="registration-modal__close" type="button" data-registration-close aria-label="Закрыть форму регистрации">Закрыть</button>
+      <p class="registration-modal__eyebrow">Регистрация</p>
+      <h2 id="registration-modal-title" data-registration-event-title>Регистрация на событие</h2>
+      <p class="registration-modal__summary" data-registration-event-summary></p>
+      <p class="registration-modal__speaker" data-registration-event-speaker hidden></p>
+    </div>
 
-    <form class="registration-form" data-registration-form novalidate>
-      <label class="registration-form__field">
-        <span>ФИО</span>
-        <input name="fullName" type="text" autocomplete="name" required maxlength="120" placeholder="Имя и фамилия" />
-        <small data-registration-error-for="fullName"></small>
-      </label>
+    <div class="registration-modal__body" data-registration-modal-body>
+      <form class="registration-form" data-registration-form novalidate>
+        <label class="registration-form__field">
+          <span>ФИО</span>
+          <input name="fullName" type="text" autocomplete="name" required maxlength="120" placeholder="Имя и фамилия" />
+          <small data-registration-error-for="fullName"></small>
+        </label>
 
-      <label class="registration-form__field">
-        <span>Email</span>
-        <input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="name@example.com" />
-        <small data-registration-error-for="email"></small>
-      </label>
+        <label class="registration-form__field">
+          <span>Email</span>
+          <input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="name@example.com" />
+          <small data-registration-error-for="email"></small>
+        </label>
 
-      <label class="registration-form__field">
-        <span>Телефон</span>
-        <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" required placeholder="+7 (___) ___-__-__" />
-        <small data-registration-error-for="phone"></small>
-      </label>
+        <label class="registration-form__field">
+          <span>Телефон</span>
+          <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" required placeholder="+7 (___) ___-__-__" />
+          <small data-registration-error-for="phone"></small>
+        </label>
 
-      <label class="registration-form__checkbox">
-        <input name="consentAccepted" type="checkbox" />
-        <span>
-          Я подтверждаю, что ознакомлен(а) с
-          <a href={privacyUrl} target="_blank" rel="noreferrer">политикой конфиденциальности</a>
-          и
-          <a href={consentUrl} target="_blank" rel="noreferrer">согласием на обработку персональных данных</a>.
-        </span>
-      </label>
-      <small data-registration-error-for="consentAccepted"></small>
+        <label class="registration-form__checkbox">
+          <input name="consentAccepted" type="checkbox" />
+          <span>
+            Я подтверждаю, что ознакомлен(а) с
+            <a href={privacyUrl} target="_blank" rel="noreferrer">политикой конфиденциальности</a>
+            и
+            <a href={consentUrl} target="_blank" rel="noreferrer">согласием на обработку персональных данных</a>.
+          </span>
+        </label>
+        <small data-registration-error-for="consentAccepted"></small>
 
-      <label class="registration-form__honeypot" aria-hidden="true">
-        <span>Ваш сайт</span>
-        <input name="website" type="text" tabindex="-1" autocomplete="off" />
-      </label>
+        <label class="registration-form__honeypot" aria-hidden="true">
+          <span>Ваш сайт</span>
+          <input name="website" type="text" tabindex="-1" autocomplete="off" />
+        </label>
 
-      <p class="registration-form__note">
-        Каждый участник регистрируется сам. По вопросам, связанным с билетами, пишите на
-        <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
-      </p>
-      <p class="registration-form__status" data-registration-status hidden></p>
+        <p class="registration-form__note">
+          Каждый участник регистрируется сам. По вопросам, связанным с билетами, пишите на
+          <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
+        </p>
+        <p class="registration-form__status" data-registration-status hidden></p>
 
-      <button class="button button--primary registration-form__submit" type="submit" data-registration-submit>
-        Зарегистрироваться
-      </button>
-    </form>
+        <button class="button button--primary registration-form__submit" type="submit" data-registration-submit>
+          Зарегистрироваться
+        </button>
+      </form>
+    </div>
   </section>
 </div>
 
@@ -73,6 +77,7 @@ const supportEmail = 'bilet@kdg80.ru';
     const ctaButtons = Array.from(document.querySelectorAll('[data-registration-cta]'));
     const shell = document.querySelector('[data-registration-shell]');
     const form = shell?.querySelector('[data-registration-form]');
+    const modalBody = shell?.querySelector('[data-registration-modal-body]');
     const titleNode = shell?.querySelector('[data-registration-event-title]');
     const summaryNode = shell?.querySelector('[data-registration-event-summary]');
     const speakerNode = shell?.querySelector('[data-registration-event-speaker]');
@@ -357,6 +362,10 @@ const supportEmail = 'bilet@kdg80.ru';
       hydrateDraft();
       document.body.classList.add('registration-modal-open');
       shell.hidden = false;
+
+      if (modalBody instanceof HTMLElement) {
+        modalBody.scrollTop = 0;
+      }
 
       if (titleNode instanceof HTMLElement) {
         titleNode.textContent = item.title;
