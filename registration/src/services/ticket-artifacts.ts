@@ -26,6 +26,7 @@ const ASSETS_ROOT = fileURLToPath(new URL('../assets/', import.meta.url));
 const FESTIVAL_LOGO_PNG = path.join(ASSETS_ROOT, 'logos', 'logo-znanie-festival.png');
 const FESTIVAL_MARK_PNG = path.join(ASSETS_ROOT, 'logos', 'logo-80-istorii-hero.png');
 const TICKET_IMAGES_DIR = path.join(ASSETS_ROOT, 'ticket-event-images');
+const FESTIVAL_TAGLINE = 'Узнать. Понять. Полюбить.';
 const SHARED_FONTS_ROOT = path.resolve(ASSETS_ROOT, '..', '..', '..', 'assets', 'fonts');
 const CYGRE_REGULAR_FONT = path.join(SHARED_FONTS_ROOT, 'Cygre-Regular.woff2');
 const CYGRE_BOLD_FONT = path.join(SHARED_FONTS_ROOT, 'Cygre-Bold.woff2');
@@ -288,6 +289,17 @@ function buildHtml(input: TicketArtifactInput) {
       .hero__logos img:last-child {
         width: clamp(78px, 20vw, 132px);
         height: auto;
+      }
+
+      .hero__tagline {
+        margin: 0;
+        max-width: 17ch;
+        color: rgba(22, 18, 13, 0.66);
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.22;
+        letter-spacing: 0.03em;
+        text-wrap: balance;
       }
 
       .hero__eyebrow {
@@ -589,6 +601,7 @@ function buildHtml(input: TicketArtifactInput) {
             <div class="hero__logos">
               <img src="${festivalLogoUrl}" alt="Российское общество Знание. Фестиваль 80 историй о главном" />
               <img src="${festivalMarkUrl}" alt="" aria-hidden="true" />
+              <p class="hero__tagline">${escapeHtml(FESTIVAL_TAGLINE)}</p>
             </div>
             <span class="hero__badge">Пригласительное</span>
           </div>
@@ -814,6 +827,13 @@ function createPdfBuffer(input: TicketArtifactInput) {
       doc.image(FESTIVAL_MARK_PNG, pageWidth - 150, 30, { fit: [92, 92] });
     }
 
+    setPdfMediumFont(doc);
+    doc.fillColor('#7a7066');
+    doc.fontSize(9.2).text(FESTIVAL_TAGLINE, contentX, 88, {
+      width: 220,
+      lineGap: 0,
+    });
+
     doc.save();
     doc.roundedRect(contentX, 106, 138, 30, 15).fill('#f3d6d0');
     doc.fillColor('#962d1b');
@@ -867,6 +887,13 @@ function createPdfBuffer(input: TicketArtifactInput) {
     if (fs.existsSync(FESTIVAL_MARK_PNG)) {
       doc.image(FESTIVAL_MARK_PNG, pageWidth - 136, heroY + 18, { fit: [84, 84] });
     }
+
+    setPdfMediumFont(doc);
+    doc.fillColor('#d7ccc0');
+    doc.fontSize(8.5).text(FESTIVAL_TAGLINE, contentX + 26, heroY + 69, {
+      width: 220,
+      lineGap: 0,
+    });
 
     setPdfMediumFont(doc);
     doc.fillColor('#f0e6d7');

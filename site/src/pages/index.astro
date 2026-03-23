@@ -22,6 +22,7 @@ import {
   getRouteNavItems,
   getSmartProgramHref,
 } from '../lib/routes';
+import { FESTIVAL_TAGLINE } from '../lib/branding';
 
 const events = getFestivalEvents();
 const monthGroups = getMonthGroups(events);
@@ -757,7 +758,10 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
               <p class="hero__kicker">К 80-летию Калининградской области</p>
               <h1 class="hero__brand">
                 <span class="sr-only">80 историй о главном</span>
-                <img src="/shared-assets/logo-80-istorii-hero.svg" alt="" width="431" height="373" decoding="async" fetchpriority="high" aria-hidden="true" />
+                <span class="festival-lockup festival-lockup--hero">
+                  <img src="/shared-assets/logo-80-istorii-hero.svg" alt="" width="431" height="373" decoding="async" fetchpriority="high" aria-hidden="true" />
+                  <span class="festival-lockup__tagline festival-lockup__tagline--hero">{FESTIVAL_TAGLINE}</span>
+                </span>
               </h1>
               <p class="hero__lead">
                 Истории людей, мест и привычек, из которых складывалась новая Калининградская область.
@@ -791,7 +795,10 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
               >
                 <div class="hero-showcase__media" aria-hidden="true">
                   <div class="hero-showcase__brandbadge" aria-hidden="true">
-                    <img src="/shared-assets/logo-80-istorii-hero.svg" alt="" width="431" height="373" decoding="async" loading="eager" />
+                    <span class="festival-lockup festival-lockup--badge">
+                      <img src="/shared-assets/logo-80-istorii-hero.svg" alt="" width="431" height="373" decoding="async" loading="eager" />
+                      <span class="festival-lockup__tagline festival-lockup__tagline--badge">{FESTIVAL_TAGLINE}</span>
+                    </span>
                   </div>
                 </div>
 

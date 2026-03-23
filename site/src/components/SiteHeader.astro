@@ -1,5 +1,6 @@
 ---
 import type { RouteNavItem } from '../lib/routes';
+import { FESTIVAL_TAGLINE } from '../lib/branding';
 
 interface Props {
   isHome?: boolean;
@@ -36,6 +37,7 @@ const headerKind = isHome ? 'home' : (currentRouteSlug ? 'route' : 'default');
           <img src="/shared-assets/logo-znanie-festival.svg" alt="" width="877" height="150" decoding="async" />
         </span>
       </span>
+      <span class="site-header__logo-tagline">{FESTIVAL_TAGLINE}</span>
     </a>
 
     <nav class="site-header__nav" aria-label="Быстрые разделы">
