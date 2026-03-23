@@ -29,6 +29,19 @@ const TICKET_IMAGES_DIR = path.join(ASSETS_ROOT, 'ticket-event-images');
 const PDF_FONT_REGULAR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 const PDF_FONT_BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
 
+// Pre-load logos as base64 data URIs so the HTML ticket is self-contained
+// (no dependency on /shared-assets/ when opened from S3 or file://).
+function loadPngDataUri(filePath: string): string | null {
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+  const b64 = fs.readFileSync(filePath).toString('base64');
+  return `data:image/png;base64,${b64}`;
+}
+
+const FESTIVAL_LOGO_DATA_URI = loadPngDataUri(FESTIVAL_LOGO_PNG);
+const FESTIVAL_MARK_DATA_URI = loadPngDataUri(FESTIVAL_MARK_PNG);
+
 function trimTrailingSlash(value: string) {
   return value.replace(/\/+$/u, '');
 }
@@ -119,8 +132,10 @@ function buildHtml(input: TicketArtifactInput) {
   const formattedDate = formatEventDate(input.startsAt);
   const dateOnly = formatEventDateOnly(input.startsAt);
   const timeOnly = formatEventTimeOnly(input.startsAt);
-  const festivalLogoUrl = '/shared-assets/logo-znanie-festival.svg';
-  const festivalMarkUrl = '/shared-assets/logo-80-istorii-hero.svg';
+  // Use embedded data URIs so the ticket HTML is self-contained from any origin.
+  // Fall back to /shared-assets/ paths if the PNG assets are not present.
+  const festivalLogoUrl = FESTIVAL_LOGO_DATA_URI ?? '/shared-assets/logo-znanie-festival.svg';
+  const festivalMarkUrl = FESTIVAL_MARK_DATA_URI ?? '/shared-assets/logo-80-istorii-hero.svg';
   const eventImageUrl = input.eventImageUrl || '';
 
   return `<!doctype html>
@@ -764,24 +779,34 @@ function createPdfBuffer(input: TicketArtifactInput) {
 
     setPdfBoldFont(doc);
     doc.fillColor('#16120d');
-    doc.fontSize(28).text(input.title, contentX, 154, {
-      width: contentWidth * 0.72,
+    // Adapt font size so very long titles don't overflow into the hero panel.
+    // Rough estimate: DejaVuSans Bold at 28pt ≈ 13.5 pt/char average.
+    const titleWidth = contentWidth * 0.72;
+    const charsPerLineAt28 = Math.round(titleWidth / 13.5);
+    const estimatedLines = Math.ceil(input.title.length / charsPerLineAt28);
+    const titleFontSize = estimatedLines > 4 ? 20 : estimatedLines > 3 ? 23 : 28;
+    doc.fontSize(titleFontSize).text(input.title, contentX, 154, {
+      width: titleWidth,
       lineGap: -1,
     });
+
+    // Use doc.y so subtitle adjusts when the title wraps across many lines.
+    const subtitleY = Math.max(doc.y + 12, 220);
 
     setPdfRegularFont(doc);
     doc.fillColor('#544b42');
     doc.fontSize(13).text(
       'Сохраните этот билет в телефоне. Печать не требуется, а свободная рассадка позволит спокойно занять удобное место перед началом события.',
       contentX,
-      242,
+      subtitleY,
       {
         width: contentWidth * 0.7,
         lineGap: 4,
       },
     );
 
-    const heroY = 320;
+    // Cap heroY: must leave room for hero(192) + cards(86+22) + lower(122) + footer(≥80).
+    const heroY = Math.min(Math.max(doc.y + 18, 308), 332);
     const heroHeight = 192;
     doc.save();
     doc.roundedRect(contentX, heroY, contentWidth, heroHeight, 28).fillAndStroke('#f8f0e6', '#dbcdbb');
@@ -919,19 +944,11 @@ function createPdfBuffer(input: TicketArtifactInput) {
     });
 
     const footerY = lowerY + 122;
-    doc.fillColor('#16120d');
-    setPdfBoldFont(doc);
-    doc.fontSize(13).text('Полный адрес площадки', contentX, footerY);
-    setPdfRegularFont(doc);
-    doc.fillColor('#544b42');
-    doc.fontSize(12).text(`${input.venueName}, ${input.hallName}\n${input.address}`, contentX, footerY + 18, {
-      width: contentWidth * 0.56,
-      lineGap: 4,
-    });
-
     const buttonGap = 8;
     const buttonRowGap = 6;
     const halfButtonWidth = (rightWidth - buttonGap) / 2;
+
+    // Calendar links – right column (same row as the address note)
     drawPdfLinkButton(doc, {
       x: rightX,
       y: footerY,
@@ -969,15 +986,25 @@ function createPdfBuffer(input: TicketArtifactInput) {
       fontSize: 9.2,
     });
 
+    // Address note – left column, single line (venue+hall already shown in info cards).
+    setPdfRegularFont(doc);
+    doc.fillColor('#8a7f75');
+    doc.fontSize(9).text(input.address, contentX, footerY + 4, {
+      width: leftWidth - 8,
+      lineBreak: false,
+    });
+
+    // Ticket URL: float relative to footer, but never above a reasonable bottom margin.
+    const urlY = Math.min(footerY + 58, pageHeight - 58);
     doc.fillColor('#962d1b');
-    doc.fontSize(11).text(`Ссылка на билет: ${ticketUrl}`, contentX, pageHeight - 62, {
+    doc.fontSize(10).text(`Ссылка на билет: ${ticketUrl}`, contentX, urlY, {
       width: contentWidth,
-      lineGap: 3,
+      lineGap: 2,
       link: ticketUrl,
       underline: true,
     });
-    doc.fillColor('#544b42');
-    doc.fontSize(11).text('Печать билета не требуется.', contentX, pageHeight - 36);
+    doc.fillColor('#7a7066');
+    doc.fontSize(9).text('Печать билета не требуется. Рассадка свободная.', contentX, doc.y + 4);
 
     doc.end();
   });

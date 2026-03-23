@@ -57,8 +57,8 @@ const HALLS: HallSeed[] = [
   {
     code: 'friedland-gate-hall',
     venueName: 'Музей «Фридландские ворота»',
-    hallName: 'Зал',
-    address: 'улица Дзержинского, 30',
+    hallName: 'Корпус Блокгауз',
+    address: 'улица Дзержинского, 30, вход через музейный дворик',
     capacity: 50,
   },
   {
@@ -67,6 +67,13 @@ const HALLS: HallSeed[] = [
     hallName: 'ОКЕАНиЯ',
     address: 'Набережная Петра Великого, 1',
     capacity: 140,
+  },
+  {
+    code: 'kghm-conference-hall',
+    venueName: 'Калининградский областной историко-художественный музей',
+    hallName: 'Конференц-зал',
+    address: 'улица Клиническая, 21',
+    capacity: 80,
   },
 ];
 
@@ -110,6 +117,10 @@ function matchHall(event: FestivalEvent) {
 
   if (venue.includes('мирового океана')) {
     return HALLS[4];
+  }
+
+  if (venue.includes('историко') || venue.includes('клиническ')) {
+    return HALLS[5];
   }
 
   return null;
