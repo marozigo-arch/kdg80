@@ -87,6 +87,7 @@ const supportEmail = 'bilet@kdg80.ru';
     const stateCache = new Map();
     let activeEvent = null;
     let slowRequestTimer = 0;
+    const coarsePointerQuery = window.matchMedia('(max-width: 759px), (pointer: coarse)');
 
     if (!(shell instanceof HTMLElement) || !(form instanceof HTMLFormElement) || !ctaButtons.length) {
       return;
@@ -105,6 +106,15 @@ const supportEmail = 'bilet@kdg80.ru';
         statusNode.hidden = true;
         statusNode.textContent = '';
       }
+    }
+
+    function syncViewportHeight() {
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      shell.style.setProperty('--registration-viewport-height', `${Math.round(viewportHeight)}px`);
+    }
+
+    function shouldAutofocusFirstField() {
+      return !coarsePointerQuery.matches;
     }
 
     function setFieldInvalidState(field, invalid) {
@@ -428,6 +438,7 @@ const supportEmail = 'bilet@kdg80.ru';
       hydrateDraft();
       document.body.classList.add('registration-modal-open');
       shell.hidden = false;
+      syncViewportHeight();
 
       if (shell instanceof HTMLElement) {
         shell.scrollTop = 0;
@@ -447,11 +458,23 @@ const supportEmail = 'bilet@kdg80.ru';
         speakerNode.textContent = speakerLabel;
       }
 
-      form.fullName.focus();
+      requestAnimationFrame(() => {
+        syncViewportHeight();
+        shell.scrollTop = 0;
+
+        if (shouldAutofocusFirstField()) {
+          form.fullName.focus({
+            preventScroll: true,
+          });
+        }
+      });
     }
 
     function closeModal() {
       clearTimeout(slowRequestTimer);
+      if (document.activeElement instanceof HTMLElement && shell.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
       shell.hidden = true;
       document.body.classList.remove('registration-modal-open');
       activeEvent = null;
@@ -550,6 +573,11 @@ const supportEmail = 'bilet@kdg80.ru';
         setStatus('Чтобы завершить регистрацию, подтвердите согласие на обработку персональных данных.');
       }
     }
+
+    syncViewportHeight();
+    window.addEventListener('resize', syncViewportHeight);
+    window.addEventListener('orientationchange', syncViewportHeight);
+    window.visualViewport?.addEventListener('resize', syncViewportHeight);
 
     function validateForm(options = { reveal: false }) {
       clearErrors();

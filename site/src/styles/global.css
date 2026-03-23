@@ -3713,6 +3713,7 @@ body.registration-modal-open {
   justify-items: center;
   overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: clamp(1.25rem, 4vh, 3rem) 1rem;
 }
 
@@ -3957,7 +3958,8 @@ body.registration-modal-open {
 
 @media (max-width: 759px) {
   .registration-modal-shell {
-    align-items: flex-end;
+    display: block;
+    align-items: start;
     padding:
       max(0.5rem, env(safe-area-inset-top))
       0
@@ -3966,20 +3968,35 @@ body.registration-modal-open {
 
   .registration-modal {
     width: 100%;
-    min-height: calc(100dvh - max(0.75rem, env(safe-area-inset-top)));
+    min-height: calc(var(--registration-viewport-height, 100dvh) - max(0.75rem, env(safe-area-inset-top)));
     margin: 0;
-    padding: 1.2rem 1rem calc(1.4rem + env(safe-area-inset-bottom));
+    padding: 0 1rem calc(1.4rem + env(safe-area-inset-bottom));
     border-radius: 1.35rem 1.35rem 0 0;
     border-bottom: 0;
     box-shadow: 0 -18px 44px rgba(18, 17, 14, 0.18);
   }
 
   .registration-modal__header {
-    padding-bottom: 0.95rem;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    margin: 0 -1rem;
+    padding:
+      1.2rem
+      1rem
+      0.95rem;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(252, 246, 237, 0.995) 0%,
+        rgba(252, 246, 237, 0.99) 80%,
+        rgba(252, 246, 237, 0.92) 100%
+      );
+    backdrop-filter: blur(12px);
   }
 
   .registration-modal__body {
-    margin-top: 0.75rem;
+    margin-top: 0.7rem;
     padding-bottom: 0;
   }
 }
