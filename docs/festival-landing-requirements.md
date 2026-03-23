@@ -952,6 +952,7 @@
 - preview должен сохранять nested routes Astro-сайта, включая `/programma/` и тематические страницы
 - при выкладке в подпапку root-absolute site URLs нужно переписывать под preview-prefix, иначе статические ассеты и внутренние ссылки выпадут в корень домена
 - same-origin пути `/tickets/registration/states.json` и `/tickets/<public_hash>/` при этом не переписываются под preview-prefix, потому что они должны оставаться на корне домена
+- выкладка в новый секретный preview-prefix должна работать даже с put-only доступом к bucket prefix и не должна требовать bucket-wide `ListObjects/Delete`
 - основная защита preview:
   - секретный непрогнозируемый slug
   - отсутствие ссылок с корня

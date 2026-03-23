@@ -19,9 +19,35 @@ if [[ ! -f "${ENV_FILE}" ]]; then
   exit 1
 fi
 
+OVERRIDE_YC_BUCKET_NAME="${YC_BUCKET_NAME-__UNSET__}"
+OVERRIDE_YC_ACCESS_KEY_ID="${YC_ACCESS_KEY_ID-__UNSET__}"
+OVERRIDE_YC_SECRET_ACCESS_KEY="${YC_SECRET_ACCESS_KEY-__UNSET__}"
+OVERRIDE_YC_REGION="${YC_REGION-__UNSET__}"
+OVERRIDE_YC_S3_ENDPOINT="${YC_S3_ENDPOINT-__UNSET__}"
+OVERRIDE_YC_BUCKET_PREFIX="${YC_BUCKET_PREFIX-__UNSET__}"
+
 set -a
 . "${ENV_FILE}"
 set +a
+
+if [[ "${OVERRIDE_YC_BUCKET_NAME}" != "__UNSET__" ]]; then
+  YC_BUCKET_NAME="${OVERRIDE_YC_BUCKET_NAME}"
+fi
+if [[ "${OVERRIDE_YC_ACCESS_KEY_ID}" != "__UNSET__" ]]; then
+  YC_ACCESS_KEY_ID="${OVERRIDE_YC_ACCESS_KEY_ID}"
+fi
+if [[ "${OVERRIDE_YC_SECRET_ACCESS_KEY}" != "__UNSET__" ]]; then
+  YC_SECRET_ACCESS_KEY="${OVERRIDE_YC_SECRET_ACCESS_KEY}"
+fi
+if [[ "${OVERRIDE_YC_REGION}" != "__UNSET__" ]]; then
+  YC_REGION="${OVERRIDE_YC_REGION}"
+fi
+if [[ "${OVERRIDE_YC_S3_ENDPOINT}" != "__UNSET__" ]]; then
+  YC_S3_ENDPOINT="${OVERRIDE_YC_S3_ENDPOINT}"
+fi
+if [[ "${OVERRIDE_YC_BUCKET_PREFIX}" != "__UNSET__" ]]; then
+  YC_BUCKET_PREFIX="${OVERRIDE_YC_BUCKET_PREFIX}"
+fi
 
 required_vars=(
   YC_BUCKET_NAME
@@ -77,9 +103,22 @@ upload_if_exists() {
   fi
 }
 
+copy_static_tree_without_listing() {
+  local destination="s3://${YC_BUCKET_NAME}/${YC_BUCKET_PREFIX}"
+  echo "Uploading static tree from ${SOURCE_DIR} to ${destination} without bucket listing"
+  aws_s3 cp "${SOURCE_DIR}" "${destination}" --recursive --no-progress
+}
+
 sync_static_tree() {
   local destination="s3://${YC_BUCKET_NAME}/${YC_BUCKET_PREFIX}"
   local -a sync_args=(--no-progress --delete)
+
+  if [[ -n "${YC_BUCKET_PREFIX}" ]]; then
+    # Secret preview prefixes are unique per deploy, so they can be published with put-only
+    # credentials and do not need bucket-wide list/delete permissions.
+    copy_static_tree_without_listing
+    return
+  fi
 
   if [[ -z "${YC_BUCKET_PREFIX}" ]]; then
     sync_args+=(

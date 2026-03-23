@@ -26,6 +26,7 @@
 - Hidden preview для E2E должен публиковаться из собранного `site/dist`, а не из legacy placeholder-файлов в корне репозитория. — Статус: `Зафиксировано`
 - Preview-публикация должна сохранять реальные nested routes сайта, включая `/programma/` и тематические страницы, чтобы Playwright работал по тем же URL, что и пользовательский сценарий. — Статус: `Зафиксировано`
 - При деплое preview в секретную подпапку root-absolute site URLs должны переписываться под preview-prefix, но same-origin пути `/tickets/registration/states.json` и публичные `/tickets/<public_hash>/` должны оставаться в корне домена. — Статус: `Зафиксировано`
+- Публикация в новый secret preview-prefix не должна требовать bucket-wide `ListObjects/Delete`; для одноразовых preview допустим put-only upload без предварительного listing bucket root. — Статус: `Зафиксировано`
 - Скрипты preview/E2E должны уметь читать локальные секреты как из корневого `.env`, так и из `docs/.env`, потому что в текущем workspace тестовые и YC-ключи хранятся именно там. — Статус: `Зафиксировано`
 
 ### Production-first hygiene
