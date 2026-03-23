@@ -4,6 +4,7 @@
 
 Связанный канонический документ:
 
+- [docs/README.md](/workspaces/kdg80/docs/README.md)
 - [docs/registration-system-requirements.md](/workspaces/kdg80/docs/registration-system-requirements.md)
 - [docs/behave/registration-system.feature](/workspaces/kdg80/docs/behave/registration-system.feature)
 
@@ -385,3 +386,25 @@
 - Оператор не может открывать/закрывать регистрацию, а суперэкспорты и аварийный endpoint доступны только суперадмину. — Статус: `Зафиксировано`
 - После рестарта приложения Telegram-контур самовосстанавливается без ручной перенастройки webhook. — Статус: `Зафиксировано`
 - Пользовательский submit-flow никогда не оставляет интерфейс в безмолвном состоянии после нажатия на кнопку регистрации. — Статус: `Зафиксировано`
+
+## 12. Операционный runbook
+
+- Быстрый вход по документам для следующего прохода централизован в [docs/README.md](/workspaces/kdg80/docs/README.md). — Статус: `Зафиксировано`
+- Стабильная точка запуска production-like preview E2E вынесена в [scripts/run_registration_preview_e2e.py](/workspaces/kdg80/scripts/run_registration_preview_e2e.py), а не только в разовые файлы из `test-results/`. — Статус: `Зафиксировано`
+- Перед browser E2E secret preview должен быть опубликован на `kgd80.ru/preview-.../` через [deploy-preview-to-yc.sh](/workspaces/kdg80/deploy-preview-to-yc.sh). — Статус: `Зафиксировано`
+- Артефакты каждого прогона должны складываться в отдельную папку `test-results/registration-e2e-preview-<timestamp>/` или эквивалентную. — Статус: `Зафиксировано`
+- Если в среде нет `aws`, допустим локальный временный venv только для `awscli`, без изменения проектового runtime. — Статус: `Зафиксировано`
+
+Рекомендуемая последовательность:
+
+```sh
+python3 -m venv /tmp/awscli-venv
+/tmp/awscli-venv/bin/pip install awscli
+PATH="/tmp/awscli-venv/bin:$PATH" YC_PUBLIC_BASE_URL="https://kgd80.ru" ./deploy-preview-to-yc.sh
+.venv-e2e/bin/playwright install chromium
+.venv-e2e/bin/python scripts/run_registration_preview_e2e.py --base-url "https://kgd80.ru/preview-<slug>/"
+```
+
+Operational note:
+
+- Если secret preview уже новый, но live ticket HTML на `/tickets/<public_hash>/` показывает старые calendar labels или старую ticket-разметку, нужно проверять не preview deploy, а версию registration backend на Fly.io.

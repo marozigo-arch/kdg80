@@ -4,6 +4,7 @@
 
 Связанные документы:
 
+- [docs/README.md](/workspaces/kdg80/docs/README.md)
 - [docs/festival-landing-requirements.md](/workspaces/kdg80/docs/festival-landing-requirements.md)
 - [docs/po-interesam-requirements.md](/workspaces/kdg80/docs/po-interesam-requirements.md)
 

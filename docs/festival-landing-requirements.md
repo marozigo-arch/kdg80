@@ -4,6 +4,7 @@
 
 ## 1. Что было проанализировано
 
+- Быстрый документный роутинг: [docs/README.md](/workspaces/kdg80/docs/README.md)
 - Канонический hero-spec: [hero-requirements.md](/workspaces/kdg80/docs/hero-requirements.md)
 - Текущий статический сайт-заглушка: [index.html](/workspaces/kdg80/index.html), [styles.css](/workspaces/kdg80/styles.css)
 - Текущая выкладка и S3-деплой: [deploy-to-yc.sh](/workspaces/kdg80/deploy-to-yc.sh), [deploy-preview-to-yc.sh](/workspaces/kdg80/deploy-preview-to-yc.sh)

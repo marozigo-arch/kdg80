@@ -2,6 +2,8 @@
 
 Исходники сайта находятся в каталоге `site/`. Проект собран на Astro и рассчитан на Node.js 22.
 
+Общий документный роутинг и связанный registration/E2E runbook собраны в [docs/README.md](/workspaces/kdg80/docs/README.md).
+
 ## Локальный запуск
 
 ```sh
