@@ -37,6 +37,32 @@ function buildTicketUrl(baseUrl: string, ticketsPrefix: string, publicHash: stri
   return `${trimTrailingSlash(baseUrl)}/${ticketsPrefix.replace(/^\/+|\/+$/gu, '')}/${publicHash}/`;
 }
 
+function buildCalendarUrls(input: Pick<
+  TicketArtifactInput,
+  'ticketBaseUrl' | 'ticketsPrefix' | 'publicHash' | 'startsAt' | 'title' | 'venueName' | 'address' | 'shortTicketId'
+>) {
+  const ticketUrl = buildTicketUrl(input.ticketBaseUrl, input.ticketsPrefix, input.publicHash);
+  const pdfUrl = `${ticketUrl}ticket.pdf`;
+  const icsUrl = `${ticketUrl}event.ics`;
+  const googleCalendarUrl = new URL('https://calendar.google.com/calendar/render');
+  const startsAt = new Date(input.startsAt);
+  const endsAt = new Date(startsAt.getTime() + 90 * 60_000);
+  const googleDates = `${startsAt.toISOString().replace(/[-:]/gu, '').replace(/\.\d{3}Z$/u, 'Z')}/${endsAt.toISOString().replace(/[-:]/gu, '').replace(/\.\d{3}Z$/u, 'Z')}`;
+
+  googleCalendarUrl.searchParams.set('action', 'TEMPLATE');
+  googleCalendarUrl.searchParams.set('text', input.title);
+  googleCalendarUrl.searchParams.set('dates', googleDates);
+  googleCalendarUrl.searchParams.set('location', `${input.venueName}, ${input.address}`);
+  googleCalendarUrl.searchParams.set('details', `Билет № ${input.shortTicketId}. Печать не требуется. ${ticketUrl}`);
+
+  return {
+    ticketUrl,
+    pdfUrl,
+    icsUrl,
+    googleCalendarUrl: googleCalendarUrl.toString(),
+  };
+}
+
 function formatEventDate(isoValue: string) {
   return new Intl.DateTimeFormat('ru-RU', {
     dateStyle: 'long',
@@ -89,25 +115,13 @@ function resolveTicketImagePath(assetName: string | null | undefined) {
 }
 
 function buildHtml(input: TicketArtifactInput) {
-  const ticketUrl = buildTicketUrl(input.ticketBaseUrl, input.ticketsPrefix, input.publicHash);
-  const pdfUrl = `${ticketUrl}ticket.pdf`;
-  const icsUrl = `${ticketUrl}event.ics`;
-  const googleCalendarUrl = new URL('https://calendar.google.com/calendar/render');
+  const { ticketUrl, pdfUrl, icsUrl, googleCalendarUrl } = buildCalendarUrls(input);
   const formattedDate = formatEventDate(input.startsAt);
   const dateOnly = formatEventDateOnly(input.startsAt);
   const timeOnly = formatEventTimeOnly(input.startsAt);
-  const startsAt = new Date(input.startsAt);
-  const endsAt = new Date(startsAt.getTime() + 90 * 60_000);
-  const googleDates = `${startsAt.toISOString().replace(/[-:]/gu, '').replace(/\.\d{3}Z$/u, 'Z')}/${endsAt.toISOString().replace(/[-:]/gu, '').replace(/\.\d{3}Z$/u, 'Z')}`;
   const festivalLogoUrl = '/shared-assets/logo-znanie-festival.svg';
   const festivalMarkUrl = '/shared-assets/logo-80-istorii-hero.svg';
   const eventImageUrl = input.eventImageUrl || '';
-
-  googleCalendarUrl.searchParams.set('action', 'TEMPLATE');
-  googleCalendarUrl.searchParams.set('text', input.title);
-  googleCalendarUrl.searchParams.set('dates', googleDates);
-  googleCalendarUrl.searchParams.set('location', `${input.venueName}, ${input.address}`);
-  googleCalendarUrl.searchParams.set('details', `Билет № ${input.shortTicketId}. Печать не требуется. ${ticketUrl}`);
 
   return `<!doctype html>
 <html lang="ru">
@@ -580,7 +594,7 @@ function buildHtml(input: TicketArtifactInput) {
                 <div class="actions actions--calendar">
                   <a class="button button--ghost" href="${escapeHtml(icsUrl)}">Android (ICS)</a>
                   <a class="button button--ghost" href="${escapeHtml(icsUrl)}">Календарь Apple</a>
-                  <a class="button button--ghost" href="${escapeHtml(googleCalendarUrl.toString())}" target="_blank" rel="noreferrer">Google</a>
+                  <a class="button button--ghost" href="${escapeHtml(googleCalendarUrl)}" target="_blank" rel="noreferrer">Google</a>
                 </div>
               </div>
             </div>
@@ -665,6 +679,35 @@ function drawInfoCard(
   doc.restore();
 }
 
+function drawPdfLinkButton(
+  doc: PDFKit.PDFDocument,
+  options: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    label: string;
+    url: string;
+    fillColor: string;
+    borderColor: string;
+    textColor: string;
+    fontSize?: number;
+  },
+) {
+  doc.save();
+  doc.roundedRect(options.x, options.y, options.width, options.height, 12).fillAndStroke(options.fillColor, options.borderColor);
+  doc.fillColor(options.textColor);
+  setPdfBoldFont(doc);
+  doc.fontSize(options.fontSize ?? 10);
+  const lineHeight = doc.currentLineHeight();
+  doc.text(options.label, options.x + 8, options.y + Math.max(6, (options.height - lineHeight) / 2), {
+    width: options.width - 16,
+    align: 'center',
+  });
+  doc.restore();
+  doc.link(options.x, options.y, options.width, options.height, options.url);
+}
+
 function createPdfBuffer(input: TicketArtifactInput) {
   return new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({
@@ -692,7 +735,7 @@ function createPdfBuffer(input: TicketArtifactInput) {
     const pageHeight = doc.page.height;
     const contentX = 42;
     const contentWidth = pageWidth - contentX * 2;
-    const ticketUrl = buildTicketUrl(input.ticketBaseUrl, input.ticketsPrefix, input.publicHash);
+    const { ticketUrl, icsUrl, googleCalendarUrl } = buildCalendarUrls(input);
     doc.rect(0, 0, pageWidth, pageHeight).fill('#f5ede1');
     doc.save();
     doc.fillColor('#d84b31').circle(pageWidth - 88, 86, 82).fill();
@@ -875,7 +918,7 @@ function createPdfBuffer(input: TicketArtifactInput) {
       lineGap: 3,
     });
 
-    const footerY = lowerY + 142;
+    const footerY = lowerY + 122;
     doc.fillColor('#16120d');
     setPdfBoldFont(doc);
     doc.fontSize(13).text('Полный адрес площадки', contentX, footerY);
@@ -886,20 +929,52 @@ function createPdfBuffer(input: TicketArtifactInput) {
       lineGap: 4,
     });
 
-    setPdfBoldFont(doc);
-    doc.fillColor('#16120d');
-    doc.fontSize(13).text('На странице билета есть блок "Добавить в календарь"', rightX, footerY);
-    setPdfRegularFont(doc);
-    doc.fillColor('#544b42');
-    doc.fontSize(12).text('Кнопки: Android (ICS), Календарь Apple и Google.', rightX, footerY + 18, {
+    const buttonGap = 8;
+    const buttonRowGap = 6;
+    const halfButtonWidth = (rightWidth - buttonGap) / 2;
+    drawPdfLinkButton(doc, {
+      x: rightX,
+      y: footerY,
+      width: halfButtonWidth,
+      height: 24,
+      label: 'Android (ICS)',
+      url: icsUrl,
+      fillColor: '#fffaf4',
+      borderColor: '#e4d7c6',
+      textColor: '#16120d',
+      fontSize: 8.6,
+    });
+    drawPdfLinkButton(doc, {
+      x: rightX + halfButtonWidth + buttonGap,
+      y: footerY,
+      width: halfButtonWidth,
+      height: 24,
+      label: 'Apple (ICS)',
+      url: icsUrl,
+      fillColor: '#fffaf4',
+      borderColor: '#e4d7c6',
+      textColor: '#16120d',
+      fontSize: 8.8,
+    });
+    drawPdfLinkButton(doc, {
+      x: rightX,
+      y: footerY + 24 + buttonRowGap,
       width: rightWidth,
-      lineGap: 4,
+      height: 24,
+      label: 'Google Calendar',
+      url: googleCalendarUrl,
+      fillColor: '#f3d6d0',
+      borderColor: '#d9b0a8',
+      textColor: '#962d1b',
+      fontSize: 9.2,
     });
 
     doc.fillColor('#962d1b');
     doc.fontSize(11).text(`Ссылка на билет: ${ticketUrl}`, contentX, pageHeight - 62, {
       width: contentWidth,
       lineGap: 3,
+      link: ticketUrl,
+      underline: true,
     });
     doc.fillColor('#544b42');
     doc.fontSize(11).text('Печать билета не требуется.', contentX, pageHeight - 36);
