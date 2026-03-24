@@ -39,7 +39,7 @@ const title = `${route.title} | 80 историй о главном`;
 const description = route.description || `Маршрут по интересам «${route.title}»: подборка событий фестиваля и сильные мифы, связанные с темой.`;
 ---
 
-<Layout title={title} description={description}>
+<Layout title={title} description={description} canonicalPath={`/${route.slug}/`}>
   <div class="page page--route">
     <div id="top" aria-hidden="true"></div>
     <SiteHeader routeItems={routeItems} currentRouteSlug={route.slug} programHref={programHref} />

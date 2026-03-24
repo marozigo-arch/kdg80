@@ -70,6 +70,8 @@ export type FestivalEvent = {
   speakerAbout: string;
   questions: string[];
   registrationUrl?: string;
+  publicInfoNotice?: string;
+  publicRegistrationStateOverride?: 'registration_soon';
   calendarReady: boolean;
   googleCalendarUrl?: string;
   icsUrl?: string;
@@ -101,6 +103,8 @@ const MASTER_PATH_CANDIDATES = [
 ].filter((value): value is string => Boolean(value));
 const MASTER_PATH = MASTER_PATH_CANDIDATES.find((candidate) => fs.existsSync(candidate)) || MASTER_PATH_CANDIDATES[0];
 const DEFAULT_CITY = 'Калининград';
+const ICAE_PUBLIC_INFO_NOTICE = 'Информация о площадке и времени скоро появится.';
+const ICAE_CALENDAR_NOTE = 'Календарь появится после уточнения площадки и времени.';
 const SPEAKER_SHOWCASE_KEYWORD_WEIGHTS: Array<{ pattern: RegExp; bonus: number }> = [
   { pattern: /доктор|д\.\s*н\./i, bonus: 3.2 },
   { pattern: /к\.\s*[а-я]\.\s*н\.|кандидат/i, bonus: 2.4 },
@@ -1197,6 +1201,23 @@ function applyEventLocationOverride(title: string, location: { venue: string; ad
   return location;
 }
 
+function isIcaePublicHoldbackLocation(location: { venue: string; address: string }) {
+  const locationLookup = normalizeLookup(`${location.venue} ${location.address}`);
+  return (
+    locationLookup.includes(normalizeLookup('ИЦАЭ'))
+    || locationLookup.includes(normalizeLookup('КГТУ'))
+    || locationLookup.includes(normalizeLookup('Советский проспект 1'))
+  );
+}
+
+export function getFestivalEventHref(slug: string) {
+  return `/sobytiya/${slug}/`;
+}
+
+export function getFestivalRegistrationHref(slug: string) {
+  return `${getFestivalEventHref(slug)}?register=1`;
+}
+
 function createProvisionalZooExcursion(events: FestivalEvent[]) {
   const zooLecture = events.find((event) =>
     includesAnyNormalized(
@@ -1369,15 +1390,26 @@ function parseSections() {
     const rangeDate = kind === 'range' ? parseRangeStart(heading) : null;
     const monthInfo = exactDate || rangeDate || { monthLabel: 'Скоро', monthAnchor: 'soon' };
     const durationMinutes = parseDurationMinutes(durationLabel);
-    const calendar = createCalendarLinks({
-      title,
-      slug,
-      summary: summary || whyGo,
-      venue: normalizedLocation.venue,
-      address: normalizedLocation.address,
-      isoStart: exactDate?.isoStart,
-      durationMinutes,
-    });
+    const isIcaePublicHoldback = kind === 'dated' && isIcaePublicHoldbackLocation(normalizedLocation);
+    const publicVenue = isIcaePublicHoldback ? '' : normalizedLocation.venue;
+    const publicAddress = isIcaePublicHoldback ? '' : normalizedLocation.address;
+    const publicTimeLabel = isIcaePublicHoldback ? '' : timeLabel;
+    const calendar = isIcaePublicHoldback
+      ? {
+          ready: false,
+          note: ICAE_CALENDAR_NOTE,
+          googleUrl: undefined,
+          icsUrl: undefined,
+        }
+      : createCalendarLinks({
+          title,
+          slug,
+          summary: summary || whyGo,
+          venue: normalizedLocation.venue,
+          address: normalizedLocation.address,
+          isoStart: exactDate?.isoStart,
+          durationMinutes,
+        });
 
     events.push({
       slug,
@@ -1387,10 +1419,10 @@ function parseSections() {
       dateLabel,
       monthLabel: monthInfo.monthLabel,
       monthAnchor: monthInfo.monthAnchor,
-      timeLabel,
+      timeLabel: publicTimeLabel,
       durationLabel,
-      venue: normalizedLocation.venue,
-      address: normalizedLocation.address,
+      venue: publicVenue,
+      address: publicAddress,
       city: DEFAULT_CITY,
       speakerLabel: kind === 'special' ? '' : speakerData.speakerLabel,
       affiliation: kind === 'special' ? '' : speakerData.affiliation,
@@ -1400,11 +1432,17 @@ function parseSections() {
       whyGo,
       speakerAbout: kind === 'special' ? '' : speakerAbout,
       questions,
-      registrationUrl: kind === 'dated' ? `https://example.com/register?event=${slug}` : undefined,
+      registrationUrl: kind === 'dated' ? getFestivalRegistrationHref(slug) : undefined,
+      publicInfoNotice: isIcaePublicHoldback ? ICAE_PUBLIC_INFO_NOTICE : undefined,
+      publicRegistrationStateOverride: isIcaePublicHoldback ? 'registration_soon' : undefined,
       calendarReady: kind === 'dated' ? calendar.ready : false,
       googleCalendarUrl: kind === 'dated' ? calendar.googleUrl : undefined,
       icsUrl: kind === 'dated' ? calendar.icsUrl : undefined,
-      calendarNote: kind === 'special' ? 'Дата спектакля будет объявлена позже.' : undefined,
+      calendarNote: kind === 'special'
+        ? 'Дата спектакля будет объявлена позже.'
+        : isIcaePublicHoldback
+          ? ICAE_CALENDAR_NOTE
+          : undefined,
       image: assignImage(title, speakerData.speakerLabel),
       speakerImages: kind === 'special' ? [] : assignSpeakerImages(speakerData.speakerLabel),
       dialogueParticipants,
@@ -1427,6 +1465,10 @@ export function getFestivalEvents() {
     cache = parseSections();
   }
   return cache;
+}
+
+export function getFestivalEventBySlug(slug: string) {
+  return getFestivalEvents().find((event) => event.slug === slug);
 }
 
 export function getMonthGroups(events: FestivalEvent[]) {

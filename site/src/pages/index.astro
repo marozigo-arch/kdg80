@@ -8,6 +8,7 @@ import SiteHeader from '../components/SiteHeader.astro';
 import Layout from '../layouts/Layout.astro';
 import portraitBounds from '../data/portrait-bounds.json';
 import {
+  getFestivalEventHref,
   getFestivalEvents,
   getMonthGroups,
   getOpenDialogues,
@@ -679,7 +680,7 @@ function buildHeroVariants(): HeroVariant[] {
       prompt: spec.prompt,
       priority: spec.priority,
       title: event.title,
-      eventHref: spec.quoteType === 'lecture' ? `#event-${event.slug}` : undefined,
+      eventHref: spec.quoteType === 'lecture' ? getFestivalEventHref(event.slug) : undefined,
       quote: spec.quote,
       quoteSize: getHeroQuoteSize(spec.quote),
       speakerName: event.speakerLabel,
@@ -743,6 +744,7 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
 <Layout
   title="80 историй о главном | Фестиваль Российского общества Знание"
   description="Просветительский фестиваль к 80-летию Калининградской области: лекции, открытые диалоги, выставки и сильные истории о людях, памяти и культурном коде региона."
+  canonicalPath="/"
 >
   <div class="page">
     <div id="top" aria-hidden="true"></div>
@@ -912,7 +914,7 @@ const heroVariantsPayload = JSON.stringify(heroStoryVariants);
 
             <div class="dialogue-strip dialogue-strip--feature">
               {openDialogues.map((event) => (
-                <a class="dialogue-card dialogue-card--feature" href={`#event-${event.slug}`}>
+                <a class="dialogue-card dialogue-card--feature" href={getFestivalEventHref(event.slug)}>
                   <span class="dialogue-card__meta">{event.dateLabel}</span>
                   <strong>{event.title}</strong>
                   <span>{event.venue}</span>

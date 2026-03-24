@@ -1,5 +1,5 @@
 ---
-import { getEventTemporalState, type FestivalEvent } from '../lib/festival';
+import { getEventTemporalState, getFestivalEventHref, type FestivalEvent } from '../lib/festival';
 import {
   getDialoguePortraitImage,
   getDialoguePortraitStyle,
@@ -218,6 +218,7 @@ const metaVenue = normalizeMetaValue(event.venue);
 const metaAddress = normalizeMetaValue(event.address);
 const metaDuration = isDurationPlaceholder(event.durationLabel) ? '' : normalizeMetaValue(event.durationLabel);
 const shouldShowMetaAddress = Boolean(metaAddress) && !isLocationPlaceholder(metaAddress) && metaAddress !== metaVenue;
+const shouldShowPublicTime = Boolean(normalizeMetaValue(event.timeLabel)) && !isTimePlaceholder(event.timeLabel);
 const specialServiceLabels = isSpecialEvent
   ? [
       event.dateLabel === 'Дата будет объявлена' ? 'Дата будет объявлена дополнительно' : event.dateLabel,
@@ -233,6 +234,7 @@ const specialServiceLabels = isSpecialEvent
   : [];
 const temporalState = getEventTemporalState(event, now);
 const hasActionRow = !isRangeEvent && !isSpecialEvent;
+const eventHref = getFestivalEventHref(event.slug);
 ---
 
 <article
@@ -270,7 +272,7 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
                 <span class="event-card__day">{dateParts.day}</span>
                 <span class="event-card__month">{dateParts.month}</span>
                 {dateParts.weekday && <span class="event-card__weekday">{dateParts.weekday}</span>}
-                <span class="event-card__time">{event.timeLabel}</span>
+                {shouldShowPublicTime && <span class="event-card__time">{event.timeLabel}</span>}
               </>
             )}
           </div>
@@ -316,7 +318,9 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
 
                 {isLecture && (
                   <div class="event-card__visual-copy">
-                    <p class={getLectureTitleClass(event.title)}>{event.title}</p>
+                    <a class="event-card__visual-link" href={eventHref}>
+                      <p class={getLectureTitleClass(event.title)}>{event.title}</p>
+                    </a>
                   </div>
                 )}
               </div>
@@ -360,7 +364,11 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
           <span class="event-card__format event-card__format--body">{event.formatLabel}</span>
           {accessLabel && <span class="event-card__access event-card__access--free">{accessLabel}</span>}
         </div>
-        {!isLecture && <h4 class="event-card__title">{event.title}</h4>}
+        {!isLecture && (
+          <h4 class="event-card__title">
+            <a class="event-card__title-link" href={eventHref}>{event.title}</a>
+          </h4>
+        )}
       </div>
 
       {isDialogueEvent && (
@@ -438,7 +446,7 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
       {event.relatedEvent && (
         <div class="event-card__related">
           <p class="event-card__related-label">{event.relatedEvent.relationLabel}</p>
-          <a class="event-card__related-link" href={`#event-${event.relatedEvent.slug}`}>
+          <a class="event-card__related-link" href={getFestivalEventHref(event.relatedEvent.slug)}>
             <strong>{event.relatedEvent.title}</strong>
             <span>{getRelatedMetaLine(event.relatedEvent)}</span>
             <span>{getRelatedSecondaryLine(event.relatedEvent)}</span>
@@ -489,11 +497,15 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
         </div>
       )}
 
+      {event.publicInfoNotice && (
+        <p class="event-card__service-note">{event.publicInfoNotice}</p>
+      )}
+
       {isLecture && event.speakerLectureLinks.length > 0 && (
         <div class="event-card__speaker-links" aria-label={`Другие лекции спикера ${event.speakerLabel}`}>
           <span>Ещё у лектора:</span>
           {event.speakerLectureLinks.map((lecture) => (
-            <a href={`#event-${lecture.slug}`} title={lecture.dateLabel}>{lecture.title}</a>
+            <a href={getFestivalEventHref(lecture.slug)} title={lecture.dateLabel}>{lecture.title}</a>
           ))}
         </div>
       )}
@@ -515,6 +527,7 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
               data-event-venue={event.venue}
               data-event-address={event.address}
               data-event-speaker={event.speakerLabel}
+              data-registration-state-override={event.publicRegistrationStateOverride ?? ''}
               disabled
               aria-disabled="true"
             >
@@ -542,6 +555,8 @@ const hasActionRow = !isRangeEvent && !isSpecialEvent;
         ) : temporalState !== 'past' && event.calendarNote ? (
           <div class="notice">{event.calendarNote}</div>
         ) : null}
+
+        <a class="event-card__details-link" href={eventHref}>Подробнее</a>
       </aside>
     )}
   </div>

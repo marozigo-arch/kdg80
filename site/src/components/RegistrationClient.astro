@@ -87,6 +87,7 @@ const supportEmail = 'bilet@kdg80.ru';
     const stateCache = new Map();
     let activeEvent = null;
     let slowRequestTimer = 0;
+    let autoOpenAttempted = false;
     const coarsePointerQuery = window.matchMedia('(max-width: 759px), (pointer: coarse)');
 
     if (!(shell instanceof HTMLElement) || !(form instanceof HTMLFormElement) || !ctaButtons.length) {
@@ -170,15 +171,26 @@ const supportEmail = 'bilet@kdg80.ru';
       }
     }
 
-    function normalizePhoneInput(value) {
+    function getPhoneDigits(value) {
       let digits = value.replace(/\D+/g, '');
+      if (!digits) {
+        return '';
+      }
       if (digits.startsWith('8')) {
         digits = `7${digits.slice(1)}`;
       }
       if (!digits.startsWith('7')) {
-        digits = `7${digits.replace(/^7*/, '')}`;
+        digits = digits.length <= 10
+          ? `7${digits}`
+          : `7${digits.replace(/^7+/u, '')}`;
       }
-      digits = digits.slice(0, 11);
+      return digits.slice(0, 11);
+    }
+
+    function formatPhoneDigits(digits) {
+      if (!digits) {
+        return '';
+      }
 
       const country = digits.slice(0, 1);
       const area = digits.slice(1, 4);
@@ -193,6 +205,39 @@ const supportEmail = 'bilet@kdg80.ru';
       if (left) result += `-${left}`;
       if (right) result += `-${right}`;
       return result;
+    }
+
+    function normalizePhoneInput(value) {
+      return formatPhoneDigits(getPhoneDigits(value));
+    }
+
+    function normalizePhoneForSubmit(value) {
+      const digits = getPhoneDigits(value);
+      return digits.length === 11 ? `+${digits}` : value.trim();
+    }
+
+    function handlePhoneBackspace(event) {
+      if (!(event.target instanceof HTMLInputElement) || event.key !== 'Backspace') {
+        return;
+      }
+
+      const { selectionStart, selectionEnd, value } = event.target;
+      if (selectionStart !== selectionEnd || selectionStart !== value.length) {
+        return;
+      }
+
+      const digits = getPhoneDigits(value);
+      if (!digits) {
+        return;
+      }
+
+      event.preventDefault();
+      event.target.value = formatPhoneDigits(digits.slice(0, -1));
+      persistDraft();
+
+      if (event.target.getAttribute('aria-invalid') === 'true') {
+        validateField('phone');
+      }
     }
 
     function formatEventSummary(item) {
@@ -214,6 +259,19 @@ const supportEmail = 'bilet@kdg80.ru';
       return `Спикер: ${item.speakerLabel.trim()}`;
     }
 
+    function applyStateOverride(button, item) {
+      if (button.dataset.registrationStateOverride !== 'registration_soon') {
+        return item;
+      }
+
+      return {
+        ...item,
+        publicState: 'registration_soon',
+        ctaLabel: 'Регистрация скоро откроется',
+        ctaNotice: '',
+      };
+    }
+
     function updateButton(button, item) {
       const notice = button.closest('[data-registration-card]')?.querySelector('[data-registration-notice]');
       const startsAtMs = new Date(item.startsAt).getTime();
@@ -230,7 +288,7 @@ const supportEmail = 'bilet@kdg80.ru';
             ctaLabel: 'Событие прошло',
             ctaNotice: '',
           }
-        : item;
+        : applyStateOverride(button, item);
 
       button.dataset.publicState = visibleState.publicState;
       button.textContent = visibleState.ctaLabel;
@@ -256,6 +314,10 @@ const supportEmail = 'bilet@kdg80.ru';
     }
 
     function buildOptimisticItem(button) {
+      const publicState = button.dataset.registrationStateOverride === 'registration_soon'
+        ? 'registration_soon'
+        : 'registration_open';
+
       return {
         slug: button.dataset.eventSlug || '',
         title: button.dataset.eventTitle || 'Событие фестиваля',
@@ -265,13 +327,18 @@ const supportEmail = 'bilet@kdg80.ru';
         hallName: '',
         address: button.dataset.eventAddress || '',
         speakerLabel: button.dataset.eventSpeaker || '',
-        publicState: 'registration_open',
-        ctaLabel: 'Регистрация',
+        publicState,
+        ctaLabel: publicState === 'registration_soon' ? 'Регистрация скоро откроется' : 'Регистрация',
         ctaNotice: '',
       };
     }
 
     function setOptimisticOpenState(button, message = '') {
+      if (button.dataset.registrationStateOverride === 'registration_soon') {
+        updateButton(button, buildOptimisticItem(button));
+        return;
+      }
+
       const notice = button.closest('[data-registration-card]')?.querySelector('[data-registration-notice]');
 
       button.dataset.publicState = 'registration_open_unverified';
@@ -406,7 +473,7 @@ const supportEmail = 'bilet@kdg80.ru';
         const parsed = JSON.parse(draft);
         form.fullName.value = parsed.fullName || '';
         form.email.value = parsed.email || '';
-        form.phone.value = parsed.phone || '';
+        form.phone.value = normalizePhoneInput(parsed.phone || '');
         form.consentAccepted.checked = Boolean(parsed.consentAccepted);
       } catch {
         form.reset();
@@ -490,7 +557,7 @@ const supportEmail = 'bilet@kdg80.ru';
       return {
         fullName: form.fullName.value.trim().replace(/\s+/g, ' '),
         email: form.email.value.trim().toLowerCase(),
-        phone: form.phone.value.trim(),
+        phone: normalizePhoneForSubmit(form.phone.value),
         consentAccepted: form.consentAccepted.checked,
       };
     }
@@ -606,6 +673,36 @@ const supportEmail = 'bilet@kdg80.ru';
       };
     }
 
+    function syncSubmitState(isLoading) {
+      submitButton.disabled = isLoading;
+      submitButton.dataset.loading = isLoading ? 'true' : 'false';
+      submitButton.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+      submitButton.textContent = isLoading ? 'Регистрируем…' : 'Зарегистрироваться';
+    }
+
+    function maybeAutoOpenFromUrl() {
+      if (autoOpenAttempted) {
+        return;
+      }
+
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('register') !== '1') {
+        return;
+      }
+
+      autoOpenAttempted = true;
+      const target = document.querySelector('[data-registration-autoload] [data-registration-cta], [data-registration-cta][data-registration-autoload]');
+      if (!(target instanceof HTMLButtonElement)) {
+        return;
+      }
+
+      if (target.dataset.publicState === 'registration_open' || target.dataset.publicState === 'registration_open_unverified') {
+        target.click();
+      }
+    }
+
+    form.phone.addEventListener('keydown', handlePhoneBackspace);
+
     form.phone.addEventListener('input', () => {
       form.phone.value = normalizePhoneInput(form.phone.value);
       persistDraft();
@@ -652,8 +749,7 @@ const supportEmail = 'bilet@kdg80.ru';
         return;
       }
 
-      submitButton.disabled = true;
-      submitButton.textContent = 'Регистрируем…';
+      syncSubmitState(true);
       clearTimeout(slowRequestTimer);
       slowRequestTimer = window.setTimeout(() => {
         setStatus('Проверяем данные и резервируем место. Это может занять несколько секунд.');
@@ -686,8 +782,7 @@ const supportEmail = 'bilet@kdg80.ru';
         setStatus(`Связь с регистрацией прервалась. Если проблема повторяется, напишите на ${supportEmail}.`);
       } finally {
         clearTimeout(slowRequestTimer);
-        submitButton.disabled = false;
-        submitButton.textContent = 'Зарегистрироваться';
+        syncSubmitState(false);
       }
     });
 
@@ -719,10 +814,14 @@ const supportEmail = 'bilet@kdg80.ru';
       }
     });
 
-    fetchStates().catch(() => {
-      for (const button of ctaButtons) {
-        setOptimisticOpenState(button, 'Статус временно недоступен. Проверим доступность при открытии формы.');
-      }
-    });
+    fetchStates()
+      .catch(() => {
+        for (const button of ctaButtons) {
+          setOptimisticOpenState(button, 'Статус временно недоступен. Проверим доступность при открытии формы.');
+        }
+      })
+      .finally(() => {
+        maybeAutoOpenFromUrl();
+      });
   })();
 </script>

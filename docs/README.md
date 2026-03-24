@@ -6,6 +6,7 @@
 
 - Сайт фестиваля целиком: [docs/festival-landing-requirements.md](/workspaces/kdg80/docs/festival-landing-requirements.md)
 - Система регистрации: [docs/registration-system-requirements.md](/workspaces/kdg80/docs/registration-system-requirements.md)
+- Прямые event-links `/sobytiya/<slug>/` и landing-first routing: [docs/festival-landing-requirements.md](/workspaces/kdg80/docs/festival-landing-requirements.md)
 - E2E-план регистрации: [docs/registration-system-e2e-plan.md](/workspaces/kdg80/docs/registration-system-e2e-plan.md)
 - Gherkin source of truth: [docs/behave/registration-system.feature](/workspaces/kdg80/docs/behave/registration-system.feature)
 - Ticket / invitation UI и PDF: [docs/ticket-design-brief.md](/workspaces/kdg80/docs/ticket-design-brief.md)
@@ -60,3 +61,4 @@ Production-like E2E по выложенному preview:
 - Если secret preview открывается, а deploy падает на `ListObjectsV2`, смотреть [deploy-to-yc.sh](/workspaces/kdg80/deploy-to-yc.sh): preview path теперь должен работать и с put-only доступом.
 - Если карточки на preview показывают правильные CTA, а live ticket page после регистрации показывает старые calendar labels, значит статический preview и registration backend на Fly.io сейчас на разных версиях.
 - Если Telethon не подтверждает уведомления, сначала проверить не код, а доступность admin-сессии для текущего `TELEGRAM_AUTH_BUNDLE_S22`.
+- Если нужно понять, почему событие публично показывает только дату и `Регистрация скоро откроется`, сначала проверить rules для production-start holdback по ИЦАЭ в [docs/festival-landing-requirements.md](/workspaces/kdg80/docs/festival-landing-requirements.md) и [docs/registration-system-requirements.md](/workspaces/kdg80/docs/registration-system-requirements.md).
