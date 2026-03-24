@@ -57,6 +57,20 @@ Feature: Проверка регистрации через сайт и Telegram
     Then форма регистрации открывается автоматически
     And каноническим URL страницы остаётся "/sobytiya/istoriya-obrazovaniya-i-razvitiya-natsionalnogo-parka-kurshskaya-kosa/"
 
+  @share_link @playwright
+  Scenario: Посетитель делится прямой ссылкой на регистрацию из формы события
+    Given событие "История образования и развития национального парка «Куршская коса»" открыто для регистрации
+    When посетитель открывает страницу "/sobytiya/istoriya-obrazovaniya-i-razvitiya-natsionalnogo-parka-kurshskaya-kosa/?register=1"
+    Then форма регистрации открывается автоматически
+    And на mobile форма показывает действие "Поделиться"
+    And действие "Поделиться" использует ссылку "/sobytiya/istoriya-obrazovaniya-i-razvitiya-natsionalnogo-parka-kurshskaya-kosa/?register=1"
+    And на desktop форма показывает действие "Скопировать ссылку"
+    And действие "Скопировать ссылку" кладёт эту ссылку в буфер обмена
+    And форма показывает подтверждение "Ссылка скопирована"
+    When посетитель закрывает форму регистрации
+    Then страница остаётся на "/sobytiya/istoriya-obrazovaniya-i-razvitiya-natsionalnogo-parka-kurshskaya-kosa/"
+    And адрес страницы больше не содержит "register=1"
+
   @submit_feedback @playwright
   Scenario: После нажатия submit пользователь видит явное состояние отправки
     Given событие "Виштынецкая возвышенность: как осваивали с 1945 года, современность и перспективы" открыто для регистрации

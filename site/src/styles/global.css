@@ -3805,8 +3805,15 @@ body.registration-modal-open {
   border-bottom: 1px solid rgba(18, 17, 14, 0.07);
 }
 
+.registration-modal__header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.registration-modal__share,
 .registration-modal__close {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3817,6 +3824,32 @@ body.registration-modal-open {
   background: rgba(18, 17, 14, 0.04);
   color: var(--ink);
   cursor: pointer;
+}
+
+.registration-modal__share {
+  font-weight: 600;
+}
+
+.registration-modal__share-feedback {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  z-index: 3;
+  max-width: calc(100% - 3rem);
+  margin: 0;
+  padding: 0.7rem 0.95rem;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: rgba(38, 81, 58, 0.94);
+  color: #fffaf5;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  box-shadow: 0 14px 26px rgba(18, 17, 14, 0.16);
+}
+
+.registration-modal__share-feedback[hidden] {
+  display: none;
 }
 
 .registration-modal__eyebrow {
@@ -3861,6 +3894,51 @@ body.registration-modal-open {
   position: relative;
   margin-top: 1.1rem;
   padding-bottom: 0.25rem;
+}
+
+.registration-modal__share-manual {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 252, 248, 0.92);
+  border: 1px solid rgba(18, 17, 14, 0.08);
+  box-shadow: 0 12px 22px rgba(18, 17, 14, 0.06);
+}
+
+.registration-modal__share-manual[hidden] {
+  display: none;
+}
+
+.registration-modal__share-manual-title,
+.registration-modal__share-manual-copy {
+  margin: 0;
+}
+
+.registration-modal__share-manual-title {
+  font-weight: 700;
+}
+
+.registration-modal__share-manual-copy {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.registration-modal__share-input {
+  min-height: 3rem;
+  padding: 0 0.95rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(18, 17, 14, 0.12);
+  background: rgba(252, 246, 237, 0.88);
+  font: inherit;
+  color: var(--ink);
+}
+
+.registration-modal__share-input:focus-visible {
+  outline: 2px solid rgba(184, 63, 47, 0.35);
+  outline-offset: 2px;
 }
 
 .registration-form {
@@ -4278,6 +4356,16 @@ body.registration-modal-open {
       1rem
       0.95rem;
     background: transparent;
+  }
+
+  .registration-modal__header-actions {
+    gap: 0.6rem;
+  }
+
+  .registration-modal__share,
+  .registration-modal__close {
+    min-height: 2.65rem;
+    padding: 0 0.8rem;
   }
 
   .registration-modal__body {

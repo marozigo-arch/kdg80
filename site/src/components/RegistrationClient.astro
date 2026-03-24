@@ -12,8 +12,12 @@ const supportEmail = 'bilet@kdg80.ru';
 <div class="registration-modal-shell" data-registration-shell hidden>
   <div class="registration-modal__backdrop" data-registration-close></div>
   <section class="registration-modal" role="dialog" aria-modal="true" aria-labelledby="registration-modal-title">
+    <p class="registration-modal__share-feedback" data-registration-share-feedback hidden aria-live="polite"></p>
     <div class="registration-modal__header">
-      <button class="registration-modal__close" type="button" data-registration-close aria-label="Закрыть форму регистрации">Закрыть</button>
+      <div class="registration-modal__header-actions">
+        <button class="registration-modal__share" type="button" data-registration-share hidden>Скопировать ссылку</button>
+        <button class="registration-modal__close" type="button" data-registration-close aria-label="Закрыть форму регистрации">Закрыть</button>
+      </div>
       <p class="registration-modal__eyebrow">Регистрация</p>
       <h2 id="registration-modal-title" data-registration-event-title>Регистрация на событие</h2>
       <p class="registration-modal__summary" data-registration-event-summary></p>
@@ -21,6 +25,11 @@ const supportEmail = 'bilet@kdg80.ru';
     </div>
 
     <div class="registration-modal__body" data-registration-modal-body>
+      <div class="registration-modal__share-manual" data-registration-share-manual hidden>
+        <p class="registration-modal__share-manual-title">Ссылка готова</p>
+        <p class="registration-modal__share-manual-copy">Браузер не дал доступ к буферу обмена. Скопируйте ссылку вручную.</p>
+        <input class="registration-modal__share-input" type="text" readonly data-registration-share-input aria-label="Прямая ссылка на регистрацию" />
+      </div>
       <form class="registration-form" data-registration-form novalidate>
         <label class="registration-form__field">
           <span>ФИО</span>
@@ -80,6 +89,10 @@ const supportEmail = 'bilet@kdg80.ru';
     const titleNode = shell?.querySelector('[data-registration-event-title]');
     const summaryNode = shell?.querySelector('[data-registration-event-summary]');
     const speakerNode = shell?.querySelector('[data-registration-event-speaker]');
+    const shareButton = shell?.querySelector('[data-registration-share]');
+    const shareFeedbackNode = shell?.querySelector('[data-registration-share-feedback]');
+    const shareManualNode = shell?.querySelector('[data-registration-share-manual]');
+    const shareInputNode = shell?.querySelector('[data-registration-share-input]');
     const statusNode = shell?.querySelector('[data-registration-status]');
     const submitButton = shell?.querySelector('[data-registration-submit]');
     const consentRow = shell?.querySelector('[data-registration-consent]');
@@ -87,6 +100,7 @@ const supportEmail = 'bilet@kdg80.ru';
     const stateCache = new Map();
     let activeEvent = null;
     let slowRequestTimer = 0;
+    let shareFeedbackTimer = 0;
     let autoOpenAttempted = false;
     const coarsePointerQuery = window.matchMedia('(max-width: 759px), (pointer: coarse)');
 
@@ -107,6 +121,15 @@ const supportEmail = 'bilet@kdg80.ru';
         statusNode.hidden = true;
         statusNode.textContent = '';
       }
+    }
+
+    function getSiteBasePrefix() {
+      const previewMatch = window.location.pathname.match(/^\/(preview-[^/]+)/u);
+      return previewMatch ? `/${previewMatch[1]}` : '';
+    }
+
+    function buildRegistrationIntentUrl(slug) {
+      return new URL(`${getSiteBasePrefix()}/sobytiya/${slug}/?register=1`, window.location.origin).toString();
     }
 
     function syncViewportHeight() {
@@ -214,6 +237,136 @@ const supportEmail = 'bilet@kdg80.ru';
     function normalizePhoneForSubmit(value) {
       const digits = getPhoneDigits(value);
       return digits.length === 11 ? `+${digits}` : value.trim();
+    }
+
+    function hideShareFeedback() {
+      clearTimeout(shareFeedbackTimer);
+      shareFeedbackTimer = 0;
+      if (shareFeedbackNode instanceof HTMLElement) {
+        shareFeedbackNode.hidden = true;
+        shareFeedbackNode.textContent = '';
+      }
+    }
+
+    function showShareFeedback(message) {
+      if (!(shareFeedbackNode instanceof HTMLElement)) {
+        return;
+      }
+
+      clearTimeout(shareFeedbackTimer);
+      shareFeedbackNode.hidden = false;
+      shareFeedbackNode.textContent = message;
+      shareFeedbackTimer = window.setTimeout(() => {
+        shareFeedbackNode.hidden = true;
+        shareFeedbackNode.textContent = '';
+      }, 2600);
+    }
+
+    function hideShareManualFallback() {
+      if (shareManualNode instanceof HTMLElement) {
+        shareManualNode.hidden = true;
+      }
+
+      if (shareInputNode instanceof HTMLInputElement) {
+        shareInputNode.value = '';
+      }
+    }
+
+    function showShareManualFallback(url) {
+      if (shareInputNode instanceof HTMLInputElement) {
+        shareInputNode.value = url;
+      }
+
+      if (shareManualNode instanceof HTMLElement) {
+        shareManualNode.hidden = false;
+      }
+
+      window.setTimeout(() => {
+        if (shareInputNode instanceof HTMLInputElement) {
+          shareInputNode.focus({
+            preventScroll: true,
+          });
+          shareInputNode.select();
+          shareInputNode.setSelectionRange(0, shareInputNode.value.length);
+        }
+      }, 0);
+    }
+
+    function getShareActionMode() {
+      return coarsePointerQuery.matches && typeof navigator.share === 'function'
+        ? 'share'
+        : 'copy';
+    }
+
+    function syncShareButton() {
+      if (!(shareButton instanceof HTMLButtonElement)) {
+        return;
+      }
+
+      const mode = getShareActionMode();
+      shareButton.hidden = false;
+      shareButton.dataset.shareMode = mode;
+      shareButton.textContent = mode === 'share' ? 'Поделиться' : 'Скопировать ссылку';
+      shareButton.setAttribute('aria-label', mode === 'share'
+        ? 'Поделиться прямой ссылкой на регистрацию'
+        : 'Скопировать прямую ссылку на регистрацию');
+    }
+
+    async function copyRegistrationUrl(url) {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        return;
+      }
+
+      const probe = document.createElement('textarea');
+      probe.value = url;
+      probe.setAttribute('readonly', '');
+      probe.style.position = 'fixed';
+      probe.style.opacity = '0';
+      probe.style.pointerEvents = 'none';
+      document.body.append(probe);
+      probe.focus();
+      probe.select();
+
+      const copied = typeof document.execCommand === 'function' && document.execCommand('copy');
+      probe.remove();
+
+      if (!copied) {
+        throw new Error('copy_failed');
+      }
+    }
+
+    async function handleShareAction() {
+      if (!(shareButton instanceof HTMLButtonElement) || !activeEvent?.slug) {
+        return;
+      }
+
+      const url = buildRegistrationIntentUrl(activeEvent.slug);
+      const mode = shareButton.dataset.shareMode || 'copy';
+      hideShareFeedback();
+      hideShareManualFallback();
+
+      if (mode === 'share' && typeof navigator.share === 'function') {
+        try {
+          await navigator.share({
+            title: activeEvent.title,
+            text: `Регистрация: ${activeEvent.title}`,
+            url,
+          });
+          return;
+        } catch (error) {
+          if (error instanceof Error && error.name === 'AbortError') {
+            return;
+          }
+        }
+      }
+
+      try {
+        await copyRegistrationUrl(url);
+        showShareFeedback('Ссылка скопирована');
+      } catch {
+        showShareManualFallback(url);
+      }
     }
 
     function handlePhoneBackspace(event) {
@@ -502,6 +655,9 @@ const supportEmail = 'bilet@kdg80.ru';
     function openModal(item) {
       activeEvent = item;
       clearErrors();
+      hideShareFeedback();
+      hideShareManualFallback();
+      syncShareButton();
       hydrateDraft();
       document.body.classList.add('registration-modal-open');
       shell.hidden = false;
@@ -539,11 +695,18 @@ const supportEmail = 'bilet@kdg80.ru';
 
     function closeModal() {
       clearTimeout(slowRequestTimer);
+      hideShareFeedback();
+      hideShareManualFallback();
       if (document.activeElement instanceof HTMLElement && shell.contains(document.activeElement)) {
         document.activeElement.blur();
       }
       shell.hidden = true;
       document.body.classList.remove('registration-modal-open');
+      const currentUrl = new URL(window.location.href);
+      if (currentUrl.searchParams.get('register') === '1') {
+        currentUrl.searchParams.delete('register');
+        history.replaceState(history.state, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+      }
       activeEvent = null;
       clearErrors();
       if (speakerNode instanceof HTMLElement) {
@@ -642,9 +805,15 @@ const supportEmail = 'bilet@kdg80.ru';
     }
 
     syncViewportHeight();
+    syncShareButton();
     window.addEventListener('resize', syncViewportHeight);
     window.addEventListener('orientationchange', syncViewportHeight);
     window.visualViewport?.addEventListener('resize', syncViewportHeight);
+    if (typeof coarsePointerQuery.addEventListener === 'function') {
+      coarsePointerQuery.addEventListener('change', syncShareButton);
+    } else if (typeof coarsePointerQuery.addListener === 'function') {
+      coarsePointerQuery.addListener(syncShareButton);
+    }
 
     function validateForm(options = { reveal: false }) {
       clearErrors();
@@ -699,6 +868,12 @@ const supportEmail = 'bilet@kdg80.ru';
       if (target.dataset.publicState === 'registration_open' || target.dataset.publicState === 'registration_open_unverified') {
         target.click();
       }
+    }
+
+    if (shareButton instanceof HTMLButtonElement) {
+      shareButton.addEventListener('click', () => {
+        handleShareAction();
+      });
     }
 
     form.phone.addEventListener('keydown', handlePhoneBackspace);

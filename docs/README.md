@@ -7,6 +7,7 @@
 - Сайт фестиваля целиком: [docs/festival-landing-requirements.md](/workspaces/kdg80/docs/festival-landing-requirements.md)
 - Система регистрации: [docs/registration-system-requirements.md](/workspaces/kdg80/docs/registration-system-requirements.md)
 - Прямые event-links `/sobytiya/<slug>/` и landing-first routing: [docs/festival-landing-requirements.md](/workspaces/kdg80/docs/festival-landing-requirements.md)
+- Share/copy прямой ссылки регистрации из формы и direct intent URLs: [docs/registration-system-requirements.md](/workspaces/kdg80/docs/registration-system-requirements.md)
 - E2E-план регистрации: [docs/registration-system-e2e-plan.md](/workspaces/kdg80/docs/registration-system-e2e-plan.md)
 - Gherkin source of truth: [docs/behave/registration-system.feature](/workspaces/kdg80/docs/behave/registration-system.feature)
 - Ticket / invitation UI и PDF: [docs/ticket-design-brief.md](/workspaces/kdg80/docs/ticket-design-brief.md)
