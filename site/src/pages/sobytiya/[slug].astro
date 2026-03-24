@@ -1,5 +1,6 @@
 ---
 import RegistrationClient from '../../components/RegistrationClient.astro';
+import EventCard from '../../components/EventCard.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import Layout from '../../layouts/Layout.astro';
@@ -101,16 +102,17 @@ const structuredData = {
               <span>{event.title}</span>
             </nav>
 
+            <div class="event-leaf__identity">
+              <EventCard event={event} now={now} showActions={false} linkToDetails={false} headingLevel="page" />
+            </div>
+
             <div class="event-leaf__hero">
               <div class="event-leaf__copy">
-                <p class="event-leaf__eyebrow">{event.formatLabel}</p>
-                <h1 class="event-leaf__title">{event.title}</h1>
-
+                <p class="event-leaf__eyebrow">О событии</p>
                 <p class="event-leaf__meta">{metadataParts.join(' · ')}</p>
                 {event.address && <p class="event-leaf__meta">{event.address}</p>}
                 {event.publicInfoNotice && <p class="event-leaf__notice">{event.publicInfoNotice}</p>}
                 {event.speakerLabel && <p class="event-leaf__speaker">Спикер: {event.speakerLabel}</p>}
-                <p class="event-leaf__summary">{descriptionBase}</p>
 
                 <div class="event-leaf__actions">
                   {temporalState === 'past' ? (
@@ -158,17 +160,13 @@ const structuredData = {
                   <p class="event-leaf__notice">{event.calendarNote}</p>
                 ) : null}
               </div>
-
-              <div class="event-leaf__visual">
-                {event.image ? (
-                  <img src={event.image} alt={`Афиша события ${event.title}`} loading="eager" decoding="async" />
-                ) : (
-                  <div class="event-leaf__visual-empty">
-                    <span>{event.dateLabel}</span>
-                  </div>
-                )}
-              </div>
             </div>
+
+            {event.image && (
+              <figure class="event-leaf__poster-panel">
+                <img src={event.image} alt={`Афиша события ${event.title}`} loading="eager" decoding="async" />
+              </figure>
+            )}
 
             <div class="event-leaf__sections">
               {whyGoCopy && (

@@ -12,9 +12,18 @@ import {
 interface Props {
   event: FestivalEvent;
   now?: Date;
+  showActions?: boolean;
+  linkToDetails?: boolean;
+  headingLevel?: 'default' | 'page';
 }
 
-const { event, now = new Date() } = Astro.props;
+const {
+  event,
+  now = new Date(),
+  showActions = true,
+  linkToDetails = true,
+  headingLevel = 'default',
+} = Astro.props;
 
 const WEEKDAY_SHORT: Record<string, string> = {
   понедельник: 'пн',
@@ -233,8 +242,10 @@ const specialServiceLabels = isSpecialEvent
       .filter(Boolean)
   : [];
 const temporalState = getEventTemporalState(event, now);
-const hasActionRow = !isRangeEvent && !isSpecialEvent;
+const hasActionRow = showActions && !isRangeEvent && !isSpecialEvent;
 const eventHref = getFestivalEventHref(event.slug);
+const VisualTitleTag = headingLevel === 'page' ? 'h1' : 'p';
+const BodyTitleTag = headingLevel === 'page' ? 'h1' : 'h4';
 ---
 
 <article
@@ -318,9 +329,13 @@ const eventHref = getFestivalEventHref(event.slug);
 
                 {isLecture && (
                   <div class="event-card__visual-copy">
-                    <a class="event-card__visual-link" href={eventHref}>
-                      <p class={getLectureTitleClass(event.title)}>{event.title}</p>
-                    </a>
+                    {linkToDetails ? (
+                      <a class="event-card__visual-link" href={eventHref}>
+                        <VisualTitleTag class={getLectureTitleClass(event.title)}>{event.title}</VisualTitleTag>
+                      </a>
+                    ) : (
+                      <VisualTitleTag class={getLectureTitleClass(event.title)}>{event.title}</VisualTitleTag>
+                    )}
                   </div>
                 )}
               </div>
@@ -365,9 +380,13 @@ const eventHref = getFestivalEventHref(event.slug);
           {accessLabel && <span class="event-card__access event-card__access--free">{accessLabel}</span>}
         </div>
         {!isLecture && (
-          <h4 class="event-card__title">
-            <a class="event-card__title-link" href={eventHref}>{event.title}</a>
-          </h4>
+          <BodyTitleTag class="event-card__title">
+            {linkToDetails ? (
+              <a class="event-card__title-link" href={eventHref}>{event.title}</a>
+            ) : (
+              event.title
+            )}
+          </BodyTitleTag>
         )}
       </div>
 
